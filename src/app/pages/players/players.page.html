@@ -1,0 +1,59 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Jugadores</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="players-content">
+  <div class="players-container">
+    
+    <!-- Input simple -->
+    <ion-input
+      [(ngModel)]="newPlayerName"
+      [ngModelOptions]="{standalone: true}"
+      placeholder="Nombre..."
+      fill="outline"
+    ></ion-input>
+    
+    <!-- Botón con type="button" y prevención de eventos -->
+    <ion-button 
+      type="button"
+      expand="block" 
+      color="success"
+      (click)="addPlayer(); $event.preventDefault(); $event.stopPropagation()"
+      [disabled]="!newPlayerName.trim()"
+      style="margin: 10px 0;"
+    >
+      Agregar
+    </ion-button>
+
+    <!-- Lista simple -->
+    <ion-list>
+      <ion-item *ngFor="let p of players">
+        <ion-label>{{ p.name }}</ion-label>
+        <ion-button 
+          type="button"
+          slot="end" 
+          color="danger" 
+          size="small"
+          (click)="removePlayer(p.id); $event.preventDefault(); $event.stopPropagation()"
+        >
+          X
+        </ion-button>
+      </ion-item>
+    </ion-list>
+
+    <!-- Botón iniciar -->
+    <ion-button 
+      type="button"
+      expand="block" 
+      color="primary"
+      (click)="startGame(); $event.preventDefault(); $event.stopPropagation()"
+      [disabled]="!canStart"
+      style="margin-top: 20px;"
+    >
+      Iniciar Partida
+    </ion-button>
+
+  </div>
+</ion-content>

@@ -1,0 +1,38 @@
+# Dependencias
+node_modules/
+.npm
+
+# Build outputs
+www/
+dist/
+dist-electron/
+
+# Android (generado por Capacitor)
+android/
+
+# iOS (generado por Capacitor)
+ios/
+
+# Electron
+out/
+
+# Angular
+.angular/
+
+# Entorno
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*

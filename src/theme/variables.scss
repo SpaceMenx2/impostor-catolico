@@ -1,0 +1,105 @@
+/* ============================================================
+   theme/variables.scss — Impostor de Catequesis
+   Paleta: Azul profundo + Dorado litúrgico + Blanco
+   ============================================================ */
+
+:root {
+  /* ---- Colores principales ---- */
+  --color-navy:       #0d2251;
+  --color-blue:       #1a3a6b;
+  --color-blue-mid:   #1e4d8c;
+  --color-blue-light: #2a6bb5;
+  --color-gold:       #d4a728;
+  --color-gold-light: #f0c940;
+  --color-gold-dark:  #a87d10;
+  --color-white:      #ffffff;
+  --color-off-white:  #f0f4ff;
+  --color-success:    #2ec478;
+  --color-danger:     #dc5050;
+
+  /* ---- Tipografías ---- */
+  --font-title: 'Cinzel', Georgia, serif;
+  --font-body:  'Nunito', 'Segoe UI', sans-serif;
+
+  /* ============================================================
+     Variables de Ionic (sobrescriben el sistema de diseño)
+     ============================================================ */
+
+  /* Primary = azul catequético */
+  --ion-color-primary:          #1a3a6b;
+  --ion-color-primary-rgb:      26, 58, 107;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-shade:    #132d54;
+  --ion-color-primary-tint:     #2a5191;
+
+  /* Secondary = dorado litúrgico */
+  --ion-color-secondary:          #d4a728;
+  --ion-color-secondary-rgb:      212, 167, 40;
+  --ion-color-secondary-contrast: #1a2a4a;
+  --ion-color-secondary-shade:    #a87d10;
+  --ion-color-secondary-tint:     #f0c940;
+
+  /* Tertiary = azul cielo */
+  --ion-color-tertiary:          #2a6bb5;
+  --ion-color-tertiary-rgb:      42, 107, 181;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-shade:    #1e4d8c;
+  --ion-color-tertiary-tint:     #3a7fc5;
+
+  /* Success */
+  --ion-color-success:          #2ec478;
+  --ion-color-success-rgb:      46, 196, 120;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-shade:    #1a9a58;
+  --ion-color-success-tint:     #4dd490;
+
+  /* Warning */
+  --ion-color-warning:          #f0b429;
+  --ion-color-warning-rgb:      240, 180, 41;
+  --ion-color-warning-contrast: #1a2a4a;
+  --ion-color-warning-shade:    #c48a10;
+  --ion-color-warning-tint:     #f5c84a;
+
+  /* Danger */
+  --ion-color-danger:          #dc5050;
+  --ion-color-danger-rgb:      220, 80, 80;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-shade:    #b03030;
+  --ion-color-danger-tint:     #e87070;
+
+  /* Dark */
+  --ion-color-dark:          #0d2251;
+  --ion-color-dark-rgb:      13, 34, 81;
+  --ion-color-dark-contrast: #ffffff;
+  --ion-color-dark-shade:    #091843;
+  --ion-color-dark-tint:     #1a3060;
+
+  /* Medium */
+  --ion-color-medium:          #6b8cbf;
+  --ion-color-medium-rgb:      107, 140, 191;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-shade:    #4a6fa0;
+  --ion-color-medium-tint:     #8aaad5;
+
+  /* Light */
+  --ion-color-light:          #f0f4ff;
+  --ion-color-light-rgb:      240, 244, 255;
+  --ion-color-light-contrast: #0d2251;
+  --ion-color-light-shade:    #d0d8f0;
+  --ion-color-light-tint:     #ffffff;
+
+  /* ---- Fondo y superficie ---- */
+  --ion-background-color:          #0d2251;
+  --ion-background-color-rgb:      13, 34, 81;
+  --ion-text-color:                #ffffff;
+  --ion-text-color-rgb:            255, 255, 255;
+  --ion-border-color:              rgba(255, 255, 255, 0.15);
+  --ion-item-background:           rgba(255, 255, 255, 0.08);
+  --ion-toolbar-background:        rgba(13, 34, 81, 0.95);
+  --ion-toolbar-color:             #ffffff;
+  --ion-tab-bar-background:        rgba(13, 34, 81, 0.98);
+  --ion-card-background:           rgba(255, 255, 255, 0.1);
+
+  /* ---- Fuentes de Ionic ---- */
+  --ion-font-family: var(--font-body);
+}

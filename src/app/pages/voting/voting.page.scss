@@ -1,0 +1,333 @@
+// src/app/pages/voting/voting.page.scss
+
+ion-content.voting-content {
+  --background: transparent;
+  --color: #fff;
+}
+
+.voting-bg {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(160deg, #071630 0%, #0d2251 40%, #1a3a6b 100%);
+  z-index: 0;
+}
+
+ion-toolbar {
+  --background: rgba(7, 22, 48, 0.95);
+  --border-width: 0;
+}
+
+.toolbar-title {
+  font-family: var(--font-title);
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  .title-icon { color: var(--color-gold); }
+}
+
+.voting-container {
+  position: relative;
+  z-index: 1;
+  padding: 20px 16px 100px;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+// ---- Progreso de puntos ----
+.vote-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.progress-dots {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  transition: all 0.3s;
+
+  &.done {
+    background: var(--color-success);
+    transform: scale(0.9);
+  }
+
+  &.active {
+    background: var(--color-gold);
+    transform: scale(1.3);
+    box-shadow: 0 0 8px rgba(212,167,40,0.6);
+  }
+}
+
+.progress-label {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+// ---- Quién vota ----
+.voter-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.voter-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-title);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  border: 2px solid rgba(255,255,255,0.2);
+}
+
+.voter-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.voter-label {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.voter-name {
+  font-family: var(--font-title);
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+// ---- Instrucción ----
+.vote-instruction {
+  text-align: center;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.6);
+  margin: 0;
+  font-style: italic;
+}
+
+// ---- Candidatos ----
+.candidates-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.candidate-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(212,167,40,0.3);
+    transform: translateY(-1px);
+  }
+
+  &.selected {
+    background: rgba(212,167,40,0.12);
+    border-color: rgba(212,167,40,0.5);
+    box-shadow: 0 0 16px rgba(212,167,40,0.15);
+  }
+
+  &.confirmed {
+    animation: confirmPulse 0.5s ease;
+  }
+}
+
+@keyframes confirmPulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
+.candidate-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-title);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+.candidate-name {
+  flex: 1;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.check-icon {
+  font-size: 1.4rem;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+// ---- Confirmar ----
+.confirm-section { }
+
+.btn-confirm {
+  --background: linear-gradient(135deg, #d4a728 0%, #f0c940 100%);
+  --background-disabled: rgba(255,255,255,0.1);
+  --color: #0d2251;
+  --color-disabled: rgba(255,255,255,0.25);
+  --border-radius: 50px;
+  --box-shadow: 0 6px 25px rgba(212,167,40,0.4);
+  font-family: var(--font-title);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  height: 56px;
+  transition: opacity 0.2s;
+}
+
+.confirm-hint {
+  text-align: center;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.35);
+  margin: 8px 0 0;
+  font-style: italic;
+}
+
+// ============================================================
+// TODOS VOTARON
+// ============================================================
+.all-done-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding-top: 20px;
+  width: 100%;
+}
+
+.done-icon-wrapper {
+  ion-icon {
+    font-size: 5rem;
+    color: var(--color-gold);
+    filter: drop-shadow(0 0 16px rgba(212,167,40,0.5));
+  }
+}
+
+.done-title {
+  font-family: var(--font-title);
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 0.05em;
+  color: #fff;
+}
+
+.done-subtitle {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.55);
+  margin: 0;
+  font-style: italic;
+}
+
+// ---- Resumen de votos ----
+.votes-summary {
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.summary-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 12px;
+
+  ion-icon { font-size: 0.9rem; }
+}
+
+.summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+}
+
+.summary-voter {
+  color: rgba(255,255,255,0.7);
+  font-weight: 600;
+  min-width: 80px;
+}
+
+.summary-arrow {
+  color: rgba(255,255,255,0.25);
+  font-size: 0.9rem;
+}
+
+.summary-voted {
+  color: var(--color-gold-light);
+  font-weight: 700;
+}
+
+// ---- Botón revelar resultado ----
+.btn-reveal-result {
+  --background: linear-gradient(135deg, #d4a728 0%, #f0c940 100%);
+  --color: #0d2251;
+  --border-radius: 50px;
+  --box-shadow: 0 6px 30px rgba(212,167,40,0.5);
+  font-family: var(--font-title);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  height: 58px;
+  width: 100%;
+}

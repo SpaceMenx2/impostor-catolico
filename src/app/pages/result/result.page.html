@@ -1,0 +1,168 @@
+<!-- src/app/pages/result/result.page.html -->
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title class="toolbar-title">
+      Resultado — Ronda {{ state.roundNumber }}
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="result-content" [fullscreen]="true">
+  <div class="result-bg" [class.win-bg]="isCorrect" [class.lose-bg]="!isCorrect"></div>
+  <!-- Partículas decorativas -->
+  <div class="particles" *ngIf="isCorrect">
+    <div *ngFor="let i of [1,2,3,4,5,6,7,8]" class="particle" [class]="'p' + i"></div>
+  </div>
+
+  <div class="result-container">
+
+    <!-- ============================================================
+         SECCIÓN 1: Veredicto principal
+         ============================================================ -->
+    <div class="verdict-section" [class.animate-rotateIn]="revealed">
+
+      <!-- Ícono animado según resultado -->
+      <div class="verdict-icon-wrapper" [class.win-glow]="isCorrect" [class.lose-glow]="!isCorrect">
+        <ion-icon
+          [name]="isCorrect ? 'shield-checkmark-outline' : 'alert-circle-outline'"
+          class="verdict-icon"
+          [class.icon-win]="isCorrect"
+          [class.icon-lose]="!isCorrect"
+        ></ion-icon>
+      </div>
+
+      <h1 class="verdict-title" [class.title-win]="isCorrect" [class.title-lose]="!isCorrect">
+        {{ isCorrect ? '¡Impostor descubierto!' : 'El impostor escapó' }}
+      </h1>
+
+      <p class="verdict-sub">
+        {{ isCorrect
+          ? 'La comunidad supo discernir la verdad'
+          : 'El impostor logró engañar al grupo'
+        }}
+      </p>
+    </div>
+
+    <!-- ============================================================
+         SECCIÓN 2: El impostor revelado
+         ============================================================ -->
+    <div class="impostor-reveal animate-fadeInUp delay-2" *ngIf="impostors.length > 0">
+      <div class="reveal-label">
+        <ion-icon name="eye-outline"></ion-icon>
+        {{ impostors.length === 1 ? 'El impostor era' : 'Los impostores eran' }}
+      </div>
+      <div class="impostors-row">
+        <div *ngFor="let imp of impostors" class="impostor-card">
+          <div
+            class="impostor-avatar"
+            [style.background]="getPlayerColor(getPlayerIndex(imp.id))"
+          >
+            {{ imp.name.charAt(0).toUpperCase() }}
+          </div>
+          <span class="impostor-name">{{ imp.name }}</span>
+          <div class="impostor-badge-row">
+            <ion-icon name="eye-off-outline"></ion-icon>
+            IMPOSTOR
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         SECCIÓN 3: La palabra secreta
+         ============================================================ -->
+    <div class="word-reveal animate-fadeInUp delay-3">
+      <div class="word-reveal-label">
+        <ion-icon name="key-outline"></ion-icon>
+        La palabra secreta era
+      </div>
+      <div class="word-reveal-box">
+        <span class="word-reveal-text">{{ state.currentWord?.word }}</span>
+      </div>
+      <div class="word-category-badge">
+        <ion-icon name="bookmark-outline"></ion-icon>
+        {{ state.currentCategory?.name }}
+      </div>
+    </div>
+
+    <!-- ============================================================
+         SECCIÓN 4: Conteo de votos
+         ============================================================ -->
+    <div class="votes-section animate-fadeInUp delay-4">
+      <div class="votes-title">
+        <ion-icon name="bar-chart-outline"></ion-icon>
+        Conteo de votos
+      </div>
+      <div class="votes-list">
+        <div
+          *ngFor="let vc of voteCounts; let i = index"
+          class="vote-row"
+          [class.top-vote]="i === 0 && vc.votes > 0"
+          [class.is-impostor]="vc.player.isImpostor"
+        >
+          <div
+            class="vote-avatar"
+            [style.background]="getPlayerColor(getPlayerIndex(vc.player.id))"
+          >
+            {{ vc.player.name.charAt(0).toUpperCase() }}
+          </div>
+          <div class="vote-info">
+            <span class="vote-player-name">
+              {{ vc.player.name }}
+              <span class="impostor-tag" *ngIf="vc.player.isImpostor">
+                <ion-icon name="eye-off-outline"></ion-icon> Impostor
+              </span>
+            </span>
+            <div class="vote-bar-track">
+              <div
+                class="vote-bar-fill"
+                [style.width]="(vc.votes / state.players.length * 100) + '%'"
+                [class.bar-win]="vc.player.isImpostor && vc.votes > 0"
+              ></div>
+            </div>
+          </div>
+          <span class="vote-count">{{ vc.votes }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         SECCIÓN 5: Reflexión catequética
+         ============================================================ -->
+    <div class="reflexion-section animate-fadeInUp delay-5">
+      <div class="reflexion-header">
+        <svg viewBox="0 0 30 36" class="small-cross">
+          <rect x="11" y="0"  width="8" height="36" rx="2" fill="#d4a728"/>
+          <rect x="0"  y="9"  width="30" height="8"  rx="2" fill="#d4a728"/>
+        </svg>
+        <span>Para reflexionar</span>
+      </div>
+      <p class="reflexion-text">{{ reflexionMessage }}</p>
+    </div>
+
+    <!-- ============================================================
+         SECCIÓN 6: Acciones finales
+         ============================================================ -->
+    <div class="actions-section animate-fadeInUp delay-5">
+      <ion-button
+        expand="block"
+        class="btn-play-again"
+        (click)="playAgain()"
+      >
+        <ion-icon slot="start" name="refresh-circle-outline"></ion-icon>
+        Nueva ronda
+      </ion-button>
+
+      <ion-button
+        expand="block"
+        fill="outline"
+        class="btn-home"
+        (click)="goHome()"
+      >
+        <ion-icon slot="start" name="home-outline"></ion-icon>
+        Volver al inicio
+      </ion-button>
+    </div>
+
+  </div>
+</ion-content>

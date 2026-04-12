@@ -1,0 +1,23 @@
+// players.page.scss
+ion-content.players-content {
+  --background: transparent;
+  --color: #fff;
+}
+.page-bg {
+  position: fixed; inset: 0;
+  background: linear-gradient(160deg, #071630 0%, #0d2251 40%, #1a3a6b 100%);
+  z-index: 0;
+}
+.players-container {
+  position: relative; z-index: 1;
+  padding: 16px; max-width: 500px; margin: 0 auto;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeInUp { animation: fadeInUp 0.3s ease-out both; }
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }

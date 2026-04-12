@@ -1,0 +1,344 @@
+// src/app/pages/role-reveal/role-reveal.page.scss
+
+ion-content.reveal-content {
+  --background: transparent;
+  --color: #fff;
+  // Sin min-height forzado que pueda interferir
+}
+
+// Fondo degradado: siempre detrás
+.reveal-bg {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(160deg, #071630 0%, #0d2251 40%, #1a3a6b 100%);
+  z-index: 0; // CRUCIAL: detrás de todo
+}
+
+ion-toolbar {
+  --background: rgba(7, 22, 48, 0.95);
+  --border-width: 0;
+  position: relative;
+  z-index: 2; // Encima del fondo
+}
+
+.toolbar-title {
+  font-family: var(--font-title);
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  color: rgba(255,255,255,0.8);
+}
+
+// ---- Barra de progreso ----
+.progress-bar-track {
+  height: 3px;
+  background: rgba(255,255,255,0.1);
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-gold), #f0c940);
+  transition: width 0.4s ease;
+  border-radius: 0 2px 2px 0;
+}
+
+// ---- Contenedor principal: ENCIMA del fondo ----
+.reveal-container {
+  position: relative;
+  z-index: 1; // CRUCIAL: mayor que .reveal-bg (0)
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 56px); // Restar altura del header
+  padding: 24px 20px;
+  max-width: 420px;
+  margin: 0 auto;
+  // Sin position: fixed ni absolute que saque del flujo normal
+}
+
+// ---- Animaciones seguras (con keyframes definidos) ----
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes rotateIn {
+  from { opacity: 0; transform: scale(0.9) rotate(-2deg); }
+  to { opacity: 1; transform: scale(1) rotate(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out both;
+}
+
+.animate-rotateIn {
+  animation: rotateIn 0.5s ease-out both;
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite ease-in-out;
+}
+
+// Fallback: si la animación falla, que al menos sea visible
+.animate-fadeIn,
+.animate-rotateIn {
+  opacity: 1;
+}
+
+// ---- PASO 1: Esperando ----
+.step-waiting {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+
+  .phone-icon {
+    font-size: 4rem;
+    color: var(--color-gold);
+  }
+}
+
+.player-call {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  gap: 6px;
+
+  .call-label {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.55);
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .call-name {
+    font-family: var(--font-title);
+    font-size: 2.2rem;
+    color: #fff;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+}
+
+.privacy-hint {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.5);
+  text-align: center;
+  max-width: 280px;
+  margin: 0;
+  line-height: 1.6;
+
+  strong { color: rgba(255,255,255,0.8); }
+}
+
+.btn-reveal {
+  --background: linear-gradient(135deg, #d4a728 0%, #f0c940 100%);
+  --color: #0d2251;
+  --border-radius: 50px;
+  --box-shadow: 0 6px 25px rgba(212,167,40,0.4);
+  font-family: var(--font-title);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  height: 56px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+// ---- PASO 2: Mostrando rol ----
+.step-showing {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.role-card {
+  border-radius: 20px;
+  padding: 24px 20px;
+  border: 1px solid;
+  position: relative;
+  z-index: 1;
+
+  &.role-player {
+    background: linear-gradient(135deg, rgba(42,107,181,0.25) 0%, rgba(26,58,107,0.4) 100%);
+    border-color: rgba(42,107,181,0.4);
+  }
+
+  &.role-impostor {
+    background: linear-gradient(135deg, rgba(220,80,80,0.2) 0%, rgba(100,20,20,0.4) 100%);
+    border-color: rgba(220,80,80,0.4);
+  }
+}
+
+.role-card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.role-icon-wrapper {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  ion-icon { font-size: 1.6rem; }
+
+  &.player-icon-bg {
+    background: rgba(42,107,181,0.3);
+    ion-icon { color: #6ab0f0; }
+  }
+
+  &.impostor-icon-bg {
+    background: rgba(220,80,80,0.3);
+    ion-icon { color: #f08080; }
+  }
+}
+
+.role-badge-inline {
+  padding: 5px 16px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  background: rgba(42,107,181,0.3);
+  color: #6ab0f0;
+  border: 1px solid rgba(42,107,181,0.4);
+
+  &.impostor-badge {
+    background: rgba(220,80,80,0.3);
+    color: #f08080;
+    border-color: rgba(220,80,80,0.4);
+  }
+}
+
+.word-section {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.word-label {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.55);
+  margin: 0 0 12px;
+  letter-spacing: 0.05em;
+}
+
+.word-display {
+  background: rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(212,167,40,0.3);
+}
+
+.the-word {
+  font-family: var(--font-title);
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.05em;
+  background: linear-gradient(135deg, #f0c940, #d4a728);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.category-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.5);
+  border: 1px solid rgba(255,255,255,0.15);
+  padding: 4px 12px;
+  border-radius: 20px;
+
+  ion-icon { font-size: 0.8rem; }
+}
+
+.impostor-label {
+  font-size: 0.95rem !important;
+  color: rgba(255,255,255,0.75) !important;
+  font-weight: 600;
+  margin-bottom: 16px !important;
+}
+
+.impostor-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(220,80,80,0.1);
+  border: 1px solid rgba(220,80,80,0.25);
+  border-radius: 12px;
+  padding: 14px 16px;
+  text-align: left;
+
+  ion-icon {
+    color: #f08080;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  span {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.5;
+  }
+}
+
+.role-instruction {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.6;
+  margin: 0;
+  font-style: italic;
+
+  &.impostor-instruction {
+    color: rgba(255,150,150,0.6);
+  }
+}
+
+.btn-hide {
+  --background: rgba(255,255,255,0.1);
+  --background-activated: rgba(255,255,255,0.2);
+  --color: rgba(255,255,255,0.7);
+  --border-radius: 50px;
+  font-size: 0.9rem;
+  height: 50px;
+}
+
+// ---- PASO 3: Ocultando ----
+.step-hidden {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+
+  .hidden-check {
+    font-size: 4rem;
+    color: var(--color-success);
+  }
+
+  p {
+    color: rgba(255,255,255,0.6);
+    font-size: 0.9rem;
+  }
+}

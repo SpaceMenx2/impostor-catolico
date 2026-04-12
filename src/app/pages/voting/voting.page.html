@@ -1,0 +1,140 @@
+<!-- src/app/pages/voting/voting.page.html -->
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title class="toolbar-title">
+      <ion-icon name="hand-right-outline" class="title-icon"></ion-icon>
+      Votación
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="voting-content" [fullscreen]="true">
+  <div class="voting-bg"></div>
+
+  <div class="voting-container">
+
+    <!-- ============================================================
+         ESTADO: Votando uno por uno
+         ============================================================ -->
+    <ng-container *ngIf="!allDone">
+      <ng-container *ngIf="currentTurn">
+
+        <!-- Progreso de votación -->
+        <div class="vote-progress animate-fadeInUp">
+          <div class="progress-dots">
+            <div
+              *ngFor="let turn of voterTurns; let i = index"
+              class="dot"
+              [class.done]="turn.done"
+              [class.active]="i === currentVoterIndex"
+            ></div>
+          </div>
+          <span class="progress-label">
+            Voto {{ currentVoterIndex + 1 }} de {{ voterTurns.length }}
+          </span>
+        </div>
+
+        <!-- Quién vota ahora -->
+        <div class="voter-header animate-fadeInUp delay-1">
+          <div
+            class="voter-avatar"
+            [style.background]="getPlayerColor(getPlayerIndex(currentTurn.voter.id))"
+          >
+            {{ currentTurn.voter.name.charAt(0).toUpperCase() }}
+          </div>
+          <div class="voter-info">
+            <span class="voter-label">Está votando</span>
+            <span class="voter-name">{{ currentTurn.voter.name }}</span>
+          </div>
+        </div>
+
+        <p class="vote-instruction animate-fadeInUp delay-2">
+          ¿Quién creés que es el impostor?
+        </p>
+
+        <!-- Lista de candidatos -->
+        <div class="candidates-list animate-fadeInUp delay-3">
+          <div
+            *ngFor="let candidate of candidates; let i = index"
+            class="candidate-item"
+            [class.selected]="currentTurn.selectedVote === candidate.id"
+            [class.confirmed]="voteConfirmed && currentTurn.selectedVote === candidate.id"
+            (click)="selectVote(candidate.id)"
+          >
+            <div
+              class="candidate-avatar"
+              [style.background]="getPlayerColor(getPlayerIndex(candidate.id))"
+            >
+              {{ candidate.name.charAt(0).toUpperCase() }}
+            </div>
+            <span class="candidate-name">{{ candidate.name }}</span>
+            <ion-icon
+              class="check-icon"
+              [name]="currentTurn.selectedVote === candidate.id
+                ? 'checkmark-circle' : 'ellipse-outline'"
+              [style.color]="currentTurn.selectedVote === candidate.id
+                ? '#d4a728' : 'rgba(255,255,255,0.2)'"
+            ></ion-icon>
+          </div>
+        </div>
+
+        <!-- Botón confirmar voto -->
+        <div class="confirm-section animate-fadeInUp delay-4">
+          <ion-button
+            expand="block"
+            class="btn-confirm"
+            [disabled]="!currentTurn.selectedVote || voteConfirmed"
+            (click)="confirmVote()"
+          >
+            <ion-icon slot="start" name="checkmark-done-outline"></ion-icon>
+            Confirmar voto
+          </ion-button>
+          <p class="confirm-hint" *ngIf="!currentTurn.selectedVote">
+            Seleccioná a quién querés votar
+          </p>
+        </div>
+
+      </ng-container>
+    </ng-container>
+
+    <!-- ============================================================
+         ESTADO: Todos votaron
+         ============================================================ -->
+    <ng-container *ngIf="allDone">
+      <div class="all-done-section animate-rotateIn">
+        <div class="done-icon-wrapper animate-pulse">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+        </div>
+        <h2 class="done-title">¡Todos votaron!</h2>
+        <p class="done-subtitle">
+          Es hora de descubrir la verdad...
+        </p>
+
+        <!-- Resumen de votos (sin revelar el resultado) -->
+        <div class="votes-summary">
+          <div class="summary-title">
+            <ion-icon name="list-outline"></ion-icon>
+            Votos emitidos
+          </div>
+          <div class="summary-list">
+            <div *ngFor="let turn of voterTurns" class="summary-item">
+              <span class="summary-voter">{{ turn.voter.name }}</span>
+              <ion-icon name="arrow-forward-outline" class="summary-arrow"></ion-icon>
+              <span class="summary-voted">{{ getCandidateName(turn.selectedVote!) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <ion-button
+          expand="block"
+          class="btn-reveal-result"
+          (click)="showResults()"
+        >
+          <ion-icon slot="start" name="eye-outline"></ion-icon>
+          Revelar resultado
+        </ion-button>
+      </div>
+    </ng-container>
+
+  </div>
+</ion-content>

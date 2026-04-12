@@ -1,0 +1,300 @@
+// src/app/pages/discussion/discussion.page.scss
+
+ion-content.discussion-content {
+  --background: transparent;
+  --color: #fff;
+}
+
+.discussion-bg {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(160deg, #071630 0%, #0d2251 40%, #1a3a6b 100%);
+  z-index: 0; // DETRÁS de todo
+}
+
+ion-toolbar {
+  --background: rgba(7, 22, 48, 0.95);
+  --border-width: 0;
+  position: relative;
+  z-index: 2; // Encima del fondo
+}
+
+.toolbar-title {
+  font-family: var(--font-title);
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .title-icon { color: var(--color-gold); }
+}
+
+.discussion-container {
+  position: relative;
+  z-index: 1; // ENCIMA del fondo (.discussion-bg tiene z-index: 0)
+  padding: 20px 16px 100px;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// ---- Animaciones con keyframes definidos ----
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.5s ease-out both;
+  
+  &.delay-2 { animation-delay: 0.1s; }
+  &.delay-3 { animation-delay: 0.2s; }
+  &.delay-4 { animation-delay: 0.3s; }
+  &.delay-5 { animation-delay: 0.4s; }
+}
+
+// Fallback: si la animación falla, que sea visible
+.animate-fadeInUp {
+  opacity: 1 !important;
+}
+
+// ---- Temporizador ----
+.timer-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px;
+  padding: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.timer-ring-wrapper {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.timer-ring {
+  width: 100%;
+  height: 100%;
+}
+
+.timer-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.timer-display {
+  font-family: var(--font-title);
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  transition: color 0.5s;
+
+  &.blink {
+    animation: blinkAnim 0.8s step-start infinite;
+  }
+}
+
+@keyframes blinkAnim {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.2; }
+}
+
+.timer-label {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.timer-controls {
+  display: flex;
+  gap: 16px;
+
+  ion-button {
+    --padding-start: 8px;
+    --padding-end: 8px;
+    font-size: 1.5rem;
+  }
+}
+
+.timer-done {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(240,180,41,0.15);
+  border: 1px solid rgba(240,180,41,0.3);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 0.85rem;
+  color: #f0b429;
+  font-weight: 600;
+  animation: fadeIn 0.3s ease;
+
+  ion-icon { font-size: 1.1rem; }
+}
+
+// ---- Instrucciones ----
+.instructions-card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  padding: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.inst-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+  margin-bottom: 14px;
+
+  ion-icon { font-size: 1rem; }
+}
+
+.inst-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.5;
+
+    ion-icon {
+      font-size: 1rem;
+      color: var(--color-gold-light);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    strong { color: #fff; }
+  }
+}
+
+// ---- Lista de jugadores ----
+.players-reference {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  padding: 14px;
+  position: relative;
+  z-index: 1;
+}
+
+.ref-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 12px;
+
+  ion-icon { font-size: 0.9rem; }
+}
+
+.players-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.player-chip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px;
+  padding: 5px 12px 5px 5px;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.75);
+}
+
+.chip-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-blue-mid);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+// ---- Mensaje inspirador ----
+.inspire-block {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: rgba(212,167,40,0.08);
+  border-left: 3px solid rgba(212,167,40,0.4);
+  border-radius: 0 10px 10px 0;
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.6);
+  font-style: italic;
+  position: relative;
+  z-index: 1;
+
+  ion-icon {
+    color: var(--color-gold);
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+}
+
+// ---- Botón votar ----
+.vote-section {
+  position: relative;
+  z-index: 1;
+}
+
+.btn-vote {
+  --background: linear-gradient(135deg, #d4a728 0%, #f0c940 100%);
+  --color: #0d2251;
+  --border-radius: 50px;
+  --box-shadow: 0 6px 25px rgba(212,167,40,0.4);
+  font-family: var(--font-title);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  height: 56px;
+}

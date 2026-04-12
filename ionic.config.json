@@ -1,0 +1,7 @@
+{
+  "name": "impostor-catequesis",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

@@ -1,0 +1,126 @@
+<!-- src/app/pages/role-reveal/role-reveal.page.html -->
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title class="toolbar-title">
+      Turno {{ currentIndex + 1 }} de {{ totalPlayers }}
+    </ion-title>
+  </ion-toolbar>
+  <!-- Barra de progreso -->
+  <div class="progress-bar-track">
+    <div class="progress-bar-fill" [style.width]="progressPercent + '%'"></div>
+  </div>
+</ion-header>
+
+<!-- IMPORTANTE: Sin [fullscreen]="true" para evitar problemas de proyección -->
+<ion-content class="reveal-content">
+  
+  <!-- Fondo degradado (detrás de todo) -->
+  <div class="reveal-bg"></div>
+
+  <!-- Contenedor principal (encima del fondo) -->
+  <div class="reveal-container">
+
+    <ng-container *ngIf="currentPlayer">
+
+      <!-- PASO 1: Esperando que el jugador tome el teléfono -->
+      <ng-container *ngIf="revealStep === 'waiting'">
+        <div class="step-waiting animate-fadeIn">
+          <div class="phone-icon animate-pulse">
+            <ion-icon name="phone-portrait-outline"></ion-icon>
+          </div>
+          <h2 class="player-call">
+            <span class="call-label">Es el turno de</span>
+            <span class="call-name">{{ currentPlayer.name }}</span>
+          </h2>
+          <p class="privacy-hint">
+            Asegurate de que solo <strong>{{ currentPlayer.name }}</strong> esté mirando la pantalla.
+          </p>
+          <ion-button
+            expand="block"
+            class="btn-reveal"
+            (click)="showRole()"
+          >
+            <ion-icon slot="start" name="eye-outline"></ion-icon>
+            Ver mi rol
+          </ion-button>
+        </div>
+      </ng-container>
+
+      <!-- PASO 2: Mostrar el rol -->
+      <ng-container *ngIf="revealStep === 'showing'">
+        <div class="step-showing animate-rotateIn">
+
+          <!-- Jugador normal -->
+          <ng-container *ngIf="!currentPlayer.isImpostor">
+            <div class="role-card role-player">
+              <div class="role-card-header">
+                <div class="role-icon-wrapper player-icon-bg">
+                  <ion-icon name="person-circle-outline"></ion-icon>
+                </div>
+                <div class="role-badge-inline">JUGADOR</div>
+              </div>
+              <div class="word-section">
+                <p class="word-label">La palabra secreta es:</p>
+                <div class="word-display">
+                  <span class="the-word">{{ state.currentWord?.word }}</span>
+                </div>
+                <div class="category-badge">
+                  <ion-icon name="bookmark-outline"></ion-icon>
+                  {{ state.currentCategory?.name }}
+                </div>
+              </div>
+              <p class="role-instruction">
+                Describí esta palabra con pistas sutiles sin decirla directamente.
+                ¡Ayudá al grupo a encontrar al impostor!
+              </p>
+            </div>
+          </ng-container>
+
+          <!-- Impostor -->
+          <ng-container *ngIf="currentPlayer.isImpostor">
+            <div class="role-card role-impostor">
+              <div class="role-card-header">
+                <div class="role-icon-wrapper impostor-icon-bg">
+                  <ion-icon name="eye-off-outline"></ion-icon>
+                </div>
+                <div class="role-badge-inline impostor-badge">IMPOSTOR</div>
+              </div>
+              <div class="word-section">
+                <p class="word-label impostor-label">No conocés la palabra secreta.</p>
+                <div class="impostor-message">
+                  <ion-icon name="flash-outline"></ion-icon>
+                  <span>Observá con atención y usá tu ingenio para no ser descubierto.</span>
+                </div>
+              </div>
+              <p class="role-instruction impostor-instruction">
+                Escuchá las pistas de los demás e intentá integrarte sin delatar que sos el impostor.
+              </p>
+            </div>
+          </ng-container>
+
+          <!-- Botón para ocultar -->
+          <ion-button
+            expand="block"
+            class="btn-hide"
+            (click)="hideAndPass()"
+            color="medium"
+          >
+            <ion-icon slot="start" name="eye-off-outline"></ion-icon>
+            Listo — Ocultar y pasar
+          </ion-button>
+
+        </div>
+      </ng-container>
+
+      <!-- PASO 3: Ocultando (transición) -->
+      <ng-container *ngIf="revealStep === 'hidden'">
+        <div class="step-hidden animate-fadeIn">
+          <ion-icon name="checkmark-circle-outline" class="hidden-check"></ion-icon>
+          <p>Pasando al siguiente...</p>
+        </div>
+      </ng-container>
+
+    </ng-container>
+
+  </div>
+</ion-content>

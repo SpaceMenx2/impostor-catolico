@@ -1,0 +1,164 @@
+/* ============================================================
+   global.scss — Impostor de Catequesis
+   Estilos globales y utilitarios
+   ============================================================ */
+
+/* Importar variables de Ionic */
+@import './theme/variables.scss';
+
+/* ---- Reset y base ---- */
+* {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font-body);
+}
+
+/* ---- Tipografía ---- */
+h1, h2, h3, .title-font {
+  font-family: var(--font-title);
+  letter-spacing: 0.03em;
+}
+
+/* ---- Animaciones globales ---- */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.05); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes rotateIn {
+  from { opacity: 0; transform: rotate(-10deg) scale(0.8); }
+  to   { opacity: 1; transform: rotate(0) scale(1); }
+}
+
+@keyframes countdownPulse {
+  0%   { transform: scale(1); color: var(--color-gold); }
+  50%  { transform: scale(1.3); color: var(--ion-color-danger); }
+  100% { transform: scale(1); }
+}
+
+/* ---- Utilidades ---- */
+.animate-fadeInUp  { animation: fadeInUp 0.5s ease both; }
+.animate-fadeIn    { animation: fadeIn 0.4s ease both; }
+.animate-pulse     { animation: pulse 2s ease-in-out infinite; }
+.animate-rotateIn  { animation: rotateIn 0.5s ease both; }
+
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+.delay-5 { animation-delay: 0.5s; }
+
+/* ---- Tarjeta base ---- */
+.card-base {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  padding: 20px;
+}
+
+/* ---- Botón primario personalizado ---- */
+.btn-catequesis {
+  --background: linear-gradient(135deg, var(--color-gold) 0%, #c8960c 100%);
+  --color: #1a2a4a;
+  --border-radius: 50px;
+  --box-shadow: 0 4px 20px rgba(212, 167, 40, 0.4);
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  height: 54px;
+}
+
+/* ---- Fondo degradado principal ---- */
+.bg-main {
+  background: linear-gradient(160deg, #0d2251 0%, #1a3a6b 40%, #1e4d8c 70%, #0d2251 100%);
+  min-height: 100%;
+}
+
+/* ---- Cruz decorativa (SVG inline via CSS) ---- */
+.cross-icon {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  color: var(--color-gold);
+}
+
+/* ---- Mensaje inspirador ---- */
+.inspire-message {
+  font-size: 0.8rem;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  padding: 8px 16px;
+  border-left: 2px solid var(--color-gold);
+  margin: 12px 0;
+}
+
+/* ---- Badge de rol ---- */
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+
+  &.role-player {
+    background: rgba(46, 196, 120, 0.2);
+    color: #2ec478;
+    border: 1px solid rgba(46, 196, 120, 0.4);
+  }
+
+  &.role-impostor {
+    background: rgba(220, 80, 80, 0.2);
+    color: #dc5050;
+    border: 1px solid rgba(220, 80, 80, 0.4);
+  }
+}
+
+/* ---- Scrollbar personalizada ---- */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+/* ---- Transiciones de página (router) ---- */
+ion-router-outlet {
+  contain: layout style;
+}

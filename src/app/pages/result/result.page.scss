@@ -1,0 +1,462 @@
+// src/app/pages/result/result.page.scss
+
+ion-content.result-content {
+  --background: transparent;
+  --color: #fff;
+}
+
+// ---- Fondos según resultado ----
+.result-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  transition: background 1s ease;
+
+  &.win-bg {
+    background: linear-gradient(160deg, #071630 0%, #0d2251 30%, #0e3320 60%, #1a4a2a 100%);
+  }
+
+  &.lose-bg {
+    background: linear-gradient(160deg, #071630 0%, #0d2251 30%, #2a1010 60%, #3a1515 100%);
+  }
+}
+
+// ---- Partículas de confeti (solo si ganaron) ----
+.particles {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  animation: particleFall linear infinite;
+}
+
+@for $i from 1 through 8 {
+  .p#{$i} {
+    left: (($i - 1) * 14 + 2) * 1%;
+    animation-duration: #{2.5 + $i * 0.3}s;
+    animation-delay: #{$i * 0.2}s;
+    background: nth(
+      (#d4a728, #2ec478, #f0c940, #2a6bb5, #dc5050, #8e44ad, #fff, #d4a728),
+      $i
+    );
+  }
+}
+
+@keyframes particleFall {
+  0%   { top: -10px; transform: rotate(0deg) scale(1); opacity: 1; }
+  100% { top: 110%;  transform: rotate(720deg) scale(0.3); opacity: 0; }
+}
+
+ion-toolbar {
+  --background: rgba(7, 22, 48, 0.95);
+  --border-width: 0;
+}
+
+.toolbar-title {
+  font-family: var(--font-title);
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  color: rgba(255,255,255,0.8);
+}
+
+.result-container {
+  position: relative;
+  z-index: 2;
+  padding: 20px 16px 100px;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+// ============================================================
+// SECCIÓN 1: Veredicto
+// ============================================================
+.verdict-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 20px;
+  text-align: center;
+}
+
+.verdict-icon-wrapper {
+  border-radius: 50%;
+  padding: 16px;
+  margin-bottom: 4px;
+
+  &.win-glow {
+    background: rgba(46,196,120,0.15);
+    box-shadow: 0 0 40px rgba(46,196,120,0.3), 0 0 80px rgba(46,196,120,0.1);
+  }
+
+  &.lose-glow {
+    background: rgba(220,80,80,0.15);
+    box-shadow: 0 0 40px rgba(220,80,80,0.3);
+  }
+}
+
+.verdict-icon {
+  font-size: 4.5rem;
+
+  &.icon-win  { color: #2ec478; }
+  &.icon-lose { color: #dc5050; }
+}
+
+.verdict-title {
+  font-family: var(--font-title);
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 0.04em;
+
+  &.title-win  { color: #2ec478; }
+  &.title-lose { color: #dc5050; }
+}
+
+.verdict-sub {
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.55);
+  margin: 0;
+  font-style: italic;
+}
+
+// ============================================================
+// SECCIÓN 2: Impostor revelado
+// ============================================================
+.impostor-reveal {
+  background: rgba(220,80,80,0.1);
+  border: 1px solid rgba(220,80,80,0.25);
+  border-radius: 18px;
+  padding: 18px;
+  text-align: center;
+}
+
+.reveal-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255,150,150,0.7);
+  margin-bottom: 14px;
+
+  ion-icon { font-size: 0.9rem; }
+}
+
+.impostors-row {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.impostor-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.impostor-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-title);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  border: 3px solid rgba(220,80,80,0.5);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+.impostor-name {
+  font-family: var(--font-title);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.impostor-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(220,80,80,0.25);
+  border: 1px solid rgba(220,80,80,0.4);
+  color: #f08080;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  padding: 4px 12px;
+  border-radius: 20px;
+
+  ion-icon { font-size: 0.8rem; }
+}
+
+// ============================================================
+// SECCIÓN 3: Palabra secreta
+// ============================================================
+.word-reveal {
+  background: rgba(212,167,40,0.08);
+  border: 1px solid rgba(212,167,40,0.25);
+  border-radius: 18px;
+  padding: 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.word-reveal-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(212,167,40,0.7);
+
+  ion-icon { font-size: 0.9rem; }
+}
+
+.word-reveal-box {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(212,167,40,0.3);
+  border-radius: 14px;
+  padding: 14px 28px;
+}
+
+.word-reveal-text {
+  font-family: var(--font-title);
+  font-size: 2.2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #f0c940, #d4a728);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 0.05em;
+}
+
+.word-category-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.45);
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 4px 12px;
+  border-radius: 20px;
+
+  ion-icon { font-size: 0.8rem; }
+}
+
+// ============================================================
+// SECCIÓN 4: Conteo de votos
+// ============================================================
+.votes-section {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.votes-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 14px;
+
+  ion-icon { font-size: 0.9rem; }
+}
+
+.votes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vote-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid transparent;
+  transition: all 0.3s;
+
+  &.top-vote {
+    background: rgba(212,167,40,0.08);
+    border-color: rgba(212,167,40,0.2);
+  }
+
+  &.is-impostor {
+    background: rgba(220,80,80,0.08);
+    border-color: rgba(220,80,80,0.2);
+  }
+}
+
+.vote-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-title);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.vote-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.vote-player-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.impostor-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.65rem;
+  background: rgba(220,80,80,0.2);
+  color: #f08080;
+  border: 1px solid rgba(220,80,80,0.3);
+  padding: 2px 8px;
+  border-radius: 10px;
+
+  ion-icon { font-size: 0.7rem; }
+}
+
+.vote-bar-track {
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.vote-bar-fill {
+  height: 100%;
+  background: rgba(255,255,255,0.25);
+  border-radius: 2px;
+  transition: width 0.8s ease;
+
+  &.bar-win {
+    background: linear-gradient(90deg, #d4a728, #f0c940);
+  }
+}
+
+.vote-count {
+  font-family: var(--font-title);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.6);
+  min-width: 24px;
+  text-align: right;
+}
+
+// ============================================================
+// SECCIÓN 5: Reflexión
+// ============================================================
+.reflexion-section {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(212,167,40,0.2);
+  border-top: 3px solid var(--color-gold);
+  border-radius: 16px;
+  padding: 18px 16px;
+}
+
+.reflexion-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-gold);
+  margin-bottom: 12px;
+}
+
+.small-cross {
+  width: 18px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.reflexion-text {
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.7;
+  margin: 0;
+  font-style: italic;
+}
+
+// ============================================================
+// SECCIÓN 6: Acciones
+// ============================================================
+.actions-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.btn-play-again {
+  --background: linear-gradient(135deg, #d4a728 0%, #f0c940 100%);
+  --color: #0d2251;
+  --border-radius: 50px;
+  --box-shadow: 0 6px 25px rgba(212,167,40,0.4);
+  font-family: var(--font-title);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  height: 56px;
+}
+
+.btn-home {
+  --color: rgba(255,255,255,0.6);
+  --border-color: rgba(255,255,255,0.2);
+  --border-radius: 50px;
+  font-family: var(--font-title);
+  font-size: 0.9rem;
+  font-weight: 600;
+  height: 50px;
+
+  &:hover { --color: #fff; --border-color: rgba(255,255,255,0.4); }
+}

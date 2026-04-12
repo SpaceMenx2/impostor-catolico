@@ -1,0 +1,236 @@
+// src/app/pages/home/home.page.scss
+
+ion-content.home-content {
+  --background: transparent;
+  --color: #fff;
+}
+
+// ---- Fondo animado ----
+.bg-layer {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(160deg, #071630 0%, #0d2251 35%, #1a3a6b 65%, #0a1a40 100%);
+  z-index: 0;
+  overflow: hidden;
+}
+
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(212, 167, 40, 0.6);
+  animation: twinkle 3s ease-in-out infinite;
+}
+.s1 { width: 4px;  height: 4px;  top: 10%;  left: 15%; animation-delay: 0s; }
+.s2 { width: 3px;  height: 3px;  top: 25%;  left: 80%; animation-delay: 0.8s; }
+.s3 { width: 5px;  height: 5px;  top: 55%;  left: 10%; animation-delay: 1.5s; }
+.s4 { width: 3px;  height: 3px;  top: 70%;  left: 90%; animation-delay: 0.4s; }
+.s5 { width: 4px;  height: 4px;  top: 85%;  left: 50%; animation-delay: 1.1s; }
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.5); }
+}
+
+.light-beam {
+  position: absolute;
+  width: 2px;
+  background: linear-gradient(to bottom, transparent, rgba(212,167,40,0.15), transparent);
+  animation: beamMove 8s ease-in-out infinite;
+}
+.lb1 { height: 40%; top: 20%; left: 30%; animation-delay: 0s; }
+.lb2 { height: 50%; top: 10%; left: 70%; animation-delay: 3s; }
+
+@keyframes beamMove {
+  0%, 100% { opacity: 0.3; transform: rotate(-5deg); }
+  50%       { opacity: 0.7; transform: rotate(5deg); }
+}
+
+// ---- Contenedor principal ----
+.home-container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 40px 24px 32px;
+  gap: 0;
+}
+
+// ---- Sección del logo / cruz ----
+.logo-section {
+  margin-bottom: 28px;
+}
+
+.cross-container {
+  position: relative;
+  width: 80px;
+  height: 100px;
+  margin: 0 auto;
+}
+
+.cross-svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 12px rgba(212,167,40,0.6));
+}
+
+.cross-glow {
+  position: absolute;
+  inset: -20px;
+  background: radial-gradient(circle, rgba(212,167,40,0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50%       { transform: scale(1.3); opacity: 1; }
+}
+
+// ---- Título ----
+.title-section {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.game-title {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 12px;
+  gap: 2px;
+  line-height: 1.1;
+
+  .title-line1 {
+    font-family: var(--font-title);
+    font-size: 3rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    background: linear-gradient(135deg, #f0c940 0%, #d4a728 50%, #a87d10 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+  }
+
+  .title-line2 {
+    font-family: var(--font-title);
+    font-size: 1.4rem;
+    font-weight: 400;
+    color: rgba(255,255,255,0.85);
+    letter-spacing: 0.08em;
+  }
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.6);
+  font-style: italic;
+  margin: 0;
+  line-height: 1.5;
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+// ---- Mensaje inspirador ----
+.inspire-block {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(212,167,40,0.25);
+  border-left: 3px solid var(--color-gold);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 32px;
+  max-width: 340px;
+  width: 100%;
+
+  .inspire-icon {
+    color: var(--color-gold);
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .inspire-text {
+    font-size: 0.82rem;
+    font-style: italic;
+    color: rgba(255,255,255,0.75);
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+// ---- Sección de acción ----
+.action-section {
+  width: 100%;
+  max-width: 340px;
+}
+
+.btn-start {
+  --background: linear-gradient(135deg, #d4a728 0%, #f0c940 50%, #c8960c 100%);
+  --background-activated: #a87d10;
+  --color: #0d2251;
+  --border-radius: 50px;
+  --box-shadow: 0 6px 30px rgba(212,167,40,0.45);
+  font-family: var(--font-title);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  height: 58px;
+  margin-bottom: 24px;
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  ion-icon {
+    font-size: 1.3rem;
+  }
+}
+
+.divider-text {
+  text-align: center;
+  color: rgba(212,167,40,0.5);
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+}
+
+// ---- Info items ----
+.game-info {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+
+  ion-icon {
+    font-size: 1.4rem;
+    color: var(--color-gold);
+  }
+
+  span {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.55);
+    text-align: center;
+  }
+}
+
+// ---- Footer ----
+.home-footer {
+  margin-top: 36px;
+  p {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.3);
+    text-align: center;
+    margin: 0;
+  }
+}
