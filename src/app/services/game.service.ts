@@ -304,7 +304,7 @@ export class GameService {
     const civilianCount = remainingAfterElimination.filter(
       (p) => !p.isImpostor,
     ).length;
-    const canContinue = !isCorrect && civilianCount >= impostorCount + 2;
+    const canContinue = !isCorrect && civilianCount > impostorCount;
 
     console.log(">>> [SERVICE] votingResult:", {
       mostVoted: mostVoted?.name,
@@ -312,7 +312,7 @@ export class GameService {
       impostorCount,
       civilianCountAfterElimination: civilianCount,
       canContinue,
-      condition: `civiles (${civilianCount}) >= impostores+2 (${impostorCount + 2})`,
+      condition: `civiles (${civilianCount}) > impostores (${impostorCount})`,
     });
 
     return { mostVoted, voteCounts, impostors, isCorrect, canContinue };
@@ -344,14 +344,13 @@ export class GameService {
     const civilians = remainingPlayers.filter((p) => !p.isImpostor);
 
     // Si los civiles son minoría (< impostores + 2), los impostores ganan
-    if (civilians.length < impostors.length + 2) {
+    if (civilians.length <= impostors.length) {
       console.log(
         ">>> [SERVICE] Impostores ganan: civiles",
         civilians.length,
-        "< impostores+2",
-        impostors.length + 2,
+        "<= impostores",
+        impostors.length,
       );
-      // Mantener fase 'result' para mostrar victoria de impostores
       return false;
     }
 

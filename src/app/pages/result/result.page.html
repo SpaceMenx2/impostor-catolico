@@ -8,72 +8,70 @@
 </ion-header>
 
 <ion-content class="result-content">
-  <!-- Partículas decorativas (solo si ganaron) -->
-  <div class="particles" *ngIf="isCorrect">
-    <div
-      *ngFor="let i of [1,2,3,4,5,6,7,8]"
-      class="particle"
-      [class]="'p' + i"
-    ></div>
+  <!-- Partículas decorativas (solo si ganaron civiles) -->
+  <div class="particles" *ngIf="isCorrect && !canContinue">
+    <div *ngFor="let i of [1,2,3,4,5,6,7,8]" class="particle" [class]="'p' + i"></div>
   </div>
 
   <div class="result-container">
+    
     <!-- ============================================================
-         SECCIÓN 1: Veredicto principal (3 estados)
+         SECCIÓN 1: Veredicto principal
          ============================================================ -->
     <div class="verdict-section" [class.animate-rotateIn]="revealed">
-      <!-- Ícono animado según resultado -->
-      <div
-        class="verdict-icon-wrapper"
-        [class.win-glow]="isCorrect"
-        [class.continue-glow]="!isCorrect && canContinue"
-        [class.lose-glow]="!isCorrect && !canContinue"
-      >
+      
+      <!-- Ícono según escenario -->
+      <div class="verdict-icon-wrapper"
+           [class.win-glow]="isCorrect && !canContinue"
+           [class.continue-impostor-glow]="isCorrect && canContinue"
+           [class.continue-civilian-glow]="!isCorrect && canContinue"
+           [class.lose-glow]="!isCorrect && !canContinue">
         <ion-icon
-          [name]="isCorrect ? 'shield-checkmark-outline' : (!canContinue ? 'trophy-outline' : 'search-outline')"
+          [name]="isCorrect && !canContinue ? 'shield-checkmark-outline' : 
+                  isCorrect && canContinue ? 'person-remove-outline' :
+                  !isCorrect && canContinue ? 'alert-circle-outline' : 'trophy-outline'"
           class="verdict-icon"
-          [class.icon-win]="isCorrect"
-          [class.icon-continue]="!isCorrect && canContinue"
-          [class.icon-lose]="!isCorrect && !canContinue"
-        ></ion-icon>
+          [class.icon-win]="isCorrect && !canContinue"
+          [class.icon-continue-impostor]="isCorrect && canContinue"
+          [class.icon-continue-civilian]="!isCorrect && canContinue"
+          [class.icon-lose]="!isCorrect && !canContinue">
+        </ion-icon>
       </div>
 
-      <h1
-        class="verdict-title"
-        [class.title-win]="isCorrect"
-        [class.title-continue]="!isCorrect && canContinue"
-        [class.title-lose]="!isCorrect && !canContinue"
-      >
-        {{ isCorrect ? '¡Impostor descubierto!' : (!canContinue ? '¡Victoria impostora!' : 'El impostor escapó') }}
+      <!-- Título según escenario -->
+      <h1 class="verdict-title"
+          [class.title-win]="isCorrect && !canContinue"
+          [class.title-continue-impostor]="isCorrect && canContinue"
+          [class.title-continue-civilian]="!isCorrect && canContinue"
+          [class.title-lose]="!isCorrect && !canContinue">
+        {{ isCorrect && !canContinue ? '¡Victoria civil!' :
+           isCorrect && canContinue ? '¡Impostor eliminado!' :
+           !isCorrect && canContinue ? 'Civil eliminado' :
+           '¡Victoria impostora!' }}
       </h1>
 
+      <!-- Subtítulo según escenario -->
       <p class="verdict-sub">
-        {{ isCorrect 
-          ? 'La comunidad supo discernir la verdad' 
-          : (!canContinue 
-              ? 'Los impostores lograron engañar al grupo hasta el final' 
-              : '¡Aún hay impostores por encontrar! La búsqueda continúa...')
-        }}
+        {{ isCorrect && !canContinue ? 'Todos los impostores fueron descubiertos' :
+           isCorrect && canContinue ? 'Pero aún quedan ' + remainingImpostors + ' por encontrar' :
+           !isCorrect && canContinue ? '¡Cuidado! Los impostores siguen entre ustedes' :
+           'Los impostores lograron engañar al grupo hasta el final' }}
       </p>
     </div>
 
     <!-- ============================================================
-         SECCIÓN 2: El impostor revelado (solo si terminó la partida)
+         SECCIÓN 2: El impostor revelado (SOLO si terminó la partida)
          ============================================================ -->
-    <div
-      class="impostor-reveal animate-fadeInUp delay-2"
-      *ngIf="impostors.length > 0 && (isCorrect || !canContinue)"
-    >
+    <div class="impostor-reveal animate-fadeInUp delay-2"
+         *ngIf="!canContinue && impostors.length > 0">
       <div class="reveal-label">
         <ion-icon name="eye-outline"></ion-icon>
         {{ impostors.length === 1 ? 'El impostor era' : 'Los impostores eran' }}
       </div>
       <div class="impostors-row">
         <div *ngFor="let imp of impostors" class="impostor-card">
-          <div
-            class="impostor-avatar"
-            [style.background]="getPlayerColor(getPlayerIndex(imp.id))"
-          >
+          <div class="impostor-avatar"
+               [style.background]="getPlayerColor(getPlayerIndex(imp.id))">
             {{ imp.name.charAt(0).toUpperCase() }}
           </div>
           <span class="impostor-name">{{ imp.name }}</span>
@@ -86,152 +84,125 @@
     </div>
 
     <!-- ============================================================
-         SECCIÓN 3: La palabra secreta
+         SECCIÓN 3: Conteo de votos (SIN revelar impostores)
          ============================================================ -->
-    <div class="word-reveal animate-fadeInUp delay-3">
-      <div class="word-reveal-label">
-        <ion-icon name="key-outline"></ion-icon>
-        {{ !isCorrect && canContinue ? 'Palabra en juego' : 'La palabra secreta era' }}
-      </div>
-      <div class="word-reveal-box">
-        <span class="word-reveal-text">{{ state.currentWord?.word }}</span>
-      </div>
-      <div class="word-category-badge">
-        <ion-icon name="bookmark-outline"></ion-icon>
-        {{ state.currentCategory?.name }}
-      </div>
-    </div>
-
-    <!-- ============================================================
-         SECCIÓN 4: Conteo de votos
-         ============================================================ -->
-    <div class="votes-section animate-fadeInUp delay-4">
+    <div class="votes-section animate-fadeInUp delay-3">
       <div class="votes-title">
         <ion-icon name="bar-chart-outline"></ion-icon>
         Conteo de votos
       </div>
       <div class="votes-list">
-        <div
-          *ngFor="let vc of voteCounts; let i = index"
-          class="vote-row"
-          [class.top-vote]="i === 0 && vc.votes > 0"
-          [class.is-impostor]="vc.player.isImpostor"
-        >
-          <div
-            class="vote-avatar"
-            [style.background]="getPlayerColor(getPlayerIndex(vc.player.id))"
-          >
+        <!-- Iteración limpia: sin clases que revelen impostores -->
+        <div *ngFor="let vc of voteCounts; let i = index"
+             class="vote-row"
+             [class.top-vote]="i === 0 && vc.votes > 0">
+          
+          <div class="vote-avatar"
+               [style.background]="getPlayerColor(getPlayerIndex(vc.player.id))">
             {{ vc.player.name.charAt(0).toUpperCase() }}
           </div>
+          
           <div class="vote-info">
+            <!-- SOLO EL NOMBRE -->
             <span class="vote-player-name">
               {{ vc.player.name }}
-              <span class="impostor-tag" *ngIf="vc.player.isImpostor">
-                <ion-icon name="eye-off-outline"></ion-icon> Impostor
-              </span>
             </span>
+            <!-- Barra de progreso limpia -->
             <div class="vote-bar-track">
-              <div
-                class="vote-bar-fill"
-                [style.width]="(vc.votes / state.players.length * 100) + '%'"
-                [class.bar-win]="vc.player.isImpostor && vc.votes > 0"
-              ></div>
+              <div class="vote-bar-fill"
+                   [style.width]="(vc.votes / state.players.length * 100) + '%'">
+              </div>
             </div>
           </div>
+          
           <span class="vote-count">{{ vc.votes }}</span>
         </div>
       </div>
     </div>
 
     <!-- ============================================================
-         SECCIÓN 5: Reflexión catequética
+         SECCIÓN 4: Reflexión catequética
          ============================================================ -->
-    <div class="reflexion-section animate-fadeInUp delay-5">
+    <div class="reflexion-section animate-fadeInUp delay-4">
       <div class="reflexion-header">
         <svg viewBox="0 0 30 36" class="small-cross">
-          <rect x="11" y="0" width="8" height="36" rx="2" fill="#d4a728" />
-          <rect x="0" y="9" width="30" height="8" rx="2" fill="#d4a728" />
+          <rect x="11" y="0" width="8" height="36" rx="2" fill="#d4a728"/>
+          <rect x="0" y="9" width="30" height="8" rx="2" fill="#d4a728"/>
         </svg>
         <span>Para reflexionar</span>
       </div>
       <p class="reflexion-text">
-        {{ isCorrect 
-          ? '¡Bien hecho! Así como en el juego descubrieron la verdad, en nuestra vida estamos llamados a buscar la verdad que Cristo nos enseña.'
-          : (!canContinue
-              ? 'A veces el mal se disfraza tan bien que solo con oración y discernimiento comunitario podremos reconocerlo. ¡No bajen los brazos!'
-              : 'La perseverancia es clave. Como dice San Pablo: "No nos cansemos de hacer el bien" (Gál 6,9). ¡Sigan buscando juntos!')
-        }}
+        {{ isCorrect && !canContinue ? '¡Bien hecho! Así como en el juego descubrieron la verdad, en nuestra vida estamos llamados a buscar la verdad que Cristo nos enseña.' :
+           isCorrect && canContinue ? 'Un paso más hacia la verdad. "Paso a paso se recorre el camino" — Proverbio popular. ¡Sigan discerniendo juntos!' :
+           !isCorrect && canContinue ? 'No se desanimen. A veces el error nos enseña a ser más sabios. "El que cae y se levanta, más fuerte se hace".' :
+           'A veces el mal se disfraza tan bien que solo con oración y perseverancia podremos reconocerlo. ¡No bajen los brazos!' }}
       </p>
     </div>
 
     <!-- ============================================================
-         SECCIÓN 6: Acciones finales
+         SECCIÓN 5: Acciones finales
          ============================================================ -->
     <div class="actions-section animate-fadeInUp delay-5">
       
-      <!-- BOTÓN A: Continuar con misma palabra -->
-      <ion-button
-        *ngIf="!isCorrect && canContinue"
-        expand="block"
-        class="btn-continue"
-        (click)="playAgain(); $event.preventDefault(); $event.stopPropagation()"
-      >
+      <!-- BOTÓN: Continuar buscando (solo si el juego sigue) -->
+      <ion-button *ngIf="canContinue"
+                  expand="block"
+                  class="btn-continue"
+                  (click)="playAgain(); $event.preventDefault(); $event.stopPropagation()">
         <ion-icon slot="start" name="search-circle-outline"></ion-icon>
         Seguir buscando ({{ state.players.length - 1 }} jugadores)
       </ion-button>
 
-      <!-- BOTÓN B: Nueva Partida -->
-      <ion-button
-        *ngIf="isCorrect || !canContinue"
-        expand="block"
-        class="btn-play-again"
-        [class.btn-win]="isCorrect"
-        [class.btn-lose]="!isCorrect && !canContinue"
-        (click)="playAgain(); $event.preventDefault(); $event.stopPropagation()"
-      >
+      <!-- BOTÓN: Nueva Partida (si terminó la ronda) -->
+      <ion-button *ngIf="!canContinue"
+                  expand="block"
+                  class="btn-play-again"
+                  [class.btn-win]="isCorrect"
+                  [class.btn-lose]="!isCorrect"
+                  (click)="playAgain(); $event.preventDefault(); $event.stopPropagation()">
         <ion-icon slot="start" [name]="isCorrect ? 'trophy-outline' : 'refresh-circle-outline'"></ion-icon>
         {{ isCorrect ? '¡Ganaron! Nueva Partida' : 'Nueva Partida' }}
       </ion-button>
 
       <!-- Botón Volver al inicio -->
-      <ion-button
-        expand="block"
-        fill="outline"
-        class="btn-home"
-        (click)="goHome(); $event.preventDefault(); $event.stopPropagation()"
-      >
+      <ion-button expand="block"
+                  fill="outline"
+                  class="btn-home"
+                  (click)="goHome(); $event.preventDefault(); $event.stopPropagation()">
         <ion-icon slot="start" name="home-outline"></ion-icon>
         Volver al inicio
       </ion-button>
       
-      <!-- Mensaje de continuación -->
-      <p
-        class="elimination-hint continue-hint"
-        *ngIf="!isCorrect && canContinue && mostVoted"
-      >
+      <!-- Mensaje: Impostor eliminado pero quedan más -->
+      <p class="elimination-hint continue-impostor-hint"
+         *ngIf="isCorrect && canContinue && mostVoted">
         <ion-icon name="person-remove-outline"></ion-icon>
-        <strong>{{ mostVoted.name }}</strong> fue eliminado. 
-        ¡La palabra sigue siendo "<strong>{{ state.currentWord?.word }}</strong>"!
+        <strong>{{ mostVoted.name }}</strong> era impostor y fue eliminado. 
+        ¡Pero aún quedan <strong>{{ remainingImpostors }}</strong> por encontrar!
       </p>
 
-      <!-- Mensaje de victoria impostora -->
-      <p
-        class="elimination-hint lose-hint"
-        *ngIf="!isCorrect && !canContinue"
-      >
-        <ion-icon name="alert-circle-outline"></ion-icon>
-        Ya no hay suficientes civiles para continuar. 
-        <strong>¡Los impostores ganaron!</strong>
+      <!-- Mensaje: Civil eliminado, seguir buscando -->
+      <p class="elimination-hint continue-civilian-hint"
+         *ngIf="!isCorrect && canContinue && mostVoted">
+        <ion-icon name="person-remove-outline"></ion-icon>
+        <strong>{{ mostVoted.name }}</strong> era un civil. 
+        ¡La búsqueda continúa con la misma palabra!
       </p>
 
-      <!-- Mensaje de victoria civil -->
-      <p
-        class="elimination-hint win-hint"
-        *ngIf="isCorrect"
-      >
+      <!-- Mensaje: Victoria civil -->
+      <p class="elimination-hint win-hint"
+         *ngIf="isCorrect && !canContinue">
         <ion-icon name="checkmark-circle-outline"></ion-icon>
         ¡La verdad prevaleció! 
         <strong>Los civiles ganaron esta ronda.</strong>
+      </p>
+
+      <!-- Mensaje: Victoria impostora -->
+      <p class="elimination-hint lose-hint"
+         *ngIf="!isCorrect && !canContinue">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        Ya no hay suficientes civiles para continuar. 
+        <strong>¡Los impostores ganaron!</strong>
       </p>
       
     </div>

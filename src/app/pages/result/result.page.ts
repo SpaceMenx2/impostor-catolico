@@ -33,20 +33,29 @@ export class ResultPage implements OnInit, OnDestroy {
   voteCounts: { player: Player; votes: number }[] = [];
   impostors: Player[] = [];
 
-  // ✅ NUEVO: Getters que calculan en tiempo real
   get isCorrect(): boolean {
     return this.mostVoted?.isImpostor ?? false;
   }
 
   get canContinue(): boolean {
     if (!this.mostVoted) return false;
+
     const impostorCount = this.state.players.filter((p) => p.isImpostor).length;
     const remaining = this.state.players.filter(
       (p) => p.id !== this.mostVoted!.id,
     );
     const civilianCount = remaining.filter((p) => !p.isImpostor).length;
-    // Condición: civiles restantes >= impostores + 2
-    return !this.isCorrect && civilianCount >= impostorCount + 2;
+
+    // ✅ CORREGIDO: Puede continuar si civiles > impostores (estrictamente mayor)
+    // Si civiles == impostores (ej: 1 vs 1), termina el juego porque hay empate/mayoría impostora
+    return !this.isCorrect && civilianCount > impostorCount;
+  }
+
+  get remainingImpostors(): number {
+    if (!this.mostVoted) return 0;
+    return this.state.players.filter(
+      (p) => p.isImpostor && p.id !== this.mostVoted!.id,
+    ).length;
   }
 
   reflexionMessage = "";

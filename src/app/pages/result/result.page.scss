@@ -578,6 +578,7 @@ ion-toolbar {
 // BOTONES CON ESTADOS
 // ============================================================
 
+// Botones
 .btn-continue {
   --background: linear-gradient(135deg, #2ec478 0%, #4dd490 100%);
   --color: #0d2251;
@@ -600,54 +601,99 @@ ion-toolbar {
 }
 
 // ============================================================
+// ESTADOS DEL VEREDICTO (4 escenarios)
+// ============================================================
+
+// Victoria civil (impostor eliminado, partida termina)
+.verdict-icon-wrapper.win-glow {
+  background: rgba(46,196,120,0.15);
+  box-shadow: 0 0 40px rgba(46,196,120,0.3), 0 0 80px rgba(46,196,120,0.1);
+}
+.verdict-icon.icon-win { color: #2ec478; }
+.verdict-title.title-win { color: #2ec478; }
+
+// Impostor eliminado pero quedan más (seguir buscando)
+.verdict-icon-wrapper.continue-impostor-glow {
+  background: rgba(212,167,40,0.15);
+  box-shadow: 0 0 40px rgba(212,167,40,0.3);
+}
+.verdict-icon.icon-continue-impostor { 
+  color: var(--color-gold);
+  animation: pulse 2s infinite;
+}
+.verdict-title.title-continue-impostor { color: var(--color-gold-light); }
+
+// Civil eliminado, seguir buscando
+.verdict-icon-wrapper.continue-civilian-glow {
+  background: rgba(107,140,191,0.15);
+  box-shadow: 0 0 40px rgba(107,140,191,0.3);
+}
+.verdict-icon.icon-continue-civilian { 
+  color: var(--ion-color-medium);
+}
+.verdict-title.title-continue-civilian { color: var(--ion-color-medium); }
+
+// Victoria impostora (partida termina)
+.verdict-icon-wrapper.lose-glow {
+  background: rgba(220,80,80,0.15);
+  box-shadow: 0 0 40px rgba(220,80,80,0.4), 0 0 80px rgba(220,80,80,0.2);
+}
+.verdict-icon.icon-lose { color: #ff6b6b; }
+.verdict-title.title-lose { color: #ff6b6b; }
+
+// ============================================================
 // MENSAJES DE ESTADO
 // ============================================================
 
 .elimination-hint {
   text-align: center;
   font-size: 0.8rem;
-  color: rgba(255,255,255,0.55);
   margin: 12px 0 0;
   font-style: italic;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 0 10px;
+  padding: 10px 16px;
+  border-radius: 10px;
   
   ion-icon { font-size: 1rem; }
   strong { font-weight: 700; }
 }
 
-.elimination-hint.continue-hint {
-  color: rgba(212,167,40,0.8);
+.continue-impostor-hint {
+  color: rgba(212,167,40,0.9);
   background: rgba(212,167,40,0.08);
-  padding: 10px 16px;
-  border-radius: 10px;
   border: 1px solid rgba(212,167,40,0.2);
   
   ion-icon { color: var(--color-gold); }
   strong { color: var(--color-gold-light); }
 }
 
-.elimination-hint.lose-hint {
+.continue-civilian-hint {
+  color: rgba(107,140,191,0.9);
+  background: rgba(107,140,191,0.08);
+  border: 1px solid rgba(107,140,191,0.2);
+  
+  ion-icon { color: var(--ion-color-medium); }
+  strong { color: var(--ion-color-medium-tint); }
+}
+
+.win-hint {
+  color: rgba(46,196,120,0.9);
+  background: rgba(46,196,120,0.1);
+  border: 1px solid rgba(46,196,120,0.25);
+  
+  ion-icon { color: #2ec478; }
+  strong { color: #4dd490; }
+}
+
+.lose-hint {
   color: rgba(255,107,107,0.9);
   background: rgba(220,80,80,0.1);
-  padding: 10px 16px;
-  border-radius: 10px;
   border: 1px solid rgba(220,80,80,0.25);
   
   ion-icon { color: #ff6b6b; }
   strong { color: #ff8e8e; }
 }
 
-.elimination-hint.win-hint {
-  color: rgba(46,196,120,0.9);
-  background: rgba(46,196,120,0.1);
-  padding: 10px 16px;
-  border-radius: 10px;
-  border: 1px solid rgba(46,196,120,0.25);
-  
-  ion-icon { color: #2ec478; }
-  strong { color: #4dd490; }
-}
