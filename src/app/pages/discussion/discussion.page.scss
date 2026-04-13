@@ -1,24 +1,24 @@
 // src/app/pages/discussion/discussion.page.scss
 
+// 1. Forzar altura en ion-content (CRUCIAL)
 ion-content.discussion-content {
-  --background: transparent;
+  --background: linear-gradient(160deg, #071630 0%, #0d2251 40%, #1a3a6b 100%);
   --color: #fff;
+  height: 100% !important;
+  min-height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
 }
 
-.discussion-bg {
-  position: fixed;
-  inset: 0;
-  background: linear-gradient(160deg, #071630 0%, #0d2251 40%, #1a3a6b 100%);
-  z-index: 0; // DETRÁS de todo
-}
+// Ocultamos el .discussion-bg antiguo para evitar conflictos de z-index
+.discussion-bg { display: none; }
 
 ion-toolbar {
-  --background: rgba(7, 22, 48, 0.95);
+  --background: #071630; /* Color sólido, sin transparencia */
   --border-width: 0;
   position: relative;
-  z-index: 2; // Encima del fondo
+  z-index: 10; /* Más alto para tapar todo */
 }
-
 .toolbar-title {
   font-family: var(--font-title);
   font-size: 1rem;
@@ -26,45 +26,36 @@ ion-toolbar {
   display: flex;
   align-items: center;
   gap: 8px;
-
   .title-icon { color: var(--color-gold); }
 }
 
 .discussion-container {
   position: relative;
-  z-index: 1; // ENCIMA del fondo (.discussion-bg tiene z-index: 0)
+  z-index: 1;
+  flex: 1;
   padding: 20px 16px 100px;
   max-width: 480px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
 }
 
-// ---- Animaciones con keyframes definidos ----
+// ---- Animaciones ----
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .animate-fadeInUp {
   animation: fadeInUp 0.5s ease-out both;
+  opacity: 1 !important;
   
   &.delay-2 { animation-delay: 0.1s; }
   &.delay-3 { animation-delay: 0.2s; }
   &.delay-4 { animation-delay: 0.3s; }
   &.delay-5 { animation-delay: 0.4s; }
-}
-
-// Fallback: si la animación falla, que sea visible
-.animate-fadeInUp {
-  opacity: 1 !important;
 }
 
 // ---- Temporizador ----
@@ -115,7 +106,7 @@ ion-toolbar {
 
 @keyframes blinkAnim {
   0%, 100% { opacity: 1; }
-  50%       { opacity: 0.2; }
+  50% { opacity: 0.2; }
 }
 
 .timer-label {
@@ -147,9 +138,6 @@ ion-toolbar {
   font-size: 0.85rem;
   color: #f0b429;
   font-weight: 600;
-  animation: fadeIn 0.3s ease;
-
-  ion-icon { font-size: 1.1rem; }
 }
 
 // ---- Instrucciones ----
@@ -297,4 +285,12 @@ ion-toolbar {
   font-weight: 700;
   letter-spacing: 0.06em;
   height: 56px;
+}
+
+ion-header.ion-page-hidden {
+  display: none !important;
+}
+
+ion-page {
+  background: linear-gradient(160deg, #071630 0%, #0d2251 40%, #1a3a6b 100%) !important;
 }

@@ -1,59 +1,220 @@
+<!-- src/app/pages/players/players.page.html -->
 <ion-header class="ion-no-border">
   <ion-toolbar>
-    <ion-title>Jugadores</ion-title>
+    <ion-buttons slot="start">
+      <ion-button
+        type="button"
+        (click)="goHome(); $event.preventDefault(); $event.stopPropagation()"
+        fill="clear"
+        color="light"
+      >
+        <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="toolbar-title">
+      <ion-icon name="people-outline" class="title-icon"></ion-icon>
+      Jugadores
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button
+        type="button"
+        fill="clear"
+        color="secondary"
+        (click)="toggleConfig(); $event.preventDefault(); $event.stopPropagation()"
+      >
+        <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
+<!-- Sin [fullscreen] para evitar conflictos de proyección en Ionic -->
 <ion-content class="players-content">
+  <div class="page-bg"></div>
+
   <div class="players-container">
-    
-    <!-- Input simple -->
-    <ion-input
-      [(ngModel)]="newPlayerName"
-      [ngModelOptions]="{standalone: true}"
-      placeholder="Nombre..."
-      fill="outline"
-    ></ion-input>
-    
-    <!-- Botón con type="button" y prevención de eventos -->
-    <ion-button 
-      type="button"
-      expand="block" 
-      color="success"
-      (click)="addPlayer(); $event.preventDefault(); $event.stopPropagation()"
-      [disabled]="!newPlayerName.trim()"
-      style="margin: 10px 0;"
-    >
-      Agregar
-    </ion-button>
-
-    <!-- Lista simple -->
-    <ion-list>
-      <ion-item *ngFor="let p of players">
-        <ion-label>{{ p.name }}</ion-label>
-        <ion-button 
+    <!-- INPUT para agregar jugador -->
+    <div class="add-player-card animate-fadeInUp">
+      <div class="add-player-label">
+        <ion-icon name="person-add-outline"></ion-icon>
+        <span>Agregar jugador</span>
+      </div>
+      <div class="add-player-input-row">
+        <ion-input
+          [(ngModel)]="newPlayerName"
+          [ngModelOptions]="{standalone: true}"
+          placeholder="Nombre del jugador..."
+          class="player-input"
+          (keyup.enter)="addPlayer(); $event.preventDefault()"
+          maxlength="20"
+          fill="outline"
+          color="light"
+        ></ion-input>
+        <ion-button
           type="button"
-          slot="end" 
-          color="danger" 
-          size="small"
-          (click)="removePlayer(p.id); $event.preventDefault(); $event.stopPropagation()"
+          (click)="addPlayer(); $event.preventDefault(); $event.stopPropagation()"
+          class="btn-add"
+          [disabled]="!newPlayerName.trim()"
+          color="secondary"
         >
-          X
+          <ion-icon slot="icon-only" name="add-outline"></ion-icon>
         </ion-button>
-      </ion-item>
-    </ion-list>
+      </div>
+    </div>
 
-    <!-- Botón iniciar -->
-    <ion-button 
-      type="button"
-      expand="block" 
-      color="primary"
-      (click)="startGame(); $event.preventDefault(); $event.stopPropagation()"
-      [disabled]="!canStart"
-      style="margin-top: 20px;"
-    >
-      Iniciar Partida
-    </ion-button>
+    <!-- LISTA de jugadores -->
+    <div class="section-header animate-fadeInUp delay-1">
+      <span>Jugadores ({{ players.length }})</span>
+      <span class="min-info" [class.ok]="canStart" [class.warn]="!canStart">
+        <ion-icon
+          [name]="canStart ? 'checkmark-circle-outline' : 'alert-circle-outline'"
+        ></ion-icon>
+        Mínimo {{ minPlayersNeeded }}
+      </span>
+    </div>
 
+    <div class="players-list animate-fadeInUp delay-2">
+      <div *ngIf="players.length === 0" class="empty-state">
+        <ion-icon name="people-outline"></ion-icon>
+        <p>Agregá al menos {{ minPlayersNeeded }} jugadores para comenzar</p>
+      </div>
+
+      <div
+        *ngFor="let player of players; let i = index"
+        class="player-item"
+        [style.animation-delay]="(i * 0.07) + 's'"
+      >
+        <div class="player-avatar" [style.background]="getPlayerColor(i)">
+          {{ getPlayerInitial(player.name) }}
+        </div>
+        <span class="player-name">{{ player.name }}</span>
+        <ion-button
+          type="button"
+          fill="clear"
+          size="small"
+          color="danger"
+          (click)="removePlayer(player.id); $event.preventDefault(); $event.stopPropagation()"
+          class="btn-remove"
+        >
+          <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- CONFIGURACIÓN (colapsable) -->
+    <div class="config-section animate-fadeInUp delay-3" *ngIf="showConfig">
+      <div class="config-title">
+        <ion-icon name="options-outline"></ion-icon>
+        Configuración del juego
+      </div>
+
+      <!-- Impostores -->
+      <div class="config-row">
+        <div class="config-label">
+          <ion-icon name="eye-off-outline"></ion-icon>
+          <span>Impostores</span>
+        </div>
+        <div class="config-buttons">
+          <button
+            type="button"
+            class="count-btn"
+            [class.active]="config.impostorCount === 1"
+            (click)="updateImpostorCount(1); $event.preventDefault()"
+          >
+            1
+          </button>
+          <button
+            type="button"
+            class="count-btn"
+            [class.active]="config.impostorCount === 2"
+            (click)="updateImpostorCount(2); $event.preventDefault()"
+          >
+            2
+          </button>
+        </div>
+      </div>
+
+      <!-- Temporizador -->
+      <div class="config-row">
+        <div class="config-label">
+          <ion-icon name="timer-outline"></ion-icon>
+          <span>Temporizador</span>
+        </div>
+        <div class="config-buttons">
+          <button
+            type="button"
+            class="count-btn"
+            [class.active]="!config.showTimer"
+            (click)="toggleTimer(); $event.preventDefault()"
+          >
+            Off
+          </button>
+          <button
+            type="button"
+            class="count-btn"
+            [class.active]="config.showTimer && config.timerMinutes === 2"
+            (click)="config.showTimer = true; updateTimer(2); $event.preventDefault()"
+          >
+            2 min
+          </button>
+          <button
+            type="button"
+            class="count-btn"
+            [class.active]="config.showTimer && config.timerMinutes === 3"
+            (click)="config.showTimer = true; updateTimer(3); $event.preventDefault()"
+          >
+            3 min
+          </button>
+          <button
+            type="button"
+            class="count-btn"
+            [class.active]="config.showTimer && config.timerMinutes === 5"
+            (click)="config.showTimer = true; updateTimer(5); $event.preventDefault()"
+          >
+            5 min
+          </button>
+        </div>
+      </div>
+
+      <!-- Categorías -->
+      <div class="config-categories">
+        <div class="config-label-full">
+          <ion-icon name="bookmark-outline"></ion-icon>
+          <span>Categorías (vacío = todas)</span>
+        </div>
+        <div class="categories-grid">
+          <button
+            type="button"
+            *ngFor="let cat of categories"
+            class="cat-btn"
+            [class.active]="config.selectedCategories.includes(cat.id)"
+            [style.border-color]="config.selectedCategories.includes(cat.id) ? cat.color : 'rgba(255,255,255,0.15)'"
+            [style.color]="config.selectedCategories.includes(cat.id) ? cat.color : 'rgba(255,255,255,0.55)'"
+            (click)="toggleCategory(cat.id); $event.preventDefault()"
+          >
+            <ion-icon [name]="cat.icon"></ion-icon>
+            {{ cat.name }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTÓN INICIAR -->
+    <div class="start-section animate-fadeInUp delay-4">
+      <ion-button
+        type="button"
+        expand="block"
+        class="btn-start-game"
+        [disabled]="!canStart || isStarting"
+        (click)="startGame(); $event.preventDefault(); $event.stopPropagation()"
+      >
+        <ion-icon slot="start" name="play-circle-outline"></ion-icon>
+        {{ isStarting ? 'Iniciando...' : 'Iniciar Partida' }}
+      </ion-button>
+
+      <p class="start-hint" *ngIf="!canStart">
+        Necesitás {{ minPlayersNeeded - players.length }} jugador/es más
+      </p>
+    </div>
   </div>
 </ion-content>

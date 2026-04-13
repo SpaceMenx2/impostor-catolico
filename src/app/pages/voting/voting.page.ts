@@ -1,6 +1,6 @@
 // src/app/pages/voting/voting.page.ts
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { NavController } from '@ionic/angular'; // <-- Cambiar Router por NavController
 import { GameService, GameState, Player } from '../../services/game.service';
 import { Subscription } from 'rxjs';
 
@@ -23,26 +23,26 @@ export class VotingPage implements OnInit, OnDestroy {
   allDone = false;
 
   private sub!: Subscription;
+  playerColors = [ /* ... tus colores ... */ ];
 
-  // Colores de avatares
-  playerColors = [
-    '#d4a728', '#2a6bb5', '#2ec478', '#dc5050',
-    '#8b5a2b', '#8e44ad', '#1abc9c', '#e67e22',
-  ];
-
-  constructor(private gameService: GameService, private router: Router) {}
+  constructor(
+    private gameService: GameService, 
+    private navCtrl: NavController, // <-- Inyectar NavController
+    private cdr: ChangeDetectorRef, // <-- Para forzar detección
+  ) {}
 
   ngOnInit(): void {
     this.sub = this.gameService.state$.subscribe((s) => {
       this.state = s;
     });
 
-    // Preparar la lista de turnos de votación
     this.voterTurns = this.state.players.map((p) => ({
       voter: p,
       selectedVote: null,
       done: false,
     }));
+    
+    this.cdr.detectChanges(); // Forzar pintado inicial
   }
 
   ngOnDestroy(): void {
@@ -54,11 +54,8 @@ export class VotingPage implements OnInit, OnDestroy {
   }
 
   get candidates(): Player[] {
-    // Puede votar a cualquiera excepto a sí mismo
     if (!this.currentTurn) return [];
-    return this.state.players.filter(
-      (p) => p.id !== this.currentTurn!.voter.id
-    );
+    return this.state.players.filter((p) => p.id !== this.currentTurn!.voter.id);
   }
 
   selectVote(candidateId: string): void {
@@ -69,7 +66,6 @@ export class VotingPage implements OnInit, OnDestroy {
   confirmVote(): void {
     if (!this.currentTurn?.selectedVote) return;
 
-    // Registrar el voto en el servicio
     this.gameService.castVote(
       this.currentTurn.voter.id,
       this.currentTurn.selectedVote
@@ -82,6 +78,7 @@ export class VotingPage implements OnInit, OnDestroy {
       const next = this.currentVoterIndex + 1;
       if (next >= this.voterTurns.length) {
         this.allDone = true;
+        this.cdr.detectChanges(); // Forzar detección al cambiar a allDone
       } else {
         this.currentVoterIndex = next;
       }
@@ -93,7 +90,7 @@ export class VotingPage implements OnInit, OnDestroy {
   }
 
   getPlayerIndex(playerId: string): number {
-    return this.state.players.findIndex((p) => p.id === playerId);
+    return this.state?.players?.findIndex((p) => p.id === playerId) ?? 0;
   }
 
   getCandidateName(candidateId: string): string {
@@ -101,7 +98,17 @@ export class VotingPage implements OnInit, OnDestroy {
   }
 
   showResults(): void {
+    console.log('>>> [VOTING] showResults() llamado');
     this.gameService.showResult();
-    this.router.navigateByUrl('/result');
+    
+    // Usar NavController con replaceUrl para limpiar el stack
+    this.navCtrl.navigateRoot('/result', { 
+      animated: true,
+      replaceUrl: true
+    }).then(() => {
+      console.log('>>> [VOTING] Navegación a result completada');
+    }).catch(err => {
+      console.error('>>> [VOTING] Error en navegación:', err);
+    });
   }
 }

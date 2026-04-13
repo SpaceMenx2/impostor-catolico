@@ -1,6 +1,6 @@
 // src/app/pages/discussion/discussion.page.ts
-import { Component, OnInit, OnDestroy } from "@angular/core";
-import { Router } from "@angular/router";
+import { Component, OnDestroy, ChangeDetectorRef } from "@angular/core";
+import { NavController } from "@ionic/angular";
 import { GameService, GameState } from "../../services/game.service";
 import { Subscription } from "rxjs";
 
@@ -9,8 +9,19 @@ import { Subscription } from "rxjs";
   templateUrl: "discussion.page.html",
   styleUrls: ["discussion.page.scss"],
 })
-export class DiscussionPage implements OnInit, OnDestroy {
-  state!: GameState;
+export class DiscussionPage implements OnDestroy {
+  // ✅ Inicializar con valores por defecto para evitar template vacío
+  state: GameState = {
+    phase: 'discussion',
+    players: [],
+    config: { impostorCount: 1, timerMinutes: 3, selectedCategories: [], showTimer: true },
+    currentWord: null,
+    currentCategory: null,
+    currentRevealIndex: 0,
+    roundNumber: 1,
+    inspireMessage: '',
+  };
+  
   timeLeft = 0;
   totalTime = 0;
   timerRunning = false;
@@ -21,32 +32,39 @@ export class DiscussionPage implements OnInit, OnDestroy {
 
   constructor(
     private gameService: GameService,
-    private router: Router,
-  ) {
-    console.log(">>> CONSTRUCTOR DiscussionPage EJECUTADO <<<");
-  }
+    private navCtrl: NavController,
+    private cdr: ChangeDetectorRef, // <-- Inyectar
+  ) {}
 
-  ngOnInit(): void {
-    // Suscribirse al estado
+  ionViewWillEnter(): void {
+    const currentState = this.gameService.currentState;
+    this.state = { ...currentState };
+    
+    // ✅ FORZAR PINTADO INMEDIATO
+    this.cdr.detectChanges();
+
+    const minutes = currentState.config.timerMinutes;
+    this.totalTime = minutes * 60;
+    this.timeLeft = this.totalTime;
+
+    if (currentState.config.showTimer) {
+      this.startTimer();
+    }
+
+    if (this.sub) this.sub.unsubscribe();
     this.sub = this.gameService.state$.subscribe((s) => {
-      this.state = s;
-
-      // Inicializar timer cuando llega el estado
-      if (this.totalTime === 0) {
-        const minutes = s.config.timerMinutes;
-        this.totalTime = minutes * 60;
-        this.timeLeft = this.totalTime;
-
-        // Iniciar automáticamente si está habilitado
-        if (s.config.showTimer) {
-          this.startTimer();
-        }
-      }
+      this.state = { ...s };
+      this.cdr.detectChanges(); // Forzar en cada cambio
     });
   }
 
+  ionViewWillLeave(): void {
+    if (this.sub) this.sub.unsubscribe();
+    this.clearTimer();
+  }
+
   ngOnDestroy(): void {
-    this.sub?.unsubscribe();
+    if (this.sub) this.sub.unsubscribe();
     this.clearTimer();
   }
 
@@ -113,6 +131,6 @@ export class DiscussionPage implements OnInit, OnDestroy {
   goToVoting(): void {
     this.clearTimer();
     this.gameService.startVoting();
-    this.router.navigateByUrl("/voting");
+    this.navCtrl.navigateForward("/voting", { animated: true, replaceUrl: true });
   }
 }

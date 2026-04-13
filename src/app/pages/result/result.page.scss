@@ -1,25 +1,21 @@
 // src/app/pages/result/result.page.scss
 
 ion-content.result-content {
-  --background: transparent;
+  --background: linear-gradient(160deg, #071630 0%, #0d2251 30%, #0e3320 60%, #1a4a2a 100%);
   --color: #fff;
+  height: 100% !important;
+  min-height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
 }
 
-// ---- Fondos según resultado ----
-.result-bg {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  transition: background 1s ease;
-
-  &.win-bg {
-    background: linear-gradient(160deg, #071630 0%, #0d2251 30%, #0e3320 60%, #1a4a2a 100%);
-  }
-
-  &.lose-bg {
-    background: linear-gradient(160deg, #071630 0%, #0d2251 30%, #2a1010 60%, #3a1515 100%);
-  }
+// Cambiar dinámicamente el fondo según resultado
+ion-content.result-content.lose-result {
+  --background: linear-gradient(160deg, #071630 0%, #0d2251 30%, #2a1010 60%, #3a1515 100%);
 }
+
+// Ocultar el div de fondo antiguo
+.result-bg { display: none; }
 
 // ---- Partículas de confeti (solo si ganaron) ----
 .particles {
@@ -58,6 +54,15 @@ ion-content.result-content {
 ion-toolbar {
   --background: rgba(7, 22, 48, 0.95);
   --border-width: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.toolbar-title {
+  font-family: var(--font-title);
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  color: rgba(255,255,255,0.8);
 }
 
 .toolbar-title {
@@ -70,12 +75,14 @@ ion-toolbar {
 .result-container {
   position: relative;
   z-index: 2;
+  flex: 1;
   padding: 20px 16px 100px;
   max-width: 480px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 18px;
+  width: 100%;
 }
 
 // ============================================================
@@ -459,4 +466,188 @@ ion-toolbar {
   height: 50px;
 
   &:hover { --color: #fff; --border-color: rgba(255,255,255,0.4); }
+}
+
+//Animaciones
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes rotateIn {
+  from { opacity: 0; transform: rotate(-10deg) scale(0.8); }
+  to { opacity: 1; transform: rotate(0) scale(1); }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.5s ease-out both;
+  opacity: 1 !important;
+  
+  &.delay-2 { animation-delay: 0.2s; }
+  &.delay-3 { animation-delay: 0.3s; }
+  &.delay-4 { animation-delay: 0.4s; }
+  &.delay-5 { animation-delay: 0.5s; }
+}
+
+.animate-rotateIn {
+  animation: rotateIn 0.5s ease-out both;
+}
+
+.elimination-hint {
+  text-align: center;
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.55);
+  margin: 12px 0 0;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  
+  ion-icon { color: var(--color-danger); }
+  strong { color: var(--color-gold-light); }
+}
+
+.elimination-hint {
+  text-align: center;
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.55);
+  margin: 12px 0 0;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 10px;
+  
+  ion-icon { 
+    font-size: 1rem;
+  }
+  
+  strong {
+    font-weight: 700;
+  }
+}
+
+.btn-continue {
+  --background: linear-gradient(135deg, #2ec478 0%, #4dd490 100%);
+  --color: #0d2251;
+  --border-radius: 50px;
+  --box-shadow: 0 6px 25px rgba(46,196,120,0.4);
+  font-family: var(--font-title);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  height: 56px;
+}
+
+// ============================================================
+// ESTADOS DEL VEREDICTO
+// ============================================================
+
+// Estado: Continuar buscando (impostor escapó, juego sigue)
+.verdict-icon-wrapper.continue-glow {
+  background: rgba(212,167,40,0.15);
+  box-shadow: 0 0 40px rgba(212,167,40,0.3), 0 0 80px rgba(212,167,40,0.1);
+}
+
+.verdict-icon.icon-continue {
+  color: var(--color-gold);
+  animation: pulse 2s infinite;
+}
+
+.verdict-title.title-continue {
+  color: var(--color-gold-light);
+}
+
+// Estado: Derrota final (impostores ganaron)
+.verdict-icon-wrapper.lose-glow {
+  background: rgba(220,80,80,0.15);
+  box-shadow: 0 0 40px rgba(220,80,80,0.4), 0 0 80px rgba(220,80,80,0.2);
+}
+
+.verdict-icon.icon-lose {
+  color: #ff6b6b;
+}
+
+.verdict-title.title-lose {
+  color: #ff6b6b;
+}
+
+// ============================================================
+// BOTONES CON ESTADOS
+// ============================================================
+
+.btn-continue {
+  --background: linear-gradient(135deg, #2ec478 0%, #4dd490 100%);
+  --color: #0d2251;
+  --border-radius: 50px;
+  --box-shadow: 0 6px 25px rgba(46,196,120,0.4);
+  font-family: var(--font-title);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  height: 56px;
+}
+
+.btn-play-again.btn-win {
+  --background: linear-gradient(135deg, #2ec478 0%, #4dd490 100%);
+}
+
+.btn-play-again.btn-lose {
+  --background: linear-gradient(135deg, #dc5050 0%, #ff6b6b 100%);
+  --color: #fff;
+}
+
+// ============================================================
+// MENSAJES DE ESTADO
+// ============================================================
+
+.elimination-hint {
+  text-align: center;
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.55);
+  margin: 12px 0 0;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 10px;
+  
+  ion-icon { font-size: 1rem; }
+  strong { font-weight: 700; }
+}
+
+.elimination-hint.continue-hint {
+  color: rgba(212,167,40,0.8);
+  background: rgba(212,167,40,0.08);
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(212,167,40,0.2);
+  
+  ion-icon { color: var(--color-gold); }
+  strong { color: var(--color-gold-light); }
+}
+
+.elimination-hint.lose-hint {
+  color: rgba(255,107,107,0.9);
+  background: rgba(220,80,80,0.1);
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(220,80,80,0.25);
+  
+  ion-icon { color: #ff6b6b; }
+  strong { color: #ff8e8e; }
+}
+
+.elimination-hint.win-hint {
+  color: rgba(46,196,120,0.9);
+  background: rgba(46,196,120,0.1);
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(46,196,120,0.25);
+  
+  ion-icon { color: #2ec478; }
+  strong { color: #4dd490; }
 }

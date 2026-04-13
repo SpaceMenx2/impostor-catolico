@@ -10,31 +10,65 @@
 
 <!-- IMPORTANTE: Sin [fullscreen]="true" -->
 <ion-content class="discussion-content">
-  
+  <div
+    style="
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(
+        160deg,
+        #071630 0%,
+        #0d2251 40%,
+        #1a3a6b 100%
+      );
+      z-index: -1;
+    "
+  ></div>
+
   <!-- Fondo degradado -->
   <div class="discussion-bg"></div>
 
   <div class="discussion-container">
-
     <!-- TEMPORIZADOR circular -->
-    <div class="timer-section animate-fadeInUp" *ngIf="state?.config?.showTimer">
+    <div
+      class="timer-section animate-fadeInUp"
+      *ngIf="state?.config?.showTimer"
+    >
       <div class="timer-ring-wrapper">
         <svg class="timer-ring" viewBox="0 0 120 120">
           <!-- Track -->
-          <circle cx="60" cy="60" r="52" fill="none"
-            stroke="rgba(255,255,255,0.08)" stroke-width="8"/>
+          <circle
+            cx="60"
+            cy="60"
+            r="52"
+            fill="none"
+            stroke="rgba(255,255,255,0.08)"
+            stroke-width="8"
+          />
           <!-- Fill animado -->
-          <circle cx="60" cy="60" r="52" fill="none"
+          <circle
+            cx="60"
+            cy="60"
+            r="52"
+            fill="none"
             [attr.stroke]="timerColor"
             stroke-width="8"
             stroke-linecap="round"
             stroke-dasharray="326.7"
             [attr.stroke-dashoffset]="326.7 * (1 - timerPercent / 100)"
             transform="rotate(-90 60 60)"
-            style="transition: stroke-dashoffset 1s linear, stroke 0.5s ease"/>
+            style="
+              transition:
+                stroke-dashoffset 1s linear,
+                stroke 0.5s ease;
+            "
+          />
         </svg>
         <div class="timer-inner">
-          <span class="timer-display" [style.color]="timerColor" [class.blink]="timerFinished">
+          <span
+            class="timer-display"
+            [style.color]="timerColor"
+            [class.blink]="timerFinished"
+          >
             {{ timerDisplay }}
           </span>
           <span class="timer-label">minutos</span>
@@ -43,7 +77,12 @@
 
       <!-- Controles del timer -->
       <div class="timer-controls">
-        <ion-button fill="clear" size="small" (click)="resetTimer()" color="medium">
+        <ion-button
+          fill="clear"
+          size="small"
+          (click)="resetTimer()"
+          color="medium"
+        >
           <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
         </ion-button>
         <ion-button
@@ -52,7 +91,10 @@
           [color]="timerRunning ? 'warning' : 'success'"
           (click)="timerRunning ? pauseTimer() : startTimer()"
         >
-          <ion-icon slot="icon-only" [name]="timerRunning ? 'pause-circle-outline' : 'play-circle-outline'"></ion-icon>
+          <ion-icon
+            slot="icon-only"
+            [name]="timerRunning ? 'pause-circle-outline' : 'play-circle-outline'"
+          ></ion-icon>
         </ion-button>
       </div>
 
@@ -72,7 +114,8 @@
       <ul class="inst-list">
         <li>
           <ion-icon name="chatbubble-outline"></ion-icon>
-          Cada jugador da <strong>una pista</strong> sobre la palabra sin decirla.
+          Cada jugador da <strong>una pista</strong> sobre la palabra sin
+          decirla.
         </li>
         <li>
           <ion-icon name="eye-outline"></ion-icon>
@@ -106,20 +149,15 @@
     <!-- Mensaje inspirador -->
     <div class="inspire-block animate-fadeInUp delay-4">
       <ion-icon name="leaf-outline"></ion-icon>
-      <em>{{ state.inspireMessage }}</em>
+      <em>{{ state.inspireMessage || "" }}</em>
     </div>
 
     <!-- BOTÓN ir a votar -->
     <div class="vote-section animate-fadeInUp delay-5">
-      <ion-button
-        expand="block"
-        class="btn-vote"
-        (click)="goToVoting()"
-      >
+      <ion-button expand="block" class="btn-vote" (click)="goToVoting()">
         <ion-icon slot="start" name="hand-right-outline"></ion-icon>
         Pasar a la votación
       </ion-button>
     </div>
-
   </div>
 </ion-content>

@@ -8,17 +8,15 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="voting-content" [fullscreen]="true">
+<ion-content class="voting-content">
   <div class="voting-bg"></div>
 
   <div class="voting-container">
-
     <!-- ============================================================
          ESTADO: Votando uno por uno
          ============================================================ -->
     <ng-container *ngIf="!allDone">
       <ng-container *ngIf="currentTurn">
-
         <!-- Progreso de votación -->
         <div class="vote-progress animate-fadeInUp">
           <div class="progress-dots">
@@ -84,7 +82,7 @@
             expand="block"
             class="btn-confirm"
             [disabled]="!currentTurn.selectedVote || voteConfirmed"
-            (click)="confirmVote()"
+            (click)="confirmVote(); $event.preventDefault(); $event.stopPropagation()"
           >
             <ion-icon slot="start" name="checkmark-done-outline"></ion-icon>
             Confirmar voto
@@ -93,7 +91,6 @@
             Seleccioná a quién querés votar
           </p>
         </div>
-
       </ng-container>
     </ng-container>
 
@@ -106,9 +103,7 @@
           <ion-icon name="checkmark-circle-outline"></ion-icon>
         </div>
         <h2 class="done-title">¡Todos votaron!</h2>
-        <p class="done-subtitle">
-          Es hora de descubrir la verdad...
-        </p>
+        <p class="done-subtitle">Es hora de descubrir la verdad...</p>
 
         <!-- Resumen de votos (sin revelar el resultado) -->
         <div class="votes-summary">
@@ -119,22 +114,27 @@
           <div class="summary-list">
             <div *ngFor="let turn of voterTurns" class="summary-item">
               <span class="summary-voter">{{ turn.voter.name }}</span>
-              <ion-icon name="arrow-forward-outline" class="summary-arrow"></ion-icon>
-              <span class="summary-voted">{{ getCandidateName(turn.selectedVote!) }}</span>
+              <ion-icon
+                name="arrow-forward-outline"
+                class="summary-arrow"
+              ></ion-icon>
+              <span class="summary-voted"
+                >{{ getCandidateName(turn.selectedVote!) }}</span
+              >
             </div>
           </div>
         </div>
 
         <ion-button
+          type="button"
           expand="block"
           class="btn-reveal-result"
-          (click)="showResults()"
+          (click)="showResults(); $event.preventDefault(); $event.stopPropagation()"
         >
           <ion-icon slot="start" name="eye-outline"></ion-icon>
           Revelar resultado
         </ion-button>
       </div>
     </ng-container>
-
   </div>
 </ion-content>

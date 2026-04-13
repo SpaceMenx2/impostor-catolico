@@ -230,6 +230,7 @@ export const INSPIRE_MESSAGES: string[] = [
   '"Cada persona es un regalo de Dios."',
   '"Busca la verdad y la verdad te hará libre." — Jn 8,32',
   '"Juntos somos Iglesia, juntos somos familia."',
+  '"Dios, que es amor, nos creó por amor" - Papa Francisco'
 ];
 
 export function getRandomInspireMessage(): string {

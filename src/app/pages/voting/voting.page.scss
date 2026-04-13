@@ -1,20 +1,22 @@
 // src/app/pages/voting/voting.page.scss
 
 ion-content.voting-content {
-  --background: transparent;
+  --background: linear-gradient(160deg, #071630 0%, #0d2251 40%, #1a3a6b 100%);
   --color: #fff;
+  height: 100% !important;
+  min-height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
 }
 
-.voting-bg {
-  position: fixed;
-  inset: 0;
-  background: linear-gradient(160deg, #071630 0%, #0d2251 40%, #1a3a6b 100%);
-  z-index: 0;
-}
+// Ocultar el div de fondo antiguo
+.voting-bg { display: none; }
 
 ion-toolbar {
   --background: rgba(7, 22, 48, 0.95);
   --border-width: 0;
+  position: relative;
+  z-index: 2;
 }
 
 .toolbar-title {
@@ -27,15 +29,18 @@ ion-toolbar {
   .title-icon { color: var(--color-gold); }
 }
 
+// 2. Contenedor con flex: 1
 .voting-container {
   position: relative;
   z-index: 1;
+  flex: 1;
   padding: 20px 16px 100px;
   max-width: 480px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 18px;
+  width: 100%;
 }
 
 // ---- Progreso de puntos ----
@@ -330,4 +335,33 @@ ion-toolbar {
   letter-spacing: 0.06em;
   height: 58px;
   width: 100%;
+}
+
+// Animaciones
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes rotateIn {
+  from { opacity: 0; transform: rotate(-10deg) scale(0.8); }
+  to { opacity: 1; transform: rotate(0) scale(1); }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.5s ease-out both;
+  opacity: 1 !important;
+  
+  &.delay-1 { animation-delay: 0.1s; }
+  &.delay-2 { animation-delay: 0.2s; }
+  &.delay-3 { animation-delay: 0.3s; }
+  &.delay-4 { animation-delay: 0.4s; }
+}
+
+.animate-rotateIn {
+  animation: rotateIn 0.5s ease-out both;
+}
+
+.animate-pulse {
+  animation: pulse 2s ease-in-out infinite;
 }

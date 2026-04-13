@@ -4,15 +4,15 @@
 // Contiene toda la lógica de estado y flujo del juego
 // ============================================================
 
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Injectable } from "@angular/core";
+import { BehaviorSubject } from "rxjs";
 import {
   WORD_CATEGORIES,
   WordCategory,
   WordEntry,
   getRandomWord,
   getRandomInspireMessage,
-} from '../data/words';
+} from "../data/words";
 
 // ---- Interfaces de modelo ----
 
@@ -25,19 +25,19 @@ export interface Player {
 }
 
 export interface GameConfig {
-  impostorCount: number;           // Cuántos impostores hay (1 o 2)
-  timerMinutes: number;            // Duración del temporizador de discusión
-  selectedCategories: string[];    // IDs de categorías activas (vacío = todas)
-  showTimer: boolean;              // Mostrar u ocultar el temporizador
+  impostorCount: number; // Cuántos impostores hay (1 o 2)
+  timerMinutes: number; // Duración del temporizador de discusión
+  selectedCategories: string[]; // IDs de categorías activas (vacío = todas)
+  showTimer: boolean; // Mostrar u ocultar el temporizador
 }
 
 export type GamePhase =
-  | 'home'         // ← Pantalla de inicio (menú principal)
-  | 'players'      // ← Configurar jugadores (agregar/remover)
-  | 'role-reveal'  // ← Revelar roles uno a uno
-  | 'discussion'   // ← Discusión con timer
-  | 'voting'       // ← Votación
-  | 'result';      // ← Resultado final
+  | "home" // ← Pantalla de inicio (menú principal)
+  | "players" // ← Configurar jugadores (agregar/remover)
+  | "role-reveal" // ← Revelar roles uno a uno
+  | "discussion" // ← Discusión con timer
+  | "voting" // ← Votación
+  | "result"; // ← Resultado final
 
 export interface GameState {
   phase: GamePhase;
@@ -45,7 +45,7 @@ export interface GameState {
   config: GameConfig;
   currentWord: WordEntry | null;
   currentCategory: WordCategory | null;
-  currentRevealIndex: number;     // Índice del jugador que está viendo su rol
+  currentRevealIndex: number; // Índice del jugador que está viendo su rol
   roundNumber: number;
   inspireMessage: string;
 }
@@ -59,18 +59,18 @@ const DEFAULT_CONFIG: GameConfig = {
 };
 
 const INITIAL_STATE: GameState = {
-  phase: 'home',  // ← Empezar en home, no en setup
+  phase: "home", // ← Empezar en home, no en setup
   players: [],
   config: { ...DEFAULT_CONFIG },
   currentWord: null,
   currentCategory: null,
   currentRevealIndex: 0,
   roundNumber: 0,
-  inspireMessage: '',
+  inspireMessage: "",
 };
 
 // ============================================================
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class GameService {
   // Estado reactivo accesible desde cualquier componente
   private state = new BehaviorSubject<GameState>({ ...INITIAL_STATE });
@@ -95,7 +95,7 @@ export class GameService {
 
     const state = this.currentState;
     const exists = state.players.some(
-      (p) => p.name.toLowerCase() === trimmed.toLowerCase()
+      (p) => p.name.toLowerCase() === trimmed.toLowerCase(),
     );
     if (exists) return false;
 
@@ -170,11 +170,11 @@ export class GameService {
     const { word, category } = getRandomWord(
       state.config.selectedCategories.length > 0
         ? state.config.selectedCategories
-        : undefined
+        : undefined,
     );
 
     this.updateState({
-      phase: 'role-reveal',
+      phase: "role-reveal",
       players: finalPlayers,
       currentWord: word,
       currentCategory: category,
@@ -190,7 +190,15 @@ export class GameService {
 
   /** Marca que el jugador actual ya vio su rol y avanza al siguiente */
   markRoleSeen(): void {
+    console.log(">>> [SERVICE] markRoleSeen() - Inicio");
+
     const state = this.currentState;
+    console.log(">>> [SERVICE] Estado actual:", {
+      phase: state.phase,
+      index: state.currentRevealIndex,
+      total: state.players.length,
+    });
+
     const players = [...state.players];
 
     players[state.currentRevealIndex] = {
@@ -199,15 +207,23 @@ export class GameService {
     };
 
     const nextIndex = state.currentRevealIndex + 1;
+    console.log(
+      ">>> [SERVICE] nextIndex:",
+      nextIndex,
+      "vs total:",
+      players.length,
+    );
 
     if (nextIndex >= players.length) {
-      // Todos vieron su rol → pasar a discusión
+      console.log(">>> [SERVICE] ✅ Último jugador - Cambiando a discussion");
       this.updateState({
         players,
         currentRevealIndex: 0,
-        phase: 'discussion',
+        phase: "discussion",
       });
+      console.log(">>> [SERVICE] ✅ updateState llamado");
     } else {
+      console.log(">>> [SERVICE] ➡️ Siguiente jugador:", nextIndex);
       this.updateState({ players, currentRevealIndex: nextIndex });
     }
   }
@@ -222,7 +238,7 @@ export class GameService {
 
   /** Cambia a la fase de votación */
   startVoting(): void {
-    this.updateState({ phase: 'voting' });
+    this.updateState({ phase: "voting" });
   }
 
   /**
@@ -233,7 +249,7 @@ export class GameService {
   castVote(voterId: string, votedId: string): void {
     const state = this.currentState;
     const players = state.players.map((p) =>
-      p.id === voterId ? { ...p, vote: votedId } : p
+      p.id === voterId ? { ...p, vote: votedId } : p,
     );
     this.updateState({ players });
   }
@@ -247,7 +263,7 @@ export class GameService {
 
   /** Cambia a la fase de resultado */
   showResult(): void {
-    this.updateState({ phase: 'result' });
+    this.updateState({ phase: "result" });
   }
 
   /** Calcula los votos y devuelve el jugador más votado */
@@ -256,6 +272,7 @@ export class GameService {
     voteCounts: { player: Player; votes: number }[];
     impostors: Player[];
     isCorrect: boolean;
+    canContinue: boolean; // ← Ahora significa: "¿seguir con misma palabra?"
   } {
     const state = this.currentState;
     const voteMap: { [id: string]: number } = {};
@@ -277,7 +294,83 @@ export class GameService {
     const impostors = state.players.filter((p) => p.isImpostor);
     const isCorrect = mostVoted?.isImpostor ?? false;
 
-    return { mostVoted, voteCounts, impostors, isCorrect };
+    // ← NUEVA CONDICIÓN: puede continuar si quedan suficientes civiles
+    const remainingAfterElimination = state.players.filter(
+      (p) => p.id !== mostVoted?.id,
+    );
+    const impostorCount = impostors.length; // Los impostores no se eliminan (a menos que sean votados)
+
+    // Condición: civiles restantes >= impostores + 2
+    const civilianCount = remainingAfterElimination.filter(
+      (p) => !p.isImpostor,
+    ).length;
+    const canContinue = !isCorrect && civilianCount >= impostorCount + 2;
+
+    console.log(">>> [SERVICE] votingResult:", {
+      mostVoted: mostVoted?.name,
+      isCorrect,
+      impostorCount,
+      civilianCountAfterElimination: civilianCount,
+      canContinue,
+      condition: `civiles (${civilianCount}) >= impostores+2 (${impostorCount + 2})`,
+    });
+
+    return { mostVoted, voteCounts, impostors, isCorrect, canContinue };
+  }
+
+  continueWithSameWord(): boolean {
+    const state = this.currentState;
+    const result = this.votingResult;
+    const mostVoted = result.mostVoted;
+
+    if (!mostVoted) return false;
+
+    console.log(
+      ">>> [SERVICE] continueWithSameWord() - Eliminando:",
+      mostVoted.name,
+    );
+
+    // 1. Eliminar al jugador más votado
+    const remainingPlayers = state.players
+      .filter((p) => p.id !== mostVoted.id)
+      .map((p) => ({
+        ...p,
+        vote: null, // Resetear votos para la nueva votación
+        hasSeenRole: p.hasSeenRole, // Mantener si ya vieron su rol (aunque no importa en discussion)
+      }));
+
+    // 2. Verificar si los impostores ganaron por mayoría
+    const impostors = remainingPlayers.filter((p) => p.isImpostor);
+    const civilians = remainingPlayers.filter((p) => !p.isImpostor);
+
+    // Si los civiles son minoría (< impostores + 2), los impostores ganan
+    if (civilians.length < impostors.length + 2) {
+      console.log(
+        ">>> [SERVICE] Impostores ganan: civiles",
+        civilians.length,
+        "< impostores+2",
+        impostors.length + 2,
+      );
+      // Mantener fase 'result' para mostrar victoria de impostores
+      return false;
+    }
+
+    // 3. ¡Continuar con la misma palabra!
+    this.updateState({
+      phase: "discussion", // ← VOLVER A DISCUSSION, no a role-reveal
+      players: remainingPlayers,
+      // ← MANTENER palabra y categoría actuales (no resetear)
+      currentRevealIndex: 0,
+      // No incrementamos roundNumber porque es la misma ronda
+    });
+
+    console.log(
+      ">>> [SERVICE] Continuando con",
+      remainingPlayers.length,
+      "jugadores, misma palabra:",
+      state.currentWord?.word,
+    );
+    return true;
   }
 
   // ---- NUEVA PARTIDA / RESET ----
@@ -285,7 +378,7 @@ export class GameService {
   /** Comienza una nueva partida manteniendo los jugadores y configuración */
   newRound(): void {
     this.updateState({
-      phase: 'players',
+      phase: "players",
       currentWord: null,
       currentCategory: null,
       currentRevealIndex: 0,
@@ -298,6 +391,56 @@ export class GameService {
     });
   }
 
+  /**
+   * Continúa el juego eliminando al jugador más votado y reiniciando la ronda
+   * @returns boolean - true si el juego puede continuar, false si terminó
+   */
+  continueGame(): boolean {
+    const state = this.currentState;
+    const result = this.votingResult;
+    const mostVoted = result.mostVoted;
+
+    if (!mostVoted) return false;
+
+    // 1. Eliminar al jugador más votado de la lista
+    const remainingPlayers = state.players
+      .filter((p) => p.id !== mostVoted.id)
+      .map((p) => ({
+        ...p,
+        hasSeenRole: false,
+        vote: null, // Limpiar votos previos
+      }));
+
+    // 2. Verificar condiciones de fin del juego
+    const impostors = remainingPlayers.filter((p) => p.isImpostor);
+    const civilians = remainingPlayers.filter((p) => !p.isImpostor);
+
+    // Si los impostores son mayoría o empate, ganan el juego
+    if (impostors.length >= civilians.length) {
+      console.log(">>> [SERVICE] Los impostores han ganado por mayoría.");
+      // Aquí podrías actualizar el estado a 'result' con un mensaje especial si quisieras,
+      // pero por ahora retornamos false para indicar fin del juego.
+      return false;
+    }
+
+    // 3. ¡El juego continúa! Configurar nueva ronda
+    this.updateState({
+      phase: "role-reveal",
+      players: remainingPlayers,
+      currentWord: null, // Se elegirá una nueva palabra al iniciar
+      currentCategory: null,
+      currentRevealIndex: 0,
+      roundNumber: state.roundNumber + 1,
+      inspireMessage: getRandomInspireMessage(),
+    });
+
+    console.log(
+      ">>> [SERVICE] Juego continuando con",
+      remainingPlayers.length,
+      "jugadores.",
+    );
+    return true;
+  }
   /** Reinicia el juego completamente */
   fullReset(): void {
     this.state.next({ ...INITIAL_STATE });

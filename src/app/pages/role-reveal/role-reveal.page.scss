@@ -1,9 +1,13 @@
 // src/app/pages/role-reveal/role-reveal.page.scss
 
+// 1. Forzar altura en ion-content (CRUCIAL para que no colapse a 0px)
 ion-content.reveal-content {
   --background: transparent;
   --color: #fff;
-  // Sin min-height forzado que pueda interferir
+  height: 100% !important;
+  min-height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
 }
 
 // Fondo degradado: siempre detrás
@@ -11,14 +15,14 @@ ion-content.reveal-content {
   position: fixed;
   inset: 0;
   background: linear-gradient(160deg, #071630 0%, #0d2251 40%, #1a3a6b 100%);
-  z-index: 0; // CRUCIAL: detrás de todo
+  z-index: 0;
 }
 
 ion-toolbar {
   --background: rgba(7, 22, 48, 0.95);
   --border-width: 0;
   position: relative;
-  z-index: 2; // Encima del fondo
+  z-index: 2;
 }
 
 .toolbar-title {
@@ -47,16 +51,16 @@ ion-toolbar {
 // ---- Contenedor principal: ENCIMA del fondo ----
 .reveal-container {
   position: relative;
-  z-index: 1; // CRUCIAL: mayor que .reveal-bg (0)
+  z-index: 1;
+  flex: 1; // Ocupa todo el alto disponible de ion-content
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: calc(100vh - 56px); // Restar altura del header
   padding: 24px 20px;
   max-width: 420px;
   margin: 0 auto;
-  // Sin position: fixed ni absolute que saque del flujo normal
+  width: 100%;
 }
 
 // ---- Animaciones seguras (con keyframes definidos) ----

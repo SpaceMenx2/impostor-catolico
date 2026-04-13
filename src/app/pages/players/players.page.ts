@@ -19,6 +19,7 @@ export class PlayersPage implements OnDestroy {
     selectedCategories: [],
     showTimer: true,
   };
+  isStarting = false; // ← AGREGAR ESTA PROPIEDAD
 
   newPlayerName = "";
   categories: WordCategory[] = WORD_CATEGORIES;
@@ -46,50 +47,22 @@ export class PlayersPage implements OnDestroy {
 
   // En players.page.ts - ionViewWillEnter
   ionViewWillEnter(): void {
-    console.log(">>> [1] ionViewWillEnter iniciado");
-
+    // Cargar estado actual
     const currentState = this.gameService.currentState;
-    console.log(">>> [2] Fase actual:", currentState.phase);
-    console.log(">>> [3] Jugadores:", currentState.players.length);
-
-    if (currentState.phase !== "home" && currentState.phase !== "players") {
-      console.log(">>> [4] Fase inválida, redirigiendo a home");
-      this.navCtrl.navigateRoot("/home", { animated: true });
-      return;
-    }
-
     this.players = [...currentState.players];
     this.config = { ...currentState.config };
-    console.log(">>> [5] Datos cargados, players:", this.players.length);
-
     this.cdr.detectChanges();
-    console.log(">>> [6] detectChanges() ejecutado");
 
+    // Suscribirse a cambios (sin validaciones de fase)
     if (this.sub) this.sub.unsubscribe();
-
     this.sub = this.gameService.state$.subscribe((state) => {
-      console.log(
-        ">>> [SUB] Fase:",
-        state.phase,
-        "Jugadores:",
-        state.players.length,
-      );
-
-      // DEBUG: Si la fase cambió inesperadamente, loguealo
-      if (state.phase !== "home" && state.phase !== "players") {
-        console.warn(">>> [SUB] Fase inválida detectada:", state.phase);
-      }
-
       this.players = [...state.players];
       this.config = { ...state.config };
       this.cdr.detectChanges();
     });
-
-    console.log(">>> [7] ionViewWillEnter finalizado");
   }
 
   ionViewWillLeave(): void {
-    // Limpiar suscripción al salir para evitar memory leaks o conflictos
     if (this.sub) this.sub.unsubscribe();
   }
 
@@ -109,20 +82,11 @@ export class PlayersPage implements OnDestroy {
   }
 
   addPlayer(): void {
-    console.log(">>> [ADD] addPlayer() llamado");
-
     if (!this.newPlayerName.trim()) {
-      console.log(">>> [ADD] Nombre vacío");
       return;
     }
 
     const success = this.gameService.addPlayer(this.newPlayerName);
-    console.log(
-      ">>> [ADD] Resultado:",
-      success,
-      "Jugadores ahora:",
-      this.gameService.currentState.players.length,
-    );
 
     if (success) {
       this.newPlayerName = "";
@@ -172,22 +136,41 @@ export class PlayersPage implements OnDestroy {
   }
 
   async startGame(): Promise<void> {
-    if (!this.canStart) {
-      await this.showToast(
-        `Necesitás al menos ${this.minPlayersNeeded} jugadores`,
-        "danger",
-      );
+    // Prevenir ejecución múltiple
+    if (this.isStarting) {
       return;
     }
 
-    const success = this.gameService.startGame();
-    if (success) {
-      const activeElement = document.activeElement as HTMLElement;
-      if (activeElement) activeElement.blur();
-      await new Promise((resolve) => setTimeout(resolve, 50));
-      await this.navCtrl.navigateForward("/role-reveal", { animated: true });
-    } else {
-      await this.showToast("No se pudo iniciar la partida", "danger");
+    this.isStarting = true; // ← BLOQUEAR NUEVOS CLICKS
+
+    try {
+      if (!this.canStart) {
+        await this.showToast(
+          `Necesitás al menos ${this.minPlayersNeeded} jugadores`,
+          "danger",
+        );
+        return;
+      }
+
+      const success = this.gameService.startGame();
+
+      if (success) {
+        const activeElement = document.activeElement as HTMLElement;
+        if (activeElement) activeElement.blur();
+
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        // Usar navigateRoot para limpiar el stack y evitar conflictos
+        await this.navCtrl.navigateRoot("/role-reveal", { animated: true });
+        console.log(">>> [START] Navegación completada");
+      } else {
+        await this.showToast("No se pudo iniciar la partida", "danger");
+      }
+    } finally {
+      // Desbloquear después de un delay para evitar flicker
+      setTimeout(() => {
+        this.isStarting = false;
+      }, 500);
     }
   }
 

@@ -1,50 +1,50 @@
 // src/app/app-routing.module.ts
-import { NgModule } from '@angular/core';
-import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { NgModule } from "@angular/core";
+import { PreloadAllModules, RouterModule, Routes } from "@angular/router";
 
 const routes: Routes = [
   {
-    path: '',
-    redirectTo: 'home',
-    pathMatch: 'full',
+    path: "",
+    redirectTo: "home",
+    pathMatch: "full",
   },
   {
-    path: 'home',
+    path: "home",
     loadChildren: () =>
-      import('./pages/home/home.module').then((m) => m.HomePageModule),
+      import("./pages/home/home.module").then((m) => m.HomePageModule),
   },
   {
-    path: 'players',
+    path: "players",
     loadChildren: () =>
-      import('./pages/players/players.module').then((m) => m.PlayersPageModule),
+      import("./pages/players/players.module").then((m) => m.PlayersPageModule),
   },
   {
-    path: 'role-reveal',
+    path: "role-reveal",
     loadChildren: () =>
-      import('./pages/role-reveal/role-reveal.module').then(
-        (m) => m.RoleRevealPageModule
+      import("./pages/role-reveal/role-reveal.module").then(
+        (m) => m.RoleRevealPageModule,
       ),
   },
   {
-    path: 'discussion',
+    path: "discussion",
     loadChildren: () =>
-      import('./pages/discussion/discussion.module').then(
-        (m) => m.DiscussionPageModule
+      import("./pages/discussion/discussion.module").then(
+        (m) => m.DiscussionPageModule,
       ),
   },
   {
-    path: 'voting',
+    path: "voting",
     loadChildren: () =>
-      import('./pages/voting/voting.module').then((m) => m.VotingPageModule),
+      import("./pages/voting/voting.module").then((m) => m.VotingPageModule),
   },
   {
-    path: 'result',
+    path: "result",
     loadChildren: () =>
-      import('./pages/result/result.module').then((m) => m.ResultPageModule),
+      import("./pages/result/result.module").then((m) => m.ResultPageModule),
   },
   {
-    path: '**',
-    redirectTo: 'home',
+    path: "**",
+    redirectTo: "home",
   },
 ];
 

@@ -1,23 +1,348 @@
-// players.page.scss
+// src/app/pages/players/players.page.scss
+
 ion-content.players-content {
   --background: transparent;
   --color: #fff;
 }
+
 .page-bg {
-  position: fixed; inset: 0;
+  position: fixed;
+  inset: 0;
   background: linear-gradient(160deg, #071630 0%, #0d2251 40%, #1a3a6b 100%);
-  z-index: 0;
+  z-index: 0; /* Fondo siempre detrás */
 }
+
+ion-toolbar {
+  --background: rgba(7, 22, 48, 0.95);
+  --border-width: 0;
+  position: relative;
+  z-index: 2; /* Header siempre encima */
+}
+
+.toolbar-title {
+  font-family: var(--font-title);
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .title-icon {
+    color: var(--color-gold);
+  }
+}
+
 .players-container {
-  position: relative; z-index: 1;
-  padding: 16px; max-width: 500px; margin: 0 auto;
+  position: relative;
+  z-index: 1; /* Contenido encima del fondo, debajo del header */
+  padding: 16px 16px 100px;
+  max-width: 500px;
+  margin: 0 auto;
 }
+
+// Animaciones definidas explícitamente
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.animate-fadeInUp { animation: fadeInUp 0.3s ease-out both; }
-.delay-1 { animation-delay: 0.1s; }
-.delay-2 { animation-delay: 0.2s; }
-.delay-3 { animation-delay: 0.3s; }
-.delay-4 { animation-delay: 0.4s; }
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.4s ease-out both;
+  &.delay-1 { animation-delay: 0.1s; }
+  &.delay-2 { animation-delay: 0.2s; }
+  &.delay-3 { animation-delay: 0.3s; }
+  &.delay-4 { animation-delay: 0.4s; }
+}
+
+// ---- Agregar jugador ----
+.add-player-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.add-player-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--color-gold);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+
+  ion-icon { font-size: 1rem; }
+}
+
+.add-player-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.player-input {
+  --background: rgba(255,255,255,0.07);
+  --color: #fff;
+  --placeholder-color: rgba(255,255,255,0.35);
+  --border-color: rgba(255,255,255,0.2);
+  --border-radius: 12px;
+  --padding-start: 14px;
+  --padding-end: 14px;
+  flex: 1;
+  font-size: 0.95rem;
+}
+
+.btn-add {
+  --background: var(--color-gold);
+  --color: #0d2251;
+  --border-radius: 12px;
+  width: 48px;
+  height: 48px;
+  font-weight: 700;
+
+  ion-icon { font-size: 1.4rem; }
+}
+
+// ---- Encabezado de sección ----
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 12px;
+
+  .min-info {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+
+    ion-icon { font-size: 0.9rem; }
+
+    &.ok  { color: var(--color-success); }
+    &.warn { color: var(--color-gold); }
+  }
+}
+
+// ---- Lista de jugadores ----
+.players-list {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 60px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 30px 20px;
+  color: rgba(255,255,255,0.3);
+
+  ion-icon { font-size: 2.5rem; }
+  p { font-size: 0.85rem; text-align: center; margin: 0; }
+}
+
+.player-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 10px 12px;
+
+  &:hover { background: rgba(255,255,255,0.1); }
+}
+
+.player-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 1rem;
+  color: #fff;
+  flex-shrink: 0;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+.player-name {
+  flex: 1;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.btn-remove {
+  --color: rgba(220, 80, 80, 0.7);
+  --padding-start: 6px;
+  --padding-end: 6px;
+
+  &:hover { --color: #dc5050; }
+}
+
+// ---- Configuración ----
+.config-section {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.config-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+  margin-bottom: 16px;
+
+  ion-icon { font-size: 1rem; }
+}
+
+.config-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.config-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.75);
+
+  ion-icon { font-size: 1rem; color: var(--color-gold-light); }
+}
+
+.config-label-full {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.75);
+  margin-bottom: 10px;
+
+  ion-icon { font-size: 1rem; color: var(--color-gold-light); }
+}
+
+.config-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.count-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: transparent;
+  color: rgba(255,255,255,0.55);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &.active {
+    background: var(--color-gold);
+    color: #0d2251;
+    border-color: var(--color-gold);
+    font-weight: 700;
+  }
+
+  &:hover:not(.active) {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+  }
+}
+
+// ---- Categorías ----
+.config-categories {
+  margin-top: 6px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 14px;
+}
+
+.categories-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cat-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.55);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  ion-icon { font-size: 0.9rem; }
+
+  &.active {
+    background: rgba(255,255,255,0.1);
+    font-weight: 700;
+  }
+
+  &:hover:not(.active) {
+    background: rgba(255,255,255,0.08);
+  }
+}
+
+// ---- Botón iniciar ----
+.start-section {
+  padding-top: 8px;
+}
+
+.btn-start-game {
+  --background: linear-gradient(135deg, #d4a728 0%, #f0c940 50%, #c8960c 100%);
+  --background-disabled: rgba(255,255,255,0.15);
+  --color: #0d2251;
+  --color-disabled: rgba(255,255,255,0.3);
+  --border-radius: 50px;
+  --box-shadow: 0 6px 25px rgba(212,167,40,0.4);
+  font-family: var(--font-title);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  height: 56px;
+
+  ion-icon { font-size: 1.3rem; }
+}
+
+.start-hint {
+  text-align: center;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.4);
+  margin: 10px 0 0;
+  font-style: italic;
+}
