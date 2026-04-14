@@ -4,24 +4,60 @@
   "description": "Juego social catequético inspirado en Impostor",
   "author": "Catequesis App",
   "private": true,
+
+  "main": "electron/main.js",
+
+  "scripts": {
+    "ng": "ng",
+
+    "────────── DESARROLLO WEB ──────────": "─────",
+    "start": "ng serve",
+
+    "────────── ELECTRON (ESCRITORIO) ──────────": "─────",
+    "electron:dev": "concurrently \"ng serve\" \"wait-on http://localhost:4200 && npx electron electron/main.js --dev\"",
+    "electron:prod": "npm run build:angular && npx electron electron/main.js",
+
+    "────────── BUILD WINDOWS ──────────": "─────",
+    "build:angular": "ng build --configuration production --base-href ./",
+    "build:win": "npm run clean:build && npm run build:angular && electron-builder --win --x64 --publish=never",
+    "build:win:dir": "npm run build:angular && electron-builder --win --x64 --dir --publish=never",
+
+    "────────── BUILD ANDROID ──────────": "─────",
+    "android": "npx ionic build && npx cap sync android && npx cap open android",
+    "android:sync": "npx cap sync android",
+    "android:open": "npx cap open android",
+
+    "────────── UTILIDADES ──────────": "─────",
+    "icons:generate": "node scripts/generate-icons.js",
+    "clean:build": "npx rimraf dist-electron www",
+    "clean:cache:win": "node -e \"const{execSync}=require('child_process');try{execSync('rmdir /s /q \"%LOCALAPPDATA%\\\\electron-builder\\\\Cache\\\\winCodeSign\"',{shell:'cmd.exe'});console.log('Cache limpiado')}catch(e){console.log('Cache no encontrado (está bien)')}\"",
+    "clean:all": "npm run clean:build && npm run clean:cache:win",
+
+    "postinstall": "electron-builder install-app-deps"
+  },
+
   "build": {
     "appId": "com.catequesis.impostor",
     "productName": "Impostor de Catequesis",
+
     "directories": {
       "output": "dist-electron",
       "buildResources": "resources"
     },
+
     "files": [
       "www/**/*",
       "electron/**/*",
       "package.json"
     ],
+
     "extraResources": [
       {
-        "from": "src/assets/icon.png",
-        "to": "icon.png"
+        "from": "src/assets/icons/",
+        "to": "assets/icons/"
       }
     ],
+
     "win": {
       "target": [
         {
@@ -29,29 +65,23 @@
           "arch": ["x64"]
         }
       ],
-      "icon": "src/assets/icon.png",
-      "publish": null
+      "icon": "src/assets/icons/favicon.ico",
+      "publish": null,
+      "forceCodeSigning": false
     },
-    "linux": {
-      "target": [
-        {
-          "target": "deb",
-          "arch": ["x64"]
-        }
-      ],
-      "category": "Game",
-      "icon": "src/assets/icon.png",
-      "publish": null
+
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Impostor Catequesis",
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": true,
+      "artifactName": "${productName}-Setup-${version}.${ext}"
     }
   },
-  "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "android": "ionic build && npx cap sync android && npx cap open android",
-    "electron": "ng build --base-href ./ && npx electron electron/main.js",
-    "electron:dev": "concurrently \"ng serve\" \"wait-on http://localhost:4200 && npx electron electron/main.js --dev\""
-  },
+
   "dependencies": {
     "@angular/animations": "^17.0.0",
     "@angular/common": "^17.0.0",
@@ -62,12 +92,14 @@
     "@angular/router": "^17.0.0",
     "@capacitor/android": "^5.0.0",
     "@capacitor/core": "^5.0.0",
+    "@capacitor/splash-screen": "^5.0.0",
     "@ionic/angular": "^7.0.0",
     "ionicons": "^7.0.0",
     "rxjs": "^7.8.0",
     "tslib": "^2.6.0",
     "zone.js": "^0.14.0"
   },
+
   "devDependencies": {
     "@angular-devkit/build-angular": "^17.0.0",
     "@angular/cli": "^17.0.0",
@@ -78,6 +110,8 @@
     "concurrently": "^8.0.0",
     "electron": "^28.0.0",
     "electron-builder": "^26.8.1",
+    "png-to-ico": "^2.1.8",
+    "rimraf": "^5.0.0",
     "typescript": "~5.2.0",
     "wait-on": "^7.0.0"
   }
