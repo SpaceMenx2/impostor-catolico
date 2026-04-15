@@ -1,6 +1,19 @@
 <!-- src/app/pages/role-reveal/role-reveal.page.html -->
 <ion-header class="ion-no-border">
   <ion-toolbar>
+    <!-- NEW #3: Botón cancelar -->
+    <ion-buttons slot="start">
+      <ion-button
+        type="button"
+        fill="clear"
+        color="medium"
+        (click)="cancelGame(); $event.preventDefault(); $event.stopPropagation()"
+        class="btn-cancel-game"
+        aria-label="Cancelar partida"
+      >
+        <ion-icon slot="icon-only" name="close-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
     <ion-title class="toolbar-title">
       Turno {{ currentIndex + 1 }} de {{ totalPlayers }}
     </ion-title>
@@ -12,9 +25,17 @@
 </ion-header>
 
 <ion-content class="reveal-content">
-  
-  <!-- Fondo degradado (detrás de todo) -->
+
+  <!-- Fondo degradado base (detrás de todo) -->
   <div class="reveal-bg"></div>
+
+  <!-- NEW #8: Fondo contextual del rol (santo / Judas) -->
+  <div
+    class="role-bg-image"
+    [class.loaded]="roleBgLoaded && roleBgImage"
+    [class.impostor-bg]="currentPlayer?.isImpostor"
+    [style.background-image]="(roleBgLoaded && roleBgImage) ? 'url(' + roleBgImage + ')' : 'none'"
+  ></div>
 
   <!-- Contenedor principal (encima del fondo) -->
   <div class="reveal-container">
@@ -50,7 +71,7 @@
       <ng-container *ngIf="revealStep === 'showing'">
         <div class="step-showing animate-rotateIn">
 
-          <!-- Jugador normal -->
+          <!-- Jugador normal (CIVIL) -->
           <ng-container *ngIf="!currentPlayer.isImpostor">
             <div class="role-card role-player">
               <div class="role-card-header">
@@ -62,6 +83,7 @@
               <div class="word-section">
                 <p class="word-label">La palabra secreta es:</p>
                 <div class="word-display">
+                  <!-- FIX #2: sin -webkit-text-fill-color en el elemento principal -->
                   <span class="the-word">{{ state.currentWord?.word }}</span>
                 </div>
                 <div class="category-badge">

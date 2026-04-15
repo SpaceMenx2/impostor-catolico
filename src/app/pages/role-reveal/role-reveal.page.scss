@@ -1,6 +1,5 @@
 // src/app/pages/role-reveal/role-reveal.page.scss
 
-// 1. Forzar altura en ion-content (CRUCIAL para que no colapse a 0px)
 ion-content.reveal-content {
   --background: transparent;
   --color: #fff;
@@ -10,7 +9,6 @@ ion-content.reveal-content {
   flex-direction: column !important;
 }
 
-// Fondo degradado: siempre detrás
 .reveal-bg {
   position: fixed;
   inset: 0;
@@ -18,11 +16,40 @@ ion-content.reveal-content {
   z-index: 0;
 }
 
+// NEW #8: Fondo contextual con overlay para legibilidad
+.role-bg-image {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+
+  // Overlay oscuro encima de la imagen (garantiza legibilidad del texto)
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(7, 22, 48, 0.72);
+  }
+
+  &.loaded {
+    opacity: 1;
+  }
+
+  // Para impostores: overlay más rojizo
+  &.impostor-bg::after {
+    background: rgba(60, 10, 10, 0.75);
+  }
+}
+
 ion-toolbar {
   --background: rgba(7, 22, 48, 0.95);
   --border-width: 0;
   position: relative;
-  z-index: 2;
+  z-index: 10;
 }
 
 .toolbar-title {
@@ -32,13 +59,19 @@ ion-toolbar {
   color: rgba(255,255,255,0.8);
 }
 
+// NEW #3: Botón cancelar en toolbar
+.btn-cancel-game {
+  --color: rgba(255, 255, 255, 0.5);
+  ion-icon { font-size: 1.4rem; }
+}
+
 // ---- Barra de progreso ----
 .progress-bar-track {
   height: 3px;
   background: rgba(255,255,255,0.1);
   width: 100%;
   position: relative;
-  z-index: 2;
+  z-index: 10;
 }
 
 .progress-bar-fill {
@@ -48,11 +81,11 @@ ion-toolbar {
   border-radius: 0 2px 2px 0;
 }
 
-// ---- Contenedor principal: ENCIMA del fondo ----
+// ---- Contenedor principal ----
 .reveal-container {
   position: relative;
-  z-index: 1;
-  flex: 1; // Ocupa todo el alto disponible de ion-content
+  z-index: 5; // encima del fondo contextual
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -63,39 +96,25 @@ ion-toolbar {
   width: 100%;
 }
 
-// ---- Animaciones seguras (con keyframes definidos) ----
+// ---- Animaciones ----
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes rotateIn {
   from { opacity: 0; transform: scale(0.9) rotate(-2deg); }
-  to { opacity: 1; transform: scale(1) rotate(0); }
+  to   { opacity: 1; transform: scale(1) rotate(0); }
 }
 
 @keyframes pulse {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  50%       { transform: scale(1.05); }
 }
 
-.animate-fadeIn {
-  animation: fadeIn 0.4s ease-out both;
-}
-
-.animate-rotateIn {
-  animation: rotateIn 0.5s ease-out both;
-}
-
-.animate-pulse {
-  animation: pulse 2s infinite ease-in-out;
-}
-
-// Fallback: si la animación falla, que al menos sea visible
-.animate-fadeIn,
-.animate-rotateIn {
-  opacity: 1;
-}
+.animate-fadeIn   { animation: fadeIn 0.4s ease-out both; opacity: 1; }
+.animate-rotateIn { animation: rotateIn 0.5s ease-out both; opacity: 1; }
+.animate-pulse    { animation: pulse 2s infinite ease-in-out; }
 
 // ---- PASO 1: Esperando ----
 .step-waiting {
@@ -126,12 +145,22 @@ ion-toolbar {
     text-transform: uppercase;
   }
 
+  // FIX #2: Texto del nombre — evitar transform + will-change que causa blur en Android GPU
   .call-name {
     font-family: var(--font-title);
     font-size: 2.2rem;
     color: #fff;
     font-weight: 600;
     letter-spacing: 0.03em;
+    // FIX #2: Antialiasing explícito para render nítido en Android WebView
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    // FIX #2: Forzar compositing propio del texto (evita herencia de layer del padre)
+    will-change: auto;
+    transform: none;
+    // FIX #2: Evitar que el texto quede en una capa compuesta por backdrop-filter del padre
+    isolation: isolate;
   }
 }
 
@@ -142,6 +171,8 @@ ion-toolbar {
   max-width: 280px;
   margin: 0;
   line-height: 1.6;
+  // FIX #2: Antialiasing también en texto secundario
+  -webkit-font-smoothing: antialiased;
 
   strong { color: rgba(255,255,255,0.8); }
 }
@@ -174,15 +205,18 @@ ion-toolbar {
   border: 1px solid;
   position: relative;
   z-index: 1;
+  // FIX #2: No usar backdrop-filter aquí para no crear compositing layer que difumine hijos
+  // background sólido con alfa nativo en vez de blur
+  backdrop-filter: none;
 
   &.role-player {
-    background: linear-gradient(135deg, rgba(42,107,181,0.25) 0%, rgba(26,58,107,0.4) 100%);
-    border-color: rgba(42,107,181,0.4);
+    background: rgba(20, 50, 110, 0.85);
+    border-color: rgba(42,107,181,0.5);
   }
 
   &.role-impostor {
-    background: linear-gradient(135deg, rgba(220,80,80,0.2) 0%, rgba(100,20,20,0.4) 100%);
-    border-color: rgba(220,80,80,0.4);
+    background: rgba(80, 15, 15, 0.85);
+    border-color: rgba(220,80,80,0.5);
   }
 }
 
@@ -224,6 +258,8 @@ ion-toolbar {
   background: rgba(42,107,181,0.3);
   color: #6ab0f0;
   border: 1px solid rgba(42,107,181,0.4);
+  // FIX #2: antialiasing en badges
+  -webkit-font-smoothing: antialiased;
 
   &.impostor-badge {
     background: rgba(220,80,80,0.3);
@@ -242,6 +278,7 @@ ion-toolbar {
   color: rgba(255,255,255,0.55);
   margin: 0 0 12px;
   letter-spacing: 0.05em;
+  -webkit-font-smoothing: antialiased;
 }
 
 .word-display {
@@ -252,16 +289,23 @@ ion-toolbar {
   border: 1px solid rgba(212,167,40,0.3);
 }
 
+// FIX #2: LA CAUSA PRINCIPAL del blur — -webkit-background-clip: text crea
+// una capa separada en Android que se renderiza borrosa cuando el padre tiene transform.
+// Solución: usar color sólido + text-shadow para simular efecto dorado sin clip.
 .the-word {
   font-family: var(--font-title);
   font-size: 2rem;
   font-weight: 700;
-  color: #fff;
   letter-spacing: 0.05em;
-  background: linear-gradient(135deg, #f0c940, #d4a728);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  // FIX #2: color sólido en lugar de background-clip que difumina en Android
+  color: #f0c940;
+  text-shadow: 0 0 20px rgba(240, 196, 64, 0.5), 0 1px 3px rgba(0,0,0,0.4);
+  // FIX #2: forzar pixel rendering nítido
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+  will-change: auto;
+  transform: translateZ(0); // Promueve a capa GPU propia para evitar herencia
 }
 
 .category-badge {
@@ -273,6 +317,7 @@ ion-toolbar {
   border: 1px solid rgba(255,255,255,0.15);
   padding: 4px 12px;
   border-radius: 20px;
+  -webkit-font-smoothing: antialiased;
 
   ion-icon { font-size: 0.8rem; }
 }
@@ -282,6 +327,7 @@ ion-toolbar {
   color: rgba(255,255,255,0.75) !important;
   font-weight: 600;
   margin-bottom: 16px !important;
+  -webkit-font-smoothing: antialiased;
 }
 
 .impostor-message {
@@ -305,19 +351,20 @@ ion-toolbar {
     font-size: 0.85rem;
     color: rgba(255,255,255,0.8);
     line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
   }
 }
 
+// FIX #2: Instrucciones también antialiased
 .role-instruction {
   font-size: 0.8rem;
   color: rgba(255,255,255,0.55);
   line-height: 1.6;
   margin: 0;
   font-style: italic;
+  -webkit-font-smoothing: antialiased;
 
-  &.impostor-instruction {
-    color: rgba(255,150,150,0.6);
-  }
+  &.impostor-instruction { color: rgba(255,150,150,0.6); }
 }
 
 .btn-hide {
@@ -344,5 +391,13 @@ ion-toolbar {
   p {
     color: rgba(255,255,255,0.6);
     font-size: 0.9rem;
+    -webkit-font-smoothing: antialiased;
   }
+}
+
+// ---- Alerta de cancelación ----
+// NEW #3: Estilos del alert de confirmación
+.cancel-alert {
+  --background: #0d2251;
+  --color: #fff;
 }

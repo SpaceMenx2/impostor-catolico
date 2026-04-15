@@ -160,6 +160,57 @@ h1, h2, h3, .title-font {
   border-radius: 2px;
 }
 
+.cancel-alert {
+  .alert-wrapper {
+    background: #0d2251 !important;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 16px;
+  }
+
+  .alert-title {
+    color: #fff !important;
+    font-family: var(--font-title);
+    font-size: 1.1rem;
+  }
+
+  .alert-message {
+    color: rgba(255,255,255,0.65) !important;
+    font-size: 0.88rem;
+  }
+
+  .alert-button {
+    color: rgba(255,255,255,0.7) !important;
+
+    &[role="destructive"] {
+      color: #dc5050 !important;
+      font-weight: 700;
+    }
+  }
+}
+
+// ---- NEW #7: Hint de jugador inicial en discussion ----
+.starting-player-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(212, 167, 40, 0.12);
+  border: 1px solid rgba(212, 167, 40, 0.3);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 16px;
+
+  ion-icon {
+    color: var(--color-gold);
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  strong { color: #f0c940; }
+}
+
+
 /* ---- Transiciones de página (router) ---- */
 /*ion-router-outlet {
   contain: layout style;

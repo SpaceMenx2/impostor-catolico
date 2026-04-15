@@ -1,6 +1,18 @@
 <!-- src/app/pages/voting/voting.page.html -->
 <ion-header class="ion-no-border">
   <ion-toolbar>
+    <!-- NEW #3: Botón cancelar -->
+    <ion-buttons slot="start">
+      <ion-button
+        type="button"
+        fill="clear"
+        color="medium"
+        (click)="cancelGame(); $event.preventDefault(); $event.stopPropagation()"
+        aria-label="Cancelar partida"
+      >
+        <ion-icon slot="icon-only" name="close-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
     <ion-title class="toolbar-title">
       <ion-icon name="hand-right-outline" class="title-icon"></ion-icon>
       Votación
@@ -12,12 +24,11 @@
   <div class="voting-bg"></div>
 
   <div class="voting-container">
-    <!-- ============================================================
-         ESTADO: Votando uno por uno
-         ============================================================ -->
+
+    <!-- ESTADO: Votando uno por uno -->
     <ng-container *ngIf="!allDone">
       <ng-container *ngIf="currentTurn">
-        <!-- Progreso de votación -->
+
         <div class="vote-progress animate-fadeInUp">
           <div class="progress-dots">
             <div
@@ -32,7 +43,6 @@
           </span>
         </div>
 
-        <!-- Quién vota ahora -->
         <div class="voter-header animate-fadeInUp delay-1">
           <div
             class="voter-avatar"
@@ -50,7 +60,6 @@
           ¿Quién creés que es el impostor?
         </p>
 
-        <!-- Lista de candidatos -->
         <div class="candidates-list animate-fadeInUp delay-3">
           <div
             *ngFor="let candidate of candidates; let i = index"
@@ -68,15 +77,12 @@
             <span class="candidate-name">{{ candidate.name }}</span>
             <ion-icon
               class="check-icon"
-              [name]="currentTurn.selectedVote === candidate.id
-                ? 'checkmark-circle' : 'ellipse-outline'"
-              [style.color]="currentTurn.selectedVote === candidate.id
-                ? '#d4a728' : 'rgba(255,255,255,0.2)'"
+              [name]="currentTurn.selectedVote === candidate.id ? 'checkmark-circle' : 'ellipse-outline'"
+              [style.color]="currentTurn.selectedVote === candidate.id ? '#d4a728' : 'rgba(255,255,255,0.2)'"
             ></ion-icon>
           </div>
         </div>
 
-        <!-- Botón confirmar voto -->
         <div class="confirm-section animate-fadeInUp delay-4">
           <ion-button
             expand="block"
@@ -91,12 +97,11 @@
             Seleccioná a quién querés votar
           </p>
         </div>
+
       </ng-container>
     </ng-container>
 
-    <!-- ============================================================
-         ESTADO: Todos votaron
-         ============================================================ -->
+    <!-- ESTADO: Todos votaron -->
     <ng-container *ngIf="allDone">
       <div class="all-done-section animate-rotateIn">
         <div class="done-icon-wrapper animate-pulse">
@@ -105,7 +110,6 @@
         <h2 class="done-title">¡Todos votaron!</h2>
         <p class="done-subtitle">Es hora de descubrir la verdad...</p>
 
-        <!-- Resumen de votos (sin revelar el resultado) -->
         <div class="votes-summary">
           <div class="summary-title">
             <ion-icon name="list-outline"></ion-icon>
@@ -114,13 +118,8 @@
           <div class="summary-list">
             <div *ngFor="let turn of voterTurns" class="summary-item">
               <span class="summary-voter">{{ turn.voter.name }}</span>
-              <ion-icon
-                name="arrow-forward-outline"
-                class="summary-arrow"
-              ></ion-icon>
-              <span class="summary-voted"
-                >{{ getCandidateName(turn.selectedVote!) }}</span
-              >
+              <ion-icon name="arrow-forward-outline" class="summary-arrow"></ion-icon>
+              <span class="summary-voted">{{ getCandidateName(turn.selectedVote!) }}</span>
             </div>
           </div>
         </div>
@@ -136,5 +135,6 @@
         </ion-button>
       </div>
     </ng-container>
+
   </div>
 </ion-content>

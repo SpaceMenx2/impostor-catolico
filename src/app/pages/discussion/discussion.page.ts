@@ -1,6 +1,6 @@
 // src/app/pages/discussion/discussion.page.ts
 import { Component, OnDestroy, ChangeDetectorRef } from "@angular/core";
-import { NavController } from "@ionic/angular";
+import { NavController, AlertController } from "@ionic/angular";
 import { GameService, GameState } from "../../services/game.service";
 import { Subscription } from "rxjs";
 
@@ -10,18 +10,17 @@ import { Subscription } from "rxjs";
   styleUrls: ["discussion.page.scss"],
 })
 export class DiscussionPage implements OnDestroy {
-  // ✅ Inicializar con valores por defecto para evitar template vacío
   state: GameState = {
-    phase: 'discussion',
+    phase: "discussion",
     players: [],
-    config: { impostorCount: 1, timerMinutes: 3, selectedCategories: [], showTimer: true },
+    config: { impostorCount: 1, timerMinutes: 3, selectedCategories: [], showTimer: true, startingPlayerId: null },
     currentWord: null,
     currentCategory: null,
     currentRevealIndex: 0,
     roundNumber: 1,
-    inspireMessage: '',
+    inspireMessage: "",
   };
-  
+
   timeLeft = 0;
   totalTime = 0;
   timerRunning = false;
@@ -33,19 +32,19 @@ export class DiscussionPage implements OnDestroy {
   constructor(
     private gameService: GameService,
     private navCtrl: NavController,
-    private cdr: ChangeDetectorRef, // <-- Inyectar
+    private alertCtrl: AlertController, // NEW #3
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ionViewWillEnter(): void {
     const currentState = this.gameService.currentState;
     this.state = { ...currentState };
-    
-    // ✅ FORZAR PINTADO INMEDIATO
     this.cdr.detectChanges();
 
     const minutes = currentState.config.timerMinutes;
     this.totalTime = minutes * 60;
     this.timeLeft = this.totalTime;
+    this.timerFinished = false;
 
     if (currentState.config.showTimer) {
       this.startTimer();
@@ -54,7 +53,7 @@ export class DiscussionPage implements OnDestroy {
     if (this.sub) this.sub.unsubscribe();
     this.sub = this.gameService.state$.subscribe((s) => {
       this.state = { ...s };
-      this.cdr.detectChanges(); // Forzar en cada cambio
+      this.cdr.detectChanges();
     });
   }
 
@@ -101,6 +100,7 @@ export class DiscussionPage implements OnDestroy {
       clearInterval(this.interval);
       this.interval = null;
     }
+    this.timerRunning = false;
   }
 
   get timerDisplay(): string {
@@ -128,9 +128,40 @@ export class DiscussionPage implements OnDestroy {
     return this.state?.players?.map((p) => p.name) ?? [];
   }
 
+  // NEW #3: Mostrar quién empieza si fue configurado
+  get startingPlayerName(): string | null {
+    const id = this.state?.config?.startingPlayerId;
+    if (!id) return null;
+    return this.state?.players?.find((p) => p.id === id)?.name ?? null;
+  }
+
   goToVoting(): void {
     this.clearTimer();
     this.gameService.startVoting();
     this.navCtrl.navigateForward("/voting", { animated: true, replaceUrl: true });
+  }
+
+  // NEW #3: Cancelar partida con confirmación + limpieza de timer
+  async cancelGame(): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: "¿Cancelar partida?",
+      message: "Se perderá el progreso de la ronda actual.",
+      cssClass: "cancel-alert",
+      buttons: [
+        { text: "Continuar jugando", role: "cancel" },
+        {
+          text: "Sí, cancelar",
+          role: "destructive",
+          handler: () => {
+            // NEW #3: Limpiar timer antes de navegar (evitar fugas de memoria)
+            this.clearTimer();
+            if (this.sub) this.sub.unsubscribe();
+            this.gameService.newRound();
+            this.navCtrl.navigateRoot("/players", { animated: true, replaceUrl: true });
+          },
+        },
+      ],
+    });
+    await alert.present();
   }
 }

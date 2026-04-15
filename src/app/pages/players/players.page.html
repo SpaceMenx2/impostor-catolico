@@ -28,11 +28,11 @@
   </ion-toolbar>
 </ion-header>
 
-<!-- Sin [fullscreen] para evitar conflictos de proyección en Ionic -->
 <ion-content class="players-content">
   <div class="page-bg"></div>
 
   <div class="players-container">
+
     <!-- INPUT para agregar jugador -->
     <div class="add-player-card animate-fadeInUp">
       <div class="add-player-label">
@@ -50,15 +50,17 @@
           fill="outline"
           color="light"
         ></ion-input>
-        <ion-button
+        <!-- FIX #4: clases btn-add-visible + disabled manejado con opacidad controlada -->
+        <button
           type="button"
-          (click)="addPlayer(); $event.preventDefault(); $event.stopPropagation()"
-          class="btn-add"
+          class="btn-add-visible"
+          [class.btn-add-disabled]="!newPlayerName.trim()"
           [disabled]="!newPlayerName.trim()"
-          color="secondary"
+          (click)="addPlayer(); $event.preventDefault(); $event.stopPropagation()"
+          aria-label="Agregar jugador"
         >
-          <ion-icon slot="icon-only" name="add-outline"></ion-icon>
-        </ion-button>
+          <ion-icon name="add-outline"></ion-icon>
+        </button>
       </div>
     </div>
 
@@ -101,6 +103,30 @@
       </div>
     </div>
 
+    <!-- NEW #7: Quién empieza diciendo una palabra -->
+    <div class="starting-player-section animate-fadeInUp delay-2" *ngIf="players.length >= minPlayersNeeded">
+      <div class="config-label-full">
+        <ion-icon name="chatbubble-outline"></ion-icon>
+        <span>¿Quién empieza diciendo una palabra? <span class="optional-hint">(opcional)</span></span>
+      </div>
+      <div class="starting-players-grid">
+        <button
+          type="button"
+          *ngFor="let player of players; let i = index"
+          class="starting-btn"
+          [class.active]="config.startingPlayerId === player.id"
+          [style.--player-color]="getPlayerColor(i)"
+          (click)="setStartingPlayer(player.id); $event.preventDefault()"
+        >
+          <span class="starting-avatar" [style.background]="getPlayerColor(i)">
+            {{ getPlayerInitial(player.name) }}
+          </span>
+          {{ player.name }}
+          <ion-icon *ngIf="config.startingPlayerId === player.id" name="checkmark-circle" class="starting-check"></ion-icon>
+        </button>
+      </div>
+    </div>
+
     <!-- CONFIGURACIÓN (colapsable) -->
     <div class="config-section animate-fadeInUp delay-3" *ngIf="showConfig">
       <div class="config-title">
@@ -120,59 +146,48 @@
             class="count-btn"
             [class.active]="config.impostorCount === 1"
             (click)="updateImpostorCount(1); $event.preventDefault()"
-          >
-            1
-          </button>
+          >1</button>
           <button
             type="button"
             class="count-btn"
             [class.active]="config.impostorCount === 2"
             (click)="updateImpostorCount(2); $event.preventDefault()"
-          >
-            2
-          </button>
+          >2</button>
         </div>
       </div>
 
-      <!-- Temporizador -->
+      <!-- FIX #6: Temporizador — Off es un estado activo que requiere click explícito -->
       <div class="config-row">
         <div class="config-label">
           <ion-icon name="timer-outline"></ion-icon>
           <span>Temporizador</span>
         </div>
         <div class="config-buttons">
+          <!-- FIX #6: Off llama setTimerOff(), no toggleTimer() -->
           <button
             type="button"
             class="count-btn"
             [class.active]="!config.showTimer"
-            (click)="toggleTimer(); $event.preventDefault()"
-          >
-            Off
-          </button>
+            (click)="setTimerOff(); $event.preventDefault()"
+          >Off</button>
           <button
             type="button"
             class="count-btn"
             [class.active]="config.showTimer && config.timerMinutes === 2"
-            (click)="config.showTimer = true; updateTimer(2); $event.preventDefault()"
-          >
-            2 min
-          </button>
+            (click)="updateTimer(2); $event.preventDefault()"
+          >2 min</button>
           <button
             type="button"
             class="count-btn"
             [class.active]="config.showTimer && config.timerMinutes === 3"
-            (click)="config.showTimer = true; updateTimer(3); $event.preventDefault()"
-          >
-            3 min
-          </button>
+            (click)="updateTimer(3); $event.preventDefault()"
+          >3 min</button>
           <button
             type="button"
             class="count-btn"
             [class.active]="config.showTimer && config.timerMinutes === 5"
-            (click)="config.showTimer = true; updateTimer(5); $event.preventDefault()"
-          >
-            5 min
-          </button>
+            (click)="updateTimer(5); $event.preventDefault()"
+          >5 min</button>
         </div>
       </div>
 
@@ -216,5 +231,6 @@
         Necesitás {{ minPlayersNeeded - players.length }} jugador/es más
       </p>
     </div>
+
   </div>
 </ion-content>

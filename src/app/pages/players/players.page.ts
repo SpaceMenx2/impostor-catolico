@@ -18,23 +18,17 @@ export class PlayersPage implements OnDestroy {
     timerMinutes: 3,
     selectedCategories: [],
     showTimer: true,
+    startingPlayerId: null, // NEW #7
   };
-  isStarting = false; // ← AGREGAR ESTA PROPIEDAD
-
+  isStarting = false;
   newPlayerName = "";
   categories: WordCategory[] = WORD_CATEGORIES;
   showConfig = false;
   private sub?: Subscription;
 
   playerColors = [
-    "#d4a728",
-    "#2a6bb5",
-    "#2ec478",
-    "#dc5050",
-    "#8b5a2b",
-    "#8e44ad",
-    "#1abc9c",
-    "#e67e22",
+    "#d4a728", "#2a6bb5", "#2ec478", "#dc5050",
+    "#8b5a2b", "#8e44ad", "#1abc9c", "#e67e22",
   ];
 
   constructor(
@@ -42,18 +36,15 @@ export class PlayersPage implements OnDestroy {
     private router: Router,
     private toastCtrl: ToastController,
     private navCtrl: NavController,
-    private cdr: ChangeDetectorRef, // <-- CRUCIAL PARA FORZAR RENDERIZADO
+    private cdr: ChangeDetectorRef,
   ) {}
 
-  // En players.page.ts - ionViewWillEnter
   ionViewWillEnter(): void {
-    // Cargar estado actual
     const currentState = this.gameService.currentState;
     this.players = [...currentState.players];
     this.config = { ...currentState.config };
     this.cdr.detectChanges();
 
-    // Suscribirse a cambios (sin validaciones de fase)
     if (this.sub) this.sub.unsubscribe();
     this.sub = this.gameService.state$.subscribe((state) => {
       this.players = [...state.players];
@@ -70,8 +61,6 @@ export class PlayersPage implements OnDestroy {
     if (this.sub) this.sub.unsubscribe();
   }
 
-  // ... [EL RESTO DE TUS MÉTODOS (addPlayer, removePlayer, startGame, etc.) SE QUEDAN IGUAL] ...
-
   get canStart(): boolean {
     const minPlayers = this.config.impostorCount + 2;
     return this.players.length >= minPlayers;
@@ -82,12 +71,8 @@ export class PlayersPage implements OnDestroy {
   }
 
   addPlayer(): void {
-    if (!this.newPlayerName.trim()) {
-      return;
-    }
-
+    if (!this.newPlayerName.trim()) return;
     const success = this.gameService.addPlayer(this.newPlayerName);
-
     if (success) {
       this.newPlayerName = "";
     } else {
@@ -122,26 +107,33 @@ export class PlayersPage implements OnDestroy {
   }
 
   updateTimer(minutes: number): void {
+    // FIX #6: Al seleccionar un tiempo, activar el timer Y establecer los minutos juntos
     this.config.timerMinutes = minutes;
-    this.gameService.updateConfig({ timerMinutes: minutes });
+    this.config.showTimer = true;
+    this.gameService.updateConfig({ timerMinutes: minutes, showTimer: true });
   }
 
-  toggleTimer(): void {
-    this.config.showTimer = !this.config.showTimer;
-    this.gameService.updateConfig({ showTimer: this.config.showTimer });
+  // FIX #6: toggleTimer ahora es un setter limpio de estado booleano
+  setTimerOff(): void {
+    this.config.showTimer = false;
+    this.gameService.updateConfig({ showTimer: false });
   }
 
   toggleConfig(): void {
     this.showConfig = !this.showConfig;
   }
 
-  async startGame(): Promise<void> {
-    // Prevenir ejecución múltiple
-    if (this.isStarting) {
-      return;
-    }
+  // NEW #7: Seleccionar quién empieza diciendo una palabra
+  setStartingPlayer(playerId: string): void {
+    // Si ya está seleccionado, deseleccionar (toggle)
+    const newId = this.config.startingPlayerId === playerId ? null : playerId;
+    this.config.startingPlayerId = newId;
+    this.gameService.updateConfig({ startingPlayerId: newId });
+  }
 
-    this.isStarting = true; // ← BLOQUEAR NUEVOS CLICKS
+  async startGame(): Promise<void> {
+    if (this.isStarting) return;
+    this.isStarting = true;
 
     try {
       if (!this.canStart) {
@@ -157,30 +149,20 @@ export class PlayersPage implements OnDestroy {
       if (success) {
         const activeElement = document.activeElement as HTMLElement;
         if (activeElement) activeElement.blur();
-
         await new Promise((resolve) => setTimeout(resolve, 100));
-
-        // Usar navigateRoot para limpiar el stack y evitar conflictos
         await this.navCtrl.navigateRoot("/role-reveal", { animated: true });
-        console.log(">>> [START] Navegación completada");
       } else {
         await this.showToast("No se pudo iniciar la partida", "danger");
       }
     } finally {
-      // Desbloquear después de un delay para evitar flicker
-      setTimeout(() => {
-        this.isStarting = false;
-      }, 500);
+      setTimeout(() => { this.isStarting = false; }, 500);
     }
   }
 
-  // En goHome():
   goHome(): void {
     const activeElement = document.activeElement as HTMLElement;
     if (activeElement) activeElement.blur();
-
     setTimeout(() => {
-      // Usar navigateRoot para ir al home limpiando el stack de navegación
       this.navCtrl.navigateRoot("/home", { animated: true });
     }, 100);
   }

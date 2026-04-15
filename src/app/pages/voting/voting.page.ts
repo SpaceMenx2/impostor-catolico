@@ -1,19 +1,19 @@
 // src/app/pages/voting/voting.page.ts
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { NavController } from '@ionic/angular'; // <-- Cambiar Router por NavController
-import { GameService, GameState, Player } from '../../services/game.service';
-import { Subscription } from 'rxjs';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from "@angular/core";
+import { NavController, AlertController } from "@ionic/angular";
+import { GameService, GameState, Player } from "../../services/game.service";
+import { Subscription } from "rxjs";
 
 interface VoterTurn {
   voter: Player;
-  selectedVote: string | null; // id del jugador votado
+  selectedVote: string | null;
   done: boolean;
 }
 
 @Component({
-  selector: 'app-voting',
-  templateUrl: 'voting.page.html',
-  styleUrls: ['voting.page.scss'],
+  selector: "app-voting",
+  templateUrl: "voting.page.html",
+  styleUrls: ["voting.page.scss"],
 })
 export class VotingPage implements OnInit, OnDestroy {
   state!: GameState;
@@ -23,12 +23,18 @@ export class VotingPage implements OnInit, OnDestroy {
   allDone = false;
 
   private sub!: Subscription;
-  playerColors = [ /* ... tus colores ... */ ];
+
+  // FIX: Array de colores completo (antes estaba vacío en el código original)
+  playerColors = [
+    "#d4a728", "#2a6bb5", "#2ec478", "#dc5050",
+    "#8b5a2b", "#8e44ad", "#1abc9c", "#e67e22",
+  ];
 
   constructor(
-    private gameService: GameService, 
-    private navCtrl: NavController, // <-- Inyectar NavController
-    private cdr: ChangeDetectorRef, // <-- Para forzar detección
+    private gameService: GameService,
+    private navCtrl: NavController,
+    private alertCtrl: AlertController, // NEW #3
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -36,13 +42,13 @@ export class VotingPage implements OnInit, OnDestroy {
       this.state = s;
     });
 
-    this.voterTurns = this.state.players.map((p) => ({
+    this.voterTurns = this.gameService.currentState.players.map((p) => ({
       voter: p,
       selectedVote: null,
       done: false,
     }));
-    
-    this.cdr.detectChanges(); // Forzar pintado inicial
+
+    this.cdr.detectChanges();
   }
 
   ngOnDestroy(): void {
@@ -66,10 +72,7 @@ export class VotingPage implements OnInit, OnDestroy {
   confirmVote(): void {
     if (!this.currentTurn?.selectedVote) return;
 
-    this.gameService.castVote(
-      this.currentTurn.voter.id,
-      this.currentTurn.selectedVote
-    );
+    this.gameService.castVote(this.currentTurn.voter.id, this.currentTurn.selectedVote);
     this.currentTurn.done = true;
     this.voteConfirmed = true;
 
@@ -78,7 +81,7 @@ export class VotingPage implements OnInit, OnDestroy {
       const next = this.currentVoterIndex + 1;
       if (next >= this.voterTurns.length) {
         this.allDone = true;
-        this.cdr.detectChanges(); // Forzar detección al cambiar a allDone
+        this.cdr.detectChanges();
       } else {
         this.currentVoterIndex = next;
       }
@@ -94,21 +97,34 @@ export class VotingPage implements OnInit, OnDestroy {
   }
 
   getCandidateName(candidateId: string): string {
-    return this.state.players.find((p) => p.id === candidateId)?.name ?? '';
+    return this.state.players.find((p) => p.id === candidateId)?.name ?? "";
   }
 
   showResults(): void {
-    console.log('>>> [VOTING] showResults() llamado');
     this.gameService.showResult();
-    
-    // Usar NavController con replaceUrl para limpiar el stack
-    this.navCtrl.navigateRoot('/result', { 
-      animated: true,
-      replaceUrl: true
-    }).then(() => {
-      console.log('>>> [VOTING] Navegación a result completada');
-    }).catch(err => {
-      console.error('>>> [VOTING] Error en navegación:', err);
+    this.navCtrl.navigateRoot("/result", { animated: true, replaceUrl: true })
+      .catch((err) => console.error("[VOTING] Nav error:", err));
+  }
+
+  // NEW #3: Cancelar con limpieza de suscripción
+  async cancelGame(): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: "¿Cancelar partida?",
+      message: "Se perderá el progreso de la ronda actual.",
+      cssClass: "cancel-alert",
+      buttons: [
+        { text: "Continuar jugando", role: "cancel" },
+        {
+          text: "Sí, cancelar",
+          role: "destructive",
+          handler: () => {
+            if (this.sub) this.sub.unsubscribe();
+            this.gameService.newRound();
+            this.navCtrl.navigateRoot("/players", { animated: true, replaceUrl: true });
+          },
+        },
+      ],
     });
+    await alert.present();
   }
 }

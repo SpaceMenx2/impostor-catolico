@@ -1,6 +1,18 @@
 <!-- src/app/pages/discussion/discussion.page.html -->
 <ion-header class="ion-no-border">
   <ion-toolbar>
+    <!-- NEW #3: Botón cancelar partida -->
+    <ion-buttons slot="start">
+      <ion-button
+        type="button"
+        fill="clear"
+        color="medium"
+        (click)="cancelGame(); $event.preventDefault(); $event.stopPropagation()"
+        aria-label="Cancelar partida"
+      >
+        <ion-icon slot="icon-only" name="close-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
     <ion-title class="toolbar-title">
       <ion-icon name="chatbubbles-outline" class="title-icon"></ion-icon>
       Ronda {{ roundNumber }} — Discusión
@@ -8,104 +20,70 @@
   </ion-toolbar>
 </ion-header>
 
-<!-- IMPORTANTE: Sin [fullscreen]="true" -->
 <ion-content class="discussion-content">
   <div
     style="
       position: fixed;
       inset: 0;
-      background: linear-gradient(
-        160deg,
-        #071630 0%,
-        #0d2251 40%,
-        #1a3a6b 100%
-      );
+      background: linear-gradient(160deg, #071630 0%, #0d2251 40%, #1a3a6b 100%);
       z-index: -1;
     "
   ></div>
 
-  <!-- Fondo degradado -->
   <div class="discussion-bg"></div>
 
   <div class="discussion-container">
+
     <!-- TEMPORIZADOR circular -->
-    <div
-      class="timer-section animate-fadeInUp"
-      *ngIf="state?.config?.showTimer"
-    >
+    <div class="timer-section animate-fadeInUp" *ngIf="state?.config?.showTimer">
       <div class="timer-ring-wrapper">
         <svg class="timer-ring" viewBox="0 0 120 120">
-          <!-- Track -->
+          <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"/>
           <circle
-            cx="60"
-            cy="60"
-            r="52"
-            fill="none"
-            stroke="rgba(255,255,255,0.08)"
-            stroke-width="8"
-          />
-          <!-- Fill animado -->
-          <circle
-            cx="60"
-            cy="60"
-            r="52"
-            fill="none"
+            cx="60" cy="60" r="52" fill="none"
             [attr.stroke]="timerColor"
             stroke-width="8"
             stroke-linecap="round"
             stroke-dasharray="326.7"
             [attr.stroke-dashoffset]="326.7 * (1 - timerPercent / 100)"
             transform="rotate(-90 60 60)"
-            style="
-              transition:
-                stroke-dashoffset 1s linear,
-                stroke 0.5s ease;
-            "
+            style="transition: stroke-dashoffset 1s linear, stroke 0.5s ease;"
           />
         </svg>
         <div class="timer-inner">
-          <span
-            class="timer-display"
-            [style.color]="timerColor"
-            [class.blink]="timerFinished"
-          >
+          <span class="timer-display" [style.color]="timerColor" [class.blink]="timerFinished">
             {{ timerDisplay }}
           </span>
           <span class="timer-label">minutos</span>
         </div>
       </div>
 
-      <!-- Controles del timer -->
       <div class="timer-controls">
-        <ion-button
-          fill="clear"
-          size="small"
-          (click)="resetTimer()"
-          color="medium"
-        >
+        <ion-button fill="clear" size="small" (click)="resetTimer()" color="medium">
           <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
         </ion-button>
         <ion-button
-          fill="clear"
-          size="small"
+          fill="clear" size="small"
           [color]="timerRunning ? 'warning' : 'success'"
           (click)="timerRunning ? pauseTimer() : startTimer()"
         >
-          <ion-icon
-            slot="icon-only"
-            [name]="timerRunning ? 'pause-circle-outline' : 'play-circle-outline'"
-          ></ion-icon>
+          <ion-icon slot="icon-only" [name]="timerRunning ? 'pause-circle-outline' : 'play-circle-outline'"></ion-icon>
         </ion-button>
       </div>
 
-      <!-- Mensaje cuando termina el tiempo -->
       <div class="timer-done" *ngIf="timerFinished">
         <ion-icon name="alarm-outline"></ion-icon>
         ¡Tiempo! Ya pueden votar.
       </div>
     </div>
 
-    <!-- INSTRUCCIONES de la ronda -->
+    <!-- NEW #7: Quién empieza (si fue configurado) -->
+    <div class="starting-player-hint animate-fadeInUp delay-1" *ngIf="startingPlayerName">
+      <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+      <span>Empieza diciendo una palabra: <strong>{{ startingPlayerName }}</strong></span>
+    </div>
+
+    <!-- INSTRUCCIONES -->
     <div class="instructions-card animate-fadeInUp delay-2">
       <div class="inst-header">
         <ion-icon name="information-circle-outline"></ion-icon>
@@ -114,8 +92,7 @@
       <ul class="inst-list">
         <li>
           <ion-icon name="chatbubble-outline"></ion-icon>
-          Cada jugador da <strong>una pista</strong> sobre la palabra sin
-          decirla.
+          Cada jugador da <strong>una pista</strong> sobre la palabra sin decirla.
         </li>
         <li>
           <ion-icon name="eye-outline"></ion-icon>
@@ -132,7 +109,7 @@
       </ul>
     </div>
 
-    <!-- LISTA de jugadores (referencia) -->
+    <!-- Lista de jugadores -->
     <div class="players-reference animate-fadeInUp delay-3">
       <div class="ref-title">
         <ion-icon name="people-outline"></ion-icon>
@@ -152,12 +129,13 @@
       <em>{{ state.inspireMessage || "" }}</em>
     </div>
 
-    <!-- BOTÓN ir a votar -->
+    <!-- Botón ir a votar -->
     <div class="vote-section animate-fadeInUp delay-5">
       <ion-button expand="block" class="btn-vote" (click)="goToVoting()">
         <ion-icon slot="start" name="hand-right-outline"></ion-icon>
         Pasar a la votación
       </ion-button>
     </div>
+
   </div>
 </ion-content>
