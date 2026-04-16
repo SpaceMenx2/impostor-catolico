@@ -116,7 +116,6 @@ export class ResultPage implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       }
     } else {
-      // FIX #1: Usar newRound() en lugar de fullReset() para conservar jugadores y config
       this.gameService.newRound();
       setTimeout(() => {
         this.navCtrl.navigateRoot("/players", { animated: true, replaceUrl: true });

@@ -22,7 +22,6 @@ export interface GameConfig {
   timerMinutes: number;
   selectedCategories: string[];
   showTimer: boolean;
-  // NEW: ID del jugador que empieza diciendo una palabra (null = sin selección)
   startingPlayerId: string | null;
 }
 
@@ -50,7 +49,7 @@ const DEFAULT_CONFIG: GameConfig = {
   timerMinutes: 3,
   selectedCategories: [],
   showTimer: true,
-  startingPlayerId: null, // NEW
+  startingPlayerId: null,
 };
 
 const INITIAL_STATE: GameState = {
@@ -76,8 +75,6 @@ export class GameService {
   get categories(): WordCategory[] {
     return WORD_CATEGORIES;
   }
-
-  // ---- GESTIÓN DE JUGADORES ----
 
   addPlayer(name: string): boolean {
     const trimmed = name.trim();
@@ -105,7 +102,6 @@ export class GameService {
     const state = this.currentState;
     const players = state.players.filter((p) => p.id !== playerId);
 
-    // NEW: limpiar startingPlayerId si se eliminó ese jugador
     const startingPlayerId =
       state.config.startingPlayerId === playerId
         ? null
@@ -121,14 +117,10 @@ export class GameService {
     this.updateState({ players: [] });
   }
 
-  // ---- CONFIGURACIÓN ----
-
   updateConfig(config: Partial<GameConfig>): void {
     const state = this.currentState;
     this.updateState({ config: { ...state.config, ...config } });
   }
-
-  // ---- INICIO DE PARTIDA ----
 
   startGame(): boolean {
     const state = this.currentState;
@@ -138,8 +130,6 @@ export class GameService {
       return false;
     }
 
-    // FIX #7: Mantener el orden de entrada exacto (sin shuffle de jugadores)
-    // Solo se aleatoriza QUIÉN es impostor, no el orden de los jugadores
     const orderedPlayers: Player[] = state.players.map((p) => ({
       ...p,
       isImpostor: false,
@@ -147,7 +137,6 @@ export class GameService {
       vote: null,
     }));
 
-    // Asignar impostores aleatoriamente (sin cambiar el orden de la lista)
     const impostorIndices = this.pickRandomIndices(
       orderedPlayers.length,
       state.config.impostorCount,
@@ -174,8 +163,6 @@ export class GameService {
 
     return true;
   }
-
-  // ---- REVELACIÓN DE ROLES ----
 
   markRoleSeen(): void {
     const state = this.currentState;
@@ -204,8 +191,6 @@ export class GameService {
     return state.players[state.currentRevealIndex] ?? null;
   }
 
-  // ---- VOTACIÓN ----
-
   startVoting(): void {
     this.updateState({ phase: "voting" });
   }
@@ -221,8 +206,6 @@ export class GameService {
   get allVotesCast(): boolean {
     return this.currentState.players.every((p) => p.vote !== null);
   }
-
-  // ---- RESULTADO ----
 
   showResult(): void {
     this.updateState({ phase: "result" });
@@ -291,9 +274,6 @@ export class GameService {
     return true;
   }
 
-  // ---- NUEVA PARTIDA / RESET ----
-
-  /** FIX #1: Conserva lista de jugadores y config, solo resetea estado de partida */
   newRound(): void {
     const state = this.currentState;
     this.updateState({
@@ -302,7 +282,6 @@ export class GameService {
       currentCategory: null,
       currentRevealIndex: 0,
       roundNumber: 0,
-      // NEW: Preservar jugadores y config completos (incluyendo startingPlayerId)
       players: state.players.map((p) => ({
         ...p,
         isImpostor: false,
@@ -344,8 +323,6 @@ export class GameService {
     this.state.next({ ...INITIAL_STATE });
   }
 
-  // ---- UTILIDADES PRIVADAS ----
-
   private updateState(partial: Partial<GameState>): void {
     this.state.next({ ...this.state.getValue(), ...partial });
   }
@@ -354,7 +331,6 @@ export class GameService {
     return Math.random().toString(36).substr(2, 9);
   }
 
-  // NEW #7: Selecciona N índices únicos al azar de 0..length-1
   private pickRandomIndices(length: number, count: number): number[] {
     const indices: number[] = [];
     const pool = Array.from({ length }, (_, i) => i);
@@ -363,15 +339,5 @@ export class GameService {
       indices.push(pool.splice(j, 1)[0]);
     }
     return indices;
-  }
-
-  // Mantenido para compatibilidad (ya no se usa en startGame)
-  private shuffle<T>(array: T[]): T[] {
-    const arr = [...array];
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
   }
 }

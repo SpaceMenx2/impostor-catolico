@@ -25,7 +25,7 @@ const JUDAS_BACKGROUND = "assets/backgrounds/judas.webp";
 export class RoleRevealPage implements OnDestroy {
   state!: GameState;
   revealStep: RevealStep = "waiting";
-  // NEW #8: fondo contextual del rol mostrado
+
   roleBgImage = "";
   roleBgLoaded = false;
 
@@ -35,7 +35,7 @@ export class RoleRevealPage implements OnDestroy {
   constructor(
     private gameService: GameService,
     private navCtrl: NavController,
-    private alertCtrl: AlertController, // NEW #3
+    private alertCtrl: AlertController,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -58,9 +58,6 @@ export class RoleRevealPage implements OnDestroy {
         if (s.phase !== "role-reveal" && !this.hasNavigated) {
           this.hasNavigated = true;
 
-          // FIX #5: Limpiar el estado visual ANTES de navegar
-          // Usar requestAnimationFrame para garantizar que el DOM ya procesó
-          // el estado "hidden" antes de cambiar de ruta
           requestAnimationFrame(() => {
             this.navCtrl
               .navigateRoot("/" + s.phase, { animated: false, replaceUrl: true })
@@ -108,7 +105,6 @@ export class RoleRevealPage implements OnDestroy {
   showRole(): void {
     this.revealStep = "showing";
 
-    // NEW #8: Precargar imagen de fondo según el rol
     if (this.currentPlayer) {
       const url = this.currentPlayer.isImpostor
         ? JUDAS_BACKGROUND
@@ -122,7 +118,6 @@ export class RoleRevealPage implements OnDestroy {
         this.cdr.detectChanges();
       };
       img.onerror = () => {
-        // Fallback: color sólido via CSS, no mostrar imagen rota
         this.roleBgImage = "";
         this.cdr.detectChanges();
       };
@@ -131,10 +126,8 @@ export class RoleRevealPage implements OnDestroy {
   }
 
   hideAndPass(): void {
-    // FIX #5: Detectar si este es el último jugador ANTES de llamar a markRoleSeen
     const isLastPlayer = this.currentIndex + 1 >= this.totalPlayers;
 
-    // Mostrar pantalla de transición
     this.revealStep = "hidden";
     this.roleBgImage = "";
     this.roleBgLoaded = false;
@@ -142,11 +135,8 @@ export class RoleRevealPage implements OnDestroy {
 
     setTimeout(() => {
       if (isLastPlayer) {
-        // FIX #5: Para el último jugador, evitar el flash del contador de votación
-        // hasNavigated previene que el subscriber muestre el estado intermedio
         this.hasNavigated = true;
         this.gameService.markRoleSeen();
-        // La navegación se dispara desde el subscriber o forzamos directo
         requestAnimationFrame(() => {
           this.navCtrl
             .navigateRoot("/discussion", { animated: false, replaceUrl: true })
@@ -160,7 +150,6 @@ export class RoleRevealPage implements OnDestroy {
     }, 400);
   }
 
-  // NEW #3: Botón cancelar con confirmación
   async cancelGame(): Promise<void> {
     const alert = await this.alertCtrl.create({
       header: "¿Cancelar partida?",

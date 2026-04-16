@@ -18,7 +18,7 @@ export class PlayersPage implements OnDestroy {
     timerMinutes: 3,
     selectedCategories: [],
     showTimer: true,
-    startingPlayerId: null, // NEW #7
+    startingPlayerId: null,
   };
   isStarting = false;
   newPlayerName = "";
@@ -33,7 +33,6 @@ export class PlayersPage implements OnDestroy {
 
   constructor(
     private gameService: GameService,
-    private router: Router,
     private toastCtrl: ToastController,
     private navCtrl: NavController,
     private cdr: ChangeDetectorRef,
@@ -107,13 +106,11 @@ export class PlayersPage implements OnDestroy {
   }
 
   updateTimer(minutes: number): void {
-    // FIX #6: Al seleccionar un tiempo, activar el timer Y establecer los minutos juntos
     this.config.timerMinutes = minutes;
     this.config.showTimer = true;
     this.gameService.updateConfig({ timerMinutes: minutes, showTimer: true });
   }
 
-  // FIX #6: toggleTimer ahora es un setter limpio de estado booleano
   setTimerOff(): void {
     this.config.showTimer = false;
     this.gameService.updateConfig({ showTimer: false });
@@ -123,9 +120,7 @@ export class PlayersPage implements OnDestroy {
     this.showConfig = !this.showConfig;
   }
 
-  // NEW #7: Seleccionar quién empieza diciendo una palabra
   setStartingPlayer(playerId: string): void {
-    // Si ya está seleccionado, deseleccionar (toggle)
     const newId = this.config.startingPlayerId === playerId ? null : playerId;
     this.config.startingPlayerId = newId;
     this.gameService.updateConfig({ startingPlayerId: newId });

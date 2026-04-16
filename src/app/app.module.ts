@@ -13,7 +13,7 @@ import { AppRoutingModule } from './app-routing.module';
   imports: [
     BrowserModule,
     IonicModule.forRoot({
-      mode: 'md',           // Material Design en todas las plataformas
+      mode: 'md',
       animated: true,
     }),
     AppRoutingModule,

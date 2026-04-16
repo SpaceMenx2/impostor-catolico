@@ -24,7 +24,6 @@ export class VotingPage implements OnInit, OnDestroy {
 
   private sub!: Subscription;
 
-  // FIX: Array de colores completo (antes estaba vacío en el código original)
   playerColors = [
     "#d4a728", "#2a6bb5", "#2ec478", "#dc5050",
     "#8b5a2b", "#8e44ad", "#1abc9c", "#e67e22",
@@ -33,7 +32,7 @@ export class VotingPage implements OnInit, OnDestroy {
   constructor(
     private gameService: GameService,
     private navCtrl: NavController,
-    private alertCtrl: AlertController, // NEW #3
+    private alertCtrl: AlertController,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -106,7 +105,6 @@ export class VotingPage implements OnInit, OnDestroy {
       .catch((err) => console.error("[VOTING] Nav error:", err));
   }
 
-  // NEW #3: Cancelar con limpieza de suscripción
   async cancelGame(): Promise<void> {
     const alert = await this.alertCtrl.create({
       header: "¿Cancelar partida?",
