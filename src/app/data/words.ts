@@ -58,7 +58,7 @@ export const WORD_CATEGORIES: WordCategory[] = [
     id: 'sacramentos',
     name: 'Sacramentos',
     icon: 'water-outline',
-    color: '#2a6bb5',
+    color: '#3e88dd',
     words: [
       { word: 'Bautismo',      hint: 'Primer sacramento, agua y Espíritu',      difficulty: 'easy' },
       { word: 'Eucaristía',    hint: 'Pan y vino, cuerpo y sangre de Cristo',   difficulty: 'easy' },
@@ -79,7 +79,7 @@ export const WORD_CATEGORIES: WordCategory[] = [
     id: 'iglesia',
     name: 'Iglesia y Comunidad',
     icon: 'business-outline',
-    color: '#5a4a9c',
+    color: '#8b7bca',
     words: [
       { word: 'Iglesia',       hint: 'Comunidad de creyentes en Cristo',        difficulty: 'easy' },
       { word: 'Papa',          hint: 'Sucesor de Pedro, cabeza visible',         difficulty: 'easy' },
@@ -180,7 +180,7 @@ export const WORD_CATEGORIES: WordCategory[] = [
     id: 'santos',
     name: 'Santos y Modelos',
     icon: 'person-outline',
-    color: '#8e44ad',
+    color: '#ffffff',
     words: [
       { word: 'San Pedro',       hint: 'Primer Papa, apóstol pescador',           difficulty: 'easy' },
       { word: 'San Pablo',       hint: 'Apóstol de los gentiles, viajero incansable', difficulty: 'easy' },
