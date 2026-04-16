@@ -15,6 +15,7 @@
  */
 
 const { app, BrowserWindow, Menu, dialog, shell } = require('electron');
+const appInfo = require("../package.json")
 const path = require('path');
 
 // ── Variables globales ────────────────────────────────────────────────────────
@@ -150,12 +151,13 @@ function buildMenu() {
       submenu: [
         {
           label: 'Acerca de Impostor de Catequesis',
+          accelerator: "F1",
           click: () => {
             dialog.showMessageBox(mainWindow, {
               type: 'info',
               title: 'Acerca de',
               message: 'Impostor de Catequesis',
-              detail: 'Versión ' + app.getVersion() + '\nJuego social catequético',
+              detail: 'Versión ' + appInfo.version + '\nJuego social catequético creado con mucho amor ❤️',
               buttons: ['Cerrar'],
             });
           },
