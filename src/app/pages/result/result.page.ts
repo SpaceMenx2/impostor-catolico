@@ -24,7 +24,9 @@ export class ResultPage implements OnInit, OnDestroy {
   get canContinue(): boolean {
     if (!this.mostVoted) return false;
     const impostorCount = this.state.players.filter((p) => p.isImpostor).length;
-    const remaining = this.state.players.filter((p) => p.id !== this.mostVoted!.id);
+    const remaining = this.state.players.filter(
+      (p) => p.id !== this.mostVoted!.id,
+    );
     const civilianCount = remaining.filter((p) => !p.isImpostor).length;
     return !this.isCorrect && civilianCount > impostorCount;
   }
@@ -40,8 +42,30 @@ export class ResultPage implements OnInit, OnDestroy {
   revealed = false;
 
   playerColors = [
-    "#d4a728", "#2a6bb5", "#2ec478", "#dc5050",
-    "#8b5a2b", "#8e44ad", "#1abc9c", "#e67e22",
+    "#D4A728",
+    "#2A6BB5",
+    "#2EC478",
+    "#DC5050",
+    "#8B5A2B",
+    "#8E44AD",
+    "#1ABC9C",
+    "#E67E22",
+    "#C0392B",
+    "#2980B9",
+    "#27AE60",
+    "#D35400",
+    "#6C5CE7",
+    "#00B894",
+    "#E84393",
+    "#F39C12",
+    "#16A085",
+    "#9B59B6",
+    "#34495E",
+    "#E17055",
+    "#0984E3",
+    "#00CEC9",
+    "#A0522D",
+    "#5F27CD",
   ];
 
   constructor(
@@ -110,7 +134,10 @@ export class ResultPage implements OnInit, OnDestroy {
       const continued = this.gameService.continueWithSameWord();
       if (continued) {
         setTimeout(() => {
-          this.navCtrl.navigateRoot("/discussion", { animated: true, replaceUrl: true });
+          this.navCtrl.navigateRoot("/discussion", {
+            animated: true,
+            replaceUrl: true,
+          });
         }, 100);
       } else {
         this.cdr.detectChanges();
@@ -118,7 +145,10 @@ export class ResultPage implements OnInit, OnDestroy {
     } else {
       this.gameService.newRound();
       setTimeout(() => {
-        this.navCtrl.navigateRoot("/players", { animated: true, replaceUrl: true });
+        this.navCtrl.navigateRoot("/players", {
+          animated: true,
+          replaceUrl: true,
+        });
       }, 100);
     }
   }
