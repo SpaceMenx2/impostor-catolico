@@ -131,25 +131,23 @@ export class ResultPage implements OnInit, OnDestroy {
     const canContinue = currentResult.canContinue;
 
     if (!isCorrect && canContinue) {
-      const continued = this.gameService.continueWithSameWord();
-      if (continued) {
-        setTimeout(() => {
-          this.navCtrl.navigateRoot("/discussion", {
-            animated: true,
-            replaceUrl: true,
-          });
-        }, 100);
-      } else {
-        this.cdr.detectChanges();
-      }
-    } else {
-      this.gameService.newRound();
+      this.navCtrl.navigateRoot("/discussion", {
+        animated: true,
+        replaceUrl: true,
+      });
+
       setTimeout(() => {
-        this.navCtrl.navigateRoot("/players", {
-          animated: true,
-          replaceUrl: true,
-        });
-      }, 100);
+        this.gameService.continueWithSameWord();
+      }, 50);
+    } else {
+      this.navCtrl.navigateRoot("/players", {
+        animated: true,
+        replaceUrl: true,
+      });
+
+      setTimeout(() => {
+        this.gameService.newRound();
+      }, 50);
     }
   }
 
