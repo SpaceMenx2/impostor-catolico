@@ -1,6 +1,5 @@
 // src/app/pages/players/players.page.ts
 import { Component, ChangeDetectorRef, OnDestroy } from "@angular/core";
-import { Router } from "@angular/router";
 import { ToastController, NavController } from "@ionic/angular";
 import { GameService, GameConfig, Player } from "../../services/game.service";
 import { WordCategory, WORD_CATEGORIES } from "../../data/words";
@@ -19,6 +18,7 @@ export class PlayersPage implements OnDestroy {
     selectedCategories: [],
     showTimer: true,
     startingPlayerId: null,
+    selectedDifficulties: [],
   };
   isStarting = false;
   newPlayerName = "";
@@ -27,8 +27,25 @@ export class PlayersPage implements OnDestroy {
   private sub?: Subscription;
 
   playerColors = [
-    "#d4a728", "#2a6bb5", "#2ec478", "#dc5050",
-    "#8b5a2b", "#8e44ad", "#1abc9c", "#e67e22",
+    "#d4a728",
+    "#2a6bb5",
+    "#2ec478",
+    "#dc5050",
+    "#8b5a2b",
+    "#8e44ad",
+    "#1abc9c",
+    "#e67e22",
+  ];
+
+  difficultyOptions = [
+    { id: "easy", label: "Fácil", icon: "leaf-outline", color: "#2ec478" },
+    {
+      id: "medium",
+      label: "Media",
+      icon: "speedometer-outline",
+      color: "#f39c12",
+    },
+    { id: "hard", label: "Difícil", icon: "flame-outline", color: "#dc5050" },
   ];
 
   constructor(
@@ -120,6 +137,18 @@ export class PlayersPage implements OnDestroy {
     this.showConfig = !this.showConfig;
   }
 
+  toggleDifficulty(difficultyId: string): void {
+  const selected = [...this.config.selectedDifficulties];
+  const idx = selected.indexOf(difficultyId);
+  if (idx >= 0) {
+    selected.splice(idx, 1);
+  } else {
+    selected.push(difficultyId);
+  }
+  this.config.selectedDifficulties = selected;
+  this.gameService.updateConfig({ selectedDifficulties: selected });
+}
+
   setStartingPlayer(playerId: string): void {
     const newId = this.config.startingPlayerId === playerId ? null : playerId;
     this.config.startingPlayerId = newId;
@@ -150,7 +179,9 @@ export class PlayersPage implements OnDestroy {
         await this.showToast("No se pudo iniciar la partida", "danger");
       }
     } finally {
-      setTimeout(() => { this.isStarting = false; }, 500);
+      setTimeout(() => {
+        this.isStarting = false;
+      }, 500);
     }
   }
 

@@ -421,3 +421,49 @@ ion-toolbar {
   margin: 10px 0 0;
   font-style: italic;
 }
+
+// ---- Dificultades ----
+.config-difficulties {
+  margin-top: 6px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 14px;
+}
+
+.difficulties-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.diff-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.55);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  ion-icon { font-size: 0.9rem; }
+
+  &.active {
+    background: rgba(255,255,255,0.1);
+    font-weight: 700;
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.05);
+  }
+
+  &:hover:not(.active) {
+    background: rgba(255,255,255,0.08);
+  }
+
+  // Colores específicos al estar activos (opcional, para refuerzo visual)
+  &[style*="#2ec478"].active { box-shadow: 0 0 0 2px rgba(46, 196, 120, 0.25); }
+  &[style*="#f39c12"].active { box-shadow: 0 0 0 2px rgba(243, 156, 18, 0.25); }
+  &[style*="#dc5050"].active { box-shadow: 0 0 0 2px rgba(220, 80, 80, 0.25); }
+}

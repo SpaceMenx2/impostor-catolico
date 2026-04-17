@@ -13,7 +13,14 @@ export class DiscussionPage implements OnDestroy {
   state: GameState = {
     phase: "discussion",
     players: [],
-    config: { impostorCount: 1, timerMinutes: 3, selectedCategories: [], showTimer: true, startingPlayerId: null },
+    config: {
+      impostorCount: 1,
+      timerMinutes: 3,
+      selectedCategories: [],
+      showTimer: true,
+      startingPlayerId: null,
+      selectedDifficulties: []
+    },
     currentWord: null,
     currentCategory: null,
     currentRevealIndex: 0,
@@ -138,7 +145,10 @@ export class DiscussionPage implements OnDestroy {
   goToVoting(): void {
     this.clearTimer();
     this.gameService.startVoting();
-    this.navCtrl.navigateForward("/voting", { animated: true, replaceUrl: true });
+    this.navCtrl.navigateForward("/voting", {
+      animated: true,
+      replaceUrl: true,
+    });
   }
 
   // NEW #3: Cancelar partida con confirmación + limpieza de timer
@@ -157,7 +167,10 @@ export class DiscussionPage implements OnDestroy {
             this.clearTimer();
             if (this.sub) this.sub.unsubscribe();
             this.gameService.newRound();
-            this.navCtrl.navigateRoot("/players", { animated: true, replaceUrl: true });
+            this.navCtrl.navigateRoot("/players", {
+              animated: true,
+              replaceUrl: true,
+            });
           },
         },
       ],

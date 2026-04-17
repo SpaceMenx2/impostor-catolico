@@ -32,7 +32,6 @@
   <div class="page-bg"></div>
 
   <div class="players-container">
-
     <!-- INPUT para agregar jugador -->
     <div class="add-player-card animate-fadeInUp">
       <div class="add-player-label">
@@ -104,10 +103,16 @@
     </div>
 
     <!-- NEW #7: Quién empieza diciendo una palabra -->
-    <div class="starting-player-section animate-fadeInUp delay-2" *ngIf="players.length >= minPlayersNeeded">
+    <div
+      class="starting-player-section animate-fadeInUp delay-2"
+      *ngIf="players.length >= minPlayersNeeded"
+    >
       <div class="config-label-full">
         <ion-icon name="chatbubble-outline"></ion-icon>
-        <span>¿Quién empieza diciendo una palabra? <span class="optional-hint">(opcional)</span></span>
+        <span
+          >¿Quién empieza diciendo una palabra?
+          <span class="optional-hint">(opcional)</span></span
+        >
       </div>
       <div class="starting-players-grid">
         <button
@@ -122,7 +127,11 @@
             {{ getPlayerInitial(player.name) }}
           </span>
           {{ player.name }}
-          <ion-icon *ngIf="config.startingPlayerId === player.id" name="checkmark-circle" class="starting-check"></ion-icon>
+          <ion-icon
+            *ngIf="config.startingPlayerId === player.id"
+            name="checkmark-circle"
+            class="starting-check"
+          ></ion-icon>
         </button>
       </div>
     </div>
@@ -146,13 +155,17 @@
             class="count-btn"
             [class.active]="config.impostorCount === 1"
             (click)="updateImpostorCount(1); $event.preventDefault()"
-          >1</button>
+          >
+            1
+          </button>
           <button
             type="button"
             class="count-btn"
             [class.active]="config.impostorCount === 2"
             (click)="updateImpostorCount(2); $event.preventDefault()"
-          >2</button>
+          >
+            2
+          </button>
         </div>
       </div>
 
@@ -169,25 +182,33 @@
             class="count-btn"
             [class.active]="!config.showTimer"
             (click)="setTimerOff(); $event.preventDefault()"
-          >Off</button>
+          >
+            Off
+          </button>
           <button
             type="button"
             class="count-btn"
             [class.active]="config.showTimer && config.timerMinutes === 2"
             (click)="updateTimer(2); $event.preventDefault()"
-          >2 min</button>
+          >
+            2 min
+          </button>
           <button
             type="button"
             class="count-btn"
             [class.active]="config.showTimer && config.timerMinutes === 3"
             (click)="updateTimer(3); $event.preventDefault()"
-          >3 min</button>
+          >
+            3 min
+          </button>
           <button
             type="button"
             class="count-btn"
             [class.active]="config.showTimer && config.timerMinutes === 5"
             (click)="updateTimer(5); $event.preventDefault()"
-          >5 min</button>
+          >
+            5 min
+          </button>
         </div>
       </div>
 
@@ -212,6 +233,27 @@
           </button>
         </div>
       </div>
+      <!-- Dificultades -->
+      <div class="config-difficulties">
+        <div class="config-label-full">
+          <ion-icon name="stats-chart-outline"></ion-icon>
+          <span>Dificultad (vacío = todas)</span>
+        </div>
+        <div class="difficulties-grid">
+          <button
+            type="button"
+            *ngFor="let diff of difficultyOptions"
+            class="diff-btn"
+            [class.active]="config.selectedDifficulties.includes(diff.id)"
+            [style.border-color]="config.selectedDifficulties.includes(diff.id) ? diff.color : 'rgba(255,255,255,0.15)'"
+            [style.color]="config.selectedDifficulties.includes(diff.id) ? diff.color : 'rgba(255,255,255,0.55)'"
+            (click)="toggleDifficulty(diff.id); $event.preventDefault()"
+          >
+            <ion-icon [name]="diff.icon"></ion-icon>
+            {{ diff.label }}
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- BOTÓN INICIAR -->
@@ -231,6 +273,5 @@
         Necesitás {{ minPlayersNeeded - players.length }} jugador/es más
       </p>
     </div>
-
   </div>
 </ion-content>
