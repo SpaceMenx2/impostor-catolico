@@ -23,6 +23,7 @@ export interface GameConfig {
   selectedCategories: string[];
   showTimer: boolean;
   startingPlayerId: string | null;
+  selectedDifficulties: string[];
 }
 
 export type GamePhase =
@@ -50,6 +51,7 @@ const DEFAULT_CONFIG: GameConfig = {
   selectedCategories: [],
   showTimer: true,
   startingPlayerId: null,
+  selectedDifficulties: [],
 };
 
 const INITIAL_STATE: GameState = {
@@ -148,6 +150,9 @@ export class GameService {
     const { word, category } = getRandomWord(
       state.config.selectedCategories.length > 0
         ? state.config.selectedCategories
+        : undefined,
+      state.config.selectedDifficulties.length > 0
+        ? state.config.selectedDifficulties
         : undefined,
     );
 
