@@ -24,6 +24,7 @@ export interface GameConfig {
   showTimer: boolean;
   startingPlayerId: string | null;
   selectedDifficulties: string[];
+  impostorHints: boolean;
 }
 
 export type GamePhase =
@@ -45,13 +46,14 @@ export interface GameState {
   inspireMessage: string;
 }
 
-const DEFAULT_CONFIG: GameConfig = {
+export const DEFAULT_CONFIG: GameConfig = {
   impostorCount: 1,
   timerMinutes: 3,
   selectedCategories: [],
   showTimer: true,
   startingPlayerId: null,
   selectedDifficulties: [],
+  impostorHints: true
 };
 
 const INITIAL_STATE: GameState = {
