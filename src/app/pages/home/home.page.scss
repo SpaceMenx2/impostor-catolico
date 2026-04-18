@@ -234,3 +234,152 @@ ion-content.home-content {
     margin: 0;
   }
 }
+
+// ---- Sección "Sobre el juego" ----
+.about-section {
+  width: 100%;
+  max-width: 400px;
+  margin-top: 20px; // ← Aumentar de 12px a 20px
+}
+
+.about-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px; // ← Aumentar de 6px a 8px
+  width: 100%;
+  padding: 12px 20px; // ← Aumentar padding
+  background: transparent;
+  border: 1px solid rgba(212, 167, 40, 0.35); // ← Borde un poco más visible
+  border-radius: 30px;
+  color: rgba(255, 255, 255, 0.75); // ← Texto más claro
+  font-family: var(--font-body);
+  font-size: 0.85rem; // ← Un poco más grande
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  ion-icon {
+    font-size: 1.1rem; // ← Ícono más grande
+    color: var(--color-gold);
+    transition: transform 0.2s ease;
+  }
+
+  .toggle-icon {
+    margin-left: 4px;
+    &.rotated { transform: rotate(180deg); }
+  }
+
+  &:hover {
+    background: rgba(212, 167, 40, 0.15); // ← Más visible al hover
+    color: #fff;
+    border-color: var(--color-gold);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.about-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease-out, opacity 0.3s ease;
+  opacity: 0;
+
+  &.expanded {
+    max-height: 1000px; // Ajustar según contenido
+    opacity: 1;
+    transition: max-height 0.6s ease-in, opacity 0.4s ease;
+  }
+}
+
+.about-card {
+  margin-top: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-left: 3px solid var(--color-gold);
+  border-radius: 14px;
+  padding: 18px 20px;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+
+  h3 {
+    font-family: var(--font-title);
+    font-size: 1rem;
+    color: var(--color-gold);
+    margin: 0 0 12px;
+    letter-spacing: 0.05em;
+  }
+
+  h4 {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 16px 0 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  p {
+    margin: 0 0 10px;
+    color: rgba(255, 255, 255, 0.7);
+
+    strong { color: rgba(255, 255, 255, 0.95); }
+    em { font-style: italic; color: rgba(212, 167, 40, 0.9); }
+  }
+
+  .about-footer {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: rgba(212, 167, 40, 0.8);
+    font-style: italic;
+
+    ion-icon { font-size: 0.9rem; }
+  }
+}
+
+.about-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px; // ← Aumentar de 14px a 20px
+  margin-bottom: 20px; // ← Agregar margen inferior
+}
+
+.about-link {
+  display: inline-flex; // ← Cambiar de flex a inline-flex
+  align-items: center;
+  gap: 6px; // ← Aumentar de 4px a 6px
+  padding: 8px 16px; // ← Agregar padding para que sea más "clicable"
+  background: rgba(212, 167, 40, 0.1); // ← Fondo sutil
+  border: 1px solid rgba(212, 167, 40, 0.25); // ← Borde dorado
+  border-radius: 20px; // ← Bordes redondeados
+  font-size: 0.85rem; // ← Aumentar de 0.75rem a 0.85rem
+  font-weight: 500; // ← Un poco más bold
+  color: rgba(212, 167, 40, 0.95); // ← Color más vivo
+  text-decoration: none;
+  transition: all 0.2s ease;
+  
+  ion-icon {
+    font-size: 1.1rem; // ← Ícono más grande
+  }
+  
+  &:hover {
+    background: rgba(212, 167, 40, 0.2); // ← Más fondo al hover
+    border-color: var(--color-gold);
+    color: #fff;
+    transform: translateY(-1px); // ← Pequeño lift
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}

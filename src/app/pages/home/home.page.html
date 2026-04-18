@@ -1,6 +1,5 @@
 <!-- src/app/pages/home/home.page.html -->
 <ion-content class="home-content">
-
   <!-- Fondo con estrellas decorativas -->
   <div class="bg-layer">
     <div class="star s1"></div>
@@ -13,17 +12,34 @@
   </div>
 
   <div class="home-container">
-
     <!-- Logo / Cruz animada -->
     <div class="logo-section animate-fadeInUp">
       <div class="cross-container animate-pulse">
-        <svg viewBox="0 0 80 100" xmlns="http://www.w3.org/2000/svg" class="cross-svg">
-          <rect x="30" y="0"  width="20" height="100" rx="4" fill="url(#goldGrad)"/>
-          <rect x="0"  y="25" width="80" height="20"  rx="4" fill="url(#goldGrad)"/>
+        <svg
+          viewBox="0 0 80 100"
+          xmlns="http://www.w3.org/2000/svg"
+          class="cross-svg"
+        >
+          <rect
+            x="30"
+            y="0"
+            width="20"
+            height="100"
+            rx="4"
+            fill="url(#goldGrad)"
+          />
+          <rect
+            x="0"
+            y="25"
+            width="80"
+            height="20"
+            rx="4"
+            fill="url(#goldGrad)"
+          />
           <defs>
             <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%"   stop-color="#f0c940"/>
-              <stop offset="100%" stop-color="#a87d10"/>
+              <stop offset="0%" stop-color="#f0c940" />
+              <stop offset="100%" stop-color="#a87d10" />
             </linearGradient>
           </defs>
         </svg>
@@ -43,17 +59,16 @@
 
     <!-- Mensaje inspirador -->
     <div class="inspire-block animate-fadeInUp delay-3">
-      <ion-icon name="chatbubble-ellipses-outline" class="inspire-icon"></ion-icon>
+      <ion-icon
+        name="chatbubble-ellipses-outline"
+        class="inspire-icon"
+      ></ion-icon>
       <p class="inspire-text">{{ inspireMessage }}</p>
     </div>
 
     <!-- Botón de inicio -->
     <div class="action-section animate-fadeInUp delay-4">
-      <ion-button
-        expand="block"
-        class="btn-start"
-        (click)="goToPlayers()"
-      >
+      <ion-button expand="block" class="btn-start" (click)="goToPlayers()">
         <ion-icon slot="start" name="people-outline"></ion-icon>
         Comenzar Partida
       </ion-button>
@@ -84,5 +99,78 @@
       <p>Hecho con ♥ para grupos parroquiales</p>
     </div>
 
+    <!-- ✅ MOVER ESTO DENTRO del home-container -->
+    <div class="about-section animate-fadeInUp delay-6">
+      <button
+        type="button"
+        class="about-toggle"
+        (click)="toggleAbout(); $event.preventDefault()"
+        [attr.aria-expanded]="showAbout"
+        aria-controls="about-content"
+      >
+        <ion-icon name="information-circle-outline"></ion-icon>
+        <span>Sobre el juego</span>
+        <ion-icon
+          name="chevron-down-outline"
+          class="toggle-icon"
+          [class.rotated]="showAbout"
+        ></ion-icon>
+      </button>
+
+      <div
+        id="about-content"
+        class="about-content"
+        [class.expanded]="showAbout"
+      >
+        <div class="about-card">
+          <h3>¿Por qué existe este juego?</h3>
+          <p>
+            <strong>Impostor de Catequesis</strong> nació de una idea simple:
+            tomar la mecánica divertida del juego <em>"Impostor"</em> que todos
+            conocen, y darle un propósito más profundo.
+          </p>
+
+          <h4>🎮 La idea</h4>
+          <p>
+            Quería crear una herramienta para que grupos de catequesis, jóvenes
+            parroquiales y comunidades puedan <strong>aprender jugando</strong>.
+            No se trata solo de adivinar: se trata de conversar, escuchar y
+            compartir la fe de forma natural y entretenida.
+          </p>
+
+          <h4>🤖 ¿Cómo se hizo?</h4>
+          <p>
+            Este proyecto fue desarrollado con ayuda de
+            <strong>inteligencia artificial</strong>, desde el código hasta las
+            palabras del juego. Fue un experimento para demostrar que la
+            tecnología puede servir a la misión evangelizadora cuando se usa con
+            intención.
+          </p>
+
+          <h4>✨ El corazón</h4>
+          <p>
+            Cada palabra, pista y categoría fue pensada para inspirar, enseñar y
+            conectar. Si este juego ayuda a que alguien se acerque más a Jesús,
+            a la comunidad o a la oración, entonces cumplió su propósito.
+          </p>
+
+          <div class="about-footer">
+            <ion-icon name="heart-outline"></ion-icon>
+            <span>Hecho con fe, código y un poco de IA</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ✅ GitHub link DENTRO también -->
+    <div class="about-actions">
+      <a
+        href="https://github.com/SpaceMenx2/impostor-catolico"
+        target="_blank"
+        class="about-link"
+      >
+        <ion-icon name="logo-github"></ion-icon> Ver código en GitHub
+      </a>
+    </div>
   </div>
 </ion-content>

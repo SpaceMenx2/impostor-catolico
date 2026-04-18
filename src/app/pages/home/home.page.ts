@@ -1,25 +1,34 @@
 // src/app/pages/home/home.page.ts
-import { Component } from '@angular/core';
-import { NavController } from '@ionic/angular'; // <-- Usar NavController
-import { GameService } from '../../services/game.service';
-import { getRandomInspireMessage } from '../../data/words';
+import { Component } from "@angular/core";
+import { NavController } from "@ionic/angular"; // <-- Usar NavController
+import { GameService } from "../../services/game.service";
+import { getRandomInspireMessage } from "../../data/words";
 
 @Component({
-  selector: 'app-home',
-  templateUrl: 'home.page.html',
-  styleUrls: ['home.page.scss'],
+  selector: "app-home",
+  templateUrl: "home.page.html",
+  styleUrls: ["home.page.scss"],
 })
 export class HomePage {
-  inspireMessage = '';
+  inspireMessage = "";
+  showAbout = false;
 
   constructor(
-    private gameService: GameService, 
-    private navCtrl: NavController
+    private gameService: GameService,
+    private navCtrl: NavController,
   ) {}
 
   ionViewWillEnter(): void {
     this.inspireMessage = getRandomInspireMessage();
     this.gameService.fullReset();
+  }
+
+  ionViewWillLeave(): void {
+    this.showAbout = false;
+  }
+
+  toggleAbout(): void {
+    this.showAbout = !this.showAbout;
   }
 
   goToPlayers(): void {
@@ -29,9 +38,9 @@ export class HomePage {
     }
 
     setTimeout(() => {
-      this.navCtrl.navigateForward('/players', { 
+      this.navCtrl.navigateForward("/players", {
         animated: true,
-        replaceUrl: true
+        replaceUrl: true,
       });
     }, 100);
   }
