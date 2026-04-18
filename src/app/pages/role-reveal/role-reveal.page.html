@@ -25,7 +25,6 @@
 </ion-header>
 
 <ion-content class="reveal-content">
-
   <!-- Fondo degradado base (detrás de todo) -->
   <div class="reveal-bg"></div>
 
@@ -39,9 +38,7 @@
 
   <!-- Contenedor principal (encima del fondo) -->
   <div class="reveal-container">
-
     <ng-container *ngIf="currentPlayer">
-
       <!-- PASO 1: Esperando que el jugador tome el teléfono -->
       <ng-container *ngIf="revealStep === 'waiting'">
         <div class="step-waiting animate-fadeIn">
@@ -53,7 +50,8 @@
             <span class="call-name">{{ currentPlayer.name }}</span>
           </h2>
           <p class="privacy-hint">
-            Asegurate de que solo <strong>{{ currentPlayer.name }}</strong> esté mirando la pantalla.
+            Asegurate de que solo <strong>{{ currentPlayer.name }}</strong> esté
+            mirando la pantalla.
           </p>
           <ion-button
             type="button"
@@ -70,7 +68,6 @@
       <!-- PASO 2: Mostrar el rol -->
       <ng-container *ngIf="revealStep === 'showing'">
         <div class="step-showing animate-rotateIn">
-
           <!-- Jugador normal (CIVIL) -->
           <ng-container *ngIf="!currentPlayer.isImpostor">
             <div class="role-card role-player">
@@ -92,8 +89,8 @@
                 </div>
               </div>
               <p class="role-instruction">
-                Describí esta palabra con pistas sutiles sin decirla directamente.
-                ¡Ayudá al grupo a encontrar al impostor!
+                Describí esta palabra con pistas sutiles sin decirla
+                directamente. ¡Ayudá al grupo a encontrar al impostor!
               </p>
             </div>
           </ng-container>
@@ -108,14 +105,29 @@
                 <div class="role-badge-inline impostor-badge">IMPOSTOR</div>
               </div>
               <div class="word-section">
-                <p class="word-label impostor-label">No conocés la palabra secreta.</p>
+                <p class="word-label impostor-label">
+                  No conocés la palabra secreta.
+                </p>
                 <div class="impostor-message">
                   <ion-icon name="flash-outline"></ion-icon>
-                  <span>Observá con atención y usá tu ingenio para no ser descubierto.</span>
+                  <span
+                    >Observá con atención y usá tu ingenio para no ser
+                    descubierto.</span
+                  >
+                </div>
+                <div *ngIf="showImpostorHint" class="impostor-hint-box">
+                  <ion-icon
+                    name="lightbulb-outline"
+                    class="hint-icon"
+                  ></ion-icon>
+                  <p class="hint-text">
+                    <strong>Pista:</strong> {{ impostorHintText }}
+                  </p>
                 </div>
               </div>
               <p class="role-instruction impostor-instruction">
-                Escuchá las pistas de los demás e intentá integrarte sin delatar que sos el impostor.
+                Escuchá las pistas de los demás e intentá integrarte sin delatar
+                que sos el impostor.
               </p>
             </div>
           </ng-container>
@@ -131,19 +143,19 @@
             <ion-icon slot="start" name="eye-off-outline"></ion-icon>
             Listo — Ocultar y pasar
           </ion-button>
-
         </div>
       </ng-container>
 
       <!-- PASO 3: Ocultando (transición) -->
       <ng-container *ngIf="revealStep === 'hidden'">
         <div class="step-hidden animate-fadeIn">
-          <ion-icon name="checkmark-circle-outline" class="hidden-check"></ion-icon>
+          <ion-icon
+            name="checkmark-circle-outline"
+            class="hidden-check"
+          ></ion-icon>
           <p>Pasando al siguiente...</p>
         </div>
       </ng-container>
-
     </ng-container>
-
   </div>
 </ion-content>

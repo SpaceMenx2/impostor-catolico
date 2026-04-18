@@ -253,6 +253,20 @@
             {{ diff.label }}
           </button>
         </div>
+        <div class="config-row">
+          <div class="config-label">
+            <ion-icon name="eye-outline"></ion-icon>
+            <span>Pista para impostores</span>
+          </div>
+          <button
+            type="button"
+            class="count-btn"
+            [class.active]="config.impostorHints"
+            (click)="updateImpostorHints(); $event.preventDefault()"
+          >
+            {{ config.impostorHints ? 'Activada' : 'Desactivada' }}
+          </button>
+        </div>
       </div>
     </div>
 

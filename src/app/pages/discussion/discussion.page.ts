@@ -1,7 +1,7 @@
 // src/app/pages/discussion/discussion.page.ts
 import { Component, OnDestroy, ChangeDetectorRef } from "@angular/core";
 import { NavController, AlertController } from "@ionic/angular";
-import { GameService, GameState } from "../../services/game.service";
+import { DEFAULT_CONFIG, GameService, GameState } from "../../services/game.service";
 import { Subscription } from "rxjs";
 
 @Component({
@@ -13,14 +13,7 @@ export class DiscussionPage implements OnDestroy {
   state: GameState = {
     phase: "discussion",
     players: [],
-    config: {
-      impostorCount: 1,
-      timerMinutes: 3,
-      selectedCategories: [],
-      showTimer: true,
-      startingPlayerId: null,
-      selectedDifficulties: []
-    },
+    config: DEFAULT_CONFIG,
     currentWord: null,
     currentCategory: null,
     currentRevealIndex: 0,

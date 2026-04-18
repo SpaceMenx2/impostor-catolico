@@ -422,6 +422,10 @@ ion-toolbar {
   font-style: italic;
 }
 
+.config-row:last-of-type {
+  margin-bottom: 0; // Elimina margen extra si es el último elemento
+}
+
 // ---- Dificultades ----
 .config-difficulties {
   margin-top: 6px;

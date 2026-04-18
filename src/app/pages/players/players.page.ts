@@ -1,7 +1,12 @@
 // src/app/pages/players/players.page.ts
 import { Component, ChangeDetectorRef, OnDestroy } from "@angular/core";
 import { ToastController, NavController } from "@ionic/angular";
-import { GameService, GameConfig, Player } from "../../services/game.service";
+import {
+  GameService,
+  GameConfig,
+  Player,
+  DEFAULT_CONFIG,
+} from "../../services/game.service";
 import { WordCategory, WORD_CATEGORIES } from "../../data/words";
 import { Subscription } from "rxjs";
 
@@ -12,14 +17,7 @@ import { Subscription } from "rxjs";
 })
 export class PlayersPage implements OnDestroy {
   players: Player[] = [];
-  config: GameConfig = {
-    impostorCount: 1,
-    timerMinutes: 3,
-    selectedCategories: [],
-    showTimer: true,
-    startingPlayerId: null,
-    selectedDifficulties: [],
-  };
+  config: GameConfig = DEFAULT_CONFIG;
   isStarting = false;
   newPlayerName = "";
   categories: WordCategory[] = WORD_CATEGORIES;
@@ -138,21 +136,26 @@ export class PlayersPage implements OnDestroy {
   }
 
   toggleDifficulty(difficultyId: string): void {
-  const selected = [...this.config.selectedDifficulties];
-  const idx = selected.indexOf(difficultyId);
-  if (idx >= 0) {
-    selected.splice(idx, 1);
-  } else {
-    selected.push(difficultyId);
+    const selected = [...this.config.selectedDifficulties];
+    const idx = selected.indexOf(difficultyId);
+    if (idx >= 0) {
+      selected.splice(idx, 1);
+    } else {
+      selected.push(difficultyId);
+    }
+    this.config.selectedDifficulties = selected;
+    this.gameService.updateConfig({ selectedDifficulties: selected });
   }
-  this.config.selectedDifficulties = selected;
-  this.gameService.updateConfig({ selectedDifficulties: selected });
-}
 
   setStartingPlayer(playerId: string): void {
     const newId = this.config.startingPlayerId === playerId ? null : playerId;
     this.config.startingPlayerId = newId;
     this.gameService.updateConfig({ startingPlayerId: newId });
+  }
+
+  updateImpostorHints(): void {
+    this.config.impostorHints = !this.config.impostorHints;
+    this.gameService.updateConfig({ impostorHints: this.config.impostorHints });
   }
 
   async startGame(): Promise<void> {

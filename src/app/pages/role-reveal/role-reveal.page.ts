@@ -10,12 +10,11 @@ type RevealStep = "waiting" | "showing" | "hidden";
 const SAINT_BACKGROUNDS = [
   "assets/backgrounds/saint-francis.webp",
   "assets/backgrounds/saint-teresa.webp",
-  "assets/backgrounds/saint-john.webp",
   "assets/backgrounds/saint-mary.webp",
   "assets/backgrounds/saint-peter.webp",
-  "assets/backgrounds/saint-paul.webp",
+  /*"assets/backgrounds/saint-paul.webp",*/
 ];
-const JUDAS_BACKGROUND = "assets/backgrounds/judas.webp";
+const JUDAS_BACKGROUND =  "assets/backgrounds/judas.webp";
 
 @Component({
   selector: "app-role-reveal",
@@ -60,7 +59,10 @@ export class RoleRevealPage implements OnDestroy {
 
           requestAnimationFrame(() => {
             this.navCtrl
-              .navigateRoot("/" + s.phase, { animated: false, replaceUrl: true })
+              .navigateRoot("/" + s.phase, {
+                animated: false,
+                replaceUrl: true,
+              })
               .catch((err) => console.error("[REVEAL] Nav error:", err));
           });
           return;
@@ -108,7 +110,9 @@ export class RoleRevealPage implements OnDestroy {
     if (this.currentPlayer) {
       const url = this.currentPlayer.isImpostor
         ? JUDAS_BACKGROUND
-        : SAINT_BACKGROUNDS[Math.floor(Math.random() * SAINT_BACKGROUNDS.length)];
+        : SAINT_BACKGROUNDS[
+            Math.floor(Math.random() * SAINT_BACKGROUNDS.length)
+          ];
       this.roleBgImage = url;
       this.roleBgLoaded = false;
 
@@ -123,6 +127,18 @@ export class RoleRevealPage implements OnDestroy {
       };
       img.src = url;
     }
+  }
+
+  get showImpostorHint(): boolean {
+    return (
+      this.currentPlayer?.isImpostor as boolean &&
+      this.state?.config?.impostorHints &&
+      !!this.state.currentWord?.hint
+    );
+  }
+
+  get impostorHintText(): string {
+    return (this.state.currentWord)?.hint || "";
   }
 
   hideAndPass(): void {
@@ -167,7 +183,10 @@ export class RoleRevealPage implements OnDestroy {
             this.hasNavigated = true;
             if (this.sub) this.sub.unsubscribe();
             this.gameService.newRound();
-            this.navCtrl.navigateRoot("/players", { animated: true, replaceUrl: true });
+            this.navCtrl.navigateRoot("/players", {
+              animated: true,
+              replaceUrl: true,
+            });
           },
         },
       ],
