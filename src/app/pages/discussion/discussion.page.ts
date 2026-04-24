@@ -125,7 +125,7 @@ export class DiscussionPage implements OnDestroy {
   }
 
   get playerNames(): string[] {
-    return this.state?.players?.map((p) => p.name) ?? [];
+    return this.gameService.activePlayers?.map((p) => p.name) ?? [];
   }
 
   // NEW #3: Mostrar quién empieza si fue configurado

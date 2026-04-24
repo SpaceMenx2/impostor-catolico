@@ -15,6 +15,7 @@ export interface Player {
   isImpostor: boolean;
   hasSeenRole: boolean;
   vote: string | null;
+  isEliminated: boolean;
 }
 
 export interface GameConfig {
@@ -53,7 +54,7 @@ export const DEFAULT_CONFIG: GameConfig = {
   showTimer: true,
   startingPlayerId: null,
   selectedDifficulties: [],
-  impostorHints: true
+  impostorHints: true,
 };
 
 const INITIAL_STATE: GameState = {
@@ -72,6 +73,10 @@ export class GameService {
   private state = new BehaviorSubject<GameState>({ ...INITIAL_STATE });
   public state$ = this.state.asObservable();
 
+  // ─────────────────────────────────────────────────────
+  // GETTERS PÚBLICOS
+  // ─────────────────────────────────────────────────────
+
   get currentState(): GameState {
     return this.state.getValue();
   }
@@ -80,13 +85,35 @@ export class GameService {
     return WORD_CATEGORIES;
   }
 
+  /** Jugadores activos (filtro de solo lectura) */
+  get activePlayers(): Player[] {
+    return this.currentState.players.filter((p) => !p.isEliminated);
+  }
+
+  /** Jugador actual en la fase de revelación de roles */
+  get currentRevealPlayer(): Player | null {
+    const active = this.activePlayers;
+    return active[this.currentState.currentRevealIndex] ?? null;
+  }
+
+  /** Verifica si todos los jugadores activos votaron */
+  get allVotesCast(): boolean {
+    return this.activePlayers.every((p) => p.vote !== null);
+  }
+
+  // ─────────────────────────────────────────────────────
+  // MÉTODOS DE CONFIGURACIÓN (fase setup)
+  // ─────────────────────────────────────────────────────
+
   addPlayer(name: string): boolean {
     const trimmed = name.trim();
     if (!trimmed) return false;
 
     const state = this.currentState;
+
+    // Evitar duplicados entre jugadores activos
     const exists = state.players.some(
-      (p) => p.name.toLowerCase() === trimmed.toLowerCase(),
+      (p) => !p.isEliminated && p.name.toLowerCase() === trimmed.toLowerCase()
     );
     if (exists) return false;
 
@@ -96,6 +123,7 @@ export class GameService {
       isImpostor: false,
       hasSeenRole: false,
       vote: null,
+      isEliminated: false,
     };
 
     this.updateState({ players: [...state.players, newPlayer] });
@@ -104,8 +132,13 @@ export class GameService {
 
   removePlayer(playerId: string): void {
     const state = this.currentState;
-    const players = state.players.filter((p) => p.id !== playerId);
 
+    // Solo permitir eliminación durante la configuración
+    if (state.phase !== "home" && state.phase !== "players") {
+      return; // En juego, usar eliminación por votación
+    }
+
+    const players = state.players.filter((p) => p.id !== playerId);
     const startingPlayerId =
       state.config.startingPlayerId === playerId
         ? null
@@ -126,27 +159,40 @@ export class GameService {
     this.updateState({ config: { ...state.config, ...config } });
   }
 
+  // ─────────────────────────────────────────────────────
+  // MÉTODOS DE JUEGO (preservan lista completa)
+  // ─────────────────────────────────────────────────────
+
   startGame(): boolean {
     const state = this.currentState;
+    const active = this.activePlayers;
 
     const minPlayers = state.config.impostorCount + 2;
-    if (state.players.length < minPlayers) {
-      return false;
-    }
+    if (active.length < minPlayers) return false;
 
-    const orderedPlayers: Player[] = state.players.map((p) => ({
+    // Resetear estado de juego para todos, mantener lista intacta
+    const updatedPlayers = state.players.map((p) => ({
       ...p,
       isImpostor: false,
       hasSeenRole: false,
       vote: null,
+      // isEliminated se mantiene (jugadores removidos en setup)
     }));
 
-    const impostorIndices = this.pickRandomIndices(
-      orderedPlayers.length,
-      state.config.impostorCount,
+    // Obtener índices globales de jugadores activos
+    const activeIndices = updatedPlayers
+      .map((p, i) => ({ active: !p.isEliminated, index: i }))
+      .filter(({ active }) => active)
+      .map(({ index }) => index);
+
+    // Asignar roles de impostor solo a activos
+    const impostorLocalIndices = this.pickRandomIndices(
+      activeIndices.length,
+      state.config.impostorCount
     );
-    impostorIndices.forEach((i) => {
-      orderedPlayers[i].isImpostor = true;
+    impostorLocalIndices.forEach((localIdx) => {
+      const globalIdx = activeIndices[localIdx];
+      updatedPlayers[globalIdx].isImpostor = true;
     });
 
     const { word, category } = getRandomWord(
@@ -155,12 +201,12 @@ export class GameService {
         : undefined,
       state.config.selectedDifficulties.length > 0
         ? state.config.selectedDifficulties
-        : undefined,
+        : undefined
     );
 
     this.updateState({
       phase: "role-reveal",
-      players: orderedPlayers,
+      players: updatedPlayers,
       currentWord: word,
       currentCategory: category,
       currentRevealIndex: 0,
@@ -173,29 +219,25 @@ export class GameService {
 
   markRoleSeen(): void {
     const state = this.currentState;
-    const players = [...state.players];
+    const active = this.activePlayers;
 
-    players[state.currentRevealIndex] = {
-      ...players[state.currentRevealIndex],
-      hasSeenRole: true,
-    };
+    if (state.currentRevealIndex >= active.length) return;
+
+    const targetPlayer = active[state.currentRevealIndex];
+
+    // Actualizar solo el jugador objetivo en la lista completa
+    const players = state.players.map((p) =>
+      p.id === targetPlayer.id ? { ...p, hasSeenRole: true } : p
+    );
 
     const nextIndex = state.currentRevealIndex + 1;
+    const shouldAdvance = nextIndex < active.length;
 
-    if (nextIndex >= players.length) {
-      this.updateState({
-        players,
-        currentRevealIndex: 0,
-        phase: "discussion",
-      });
-    } else {
-      this.updateState({ players, currentRevealIndex: nextIndex });
-    }
-  }
-
-  get currentRevealPlayer(): Player | null {
-    const state = this.currentState;
-    return state.players[state.currentRevealIndex] ?? null;
+    this.updateState({
+      players,
+      currentRevealIndex: shouldAdvance ? nextIndex : 0,
+      phase: shouldAdvance ? state.phase : "discussion",
+    });
   }
 
   startVoting(): void {
@@ -205,13 +247,9 @@ export class GameService {
   castVote(voterId: string, votedId: string): void {
     const state = this.currentState;
     const players = state.players.map((p) =>
-      p.id === voterId ? { ...p, vote: votedId } : p,
+      p.id === voterId ? { ...p, vote: votedId } : p
     );
     this.updateState({ players });
-  }
-
-  get allVotesCast(): boolean {
-    return this.currentState.players.every((p) => p.vote !== null);
   }
 
   showResult(): void {
@@ -225,33 +263,26 @@ export class GameService {
     isCorrect: boolean;
     canContinue: boolean;
   } {
-    const state = this.currentState;
+    const active = this.activePlayers;
     const voteMap: { [id: string]: number } = {};
 
-    state.players.forEach((p) => {
+    active.forEach((p) => {
       if (p.vote) {
         voteMap[p.vote] = (voteMap[p.vote] || 0) + 1;
       }
     });
 
-    const voteCounts = state.players.map((p) => ({
-      player: p,
-      votes: voteMap[p.id] || 0,
-    }));
-
-    voteCounts.sort((a, b) => b.votes - a.votes);
+    const voteCounts = active
+      .map((p) => ({ player: p, votes: voteMap[p.id] || 0 }))
+      .sort((a, b) => b.votes - a.votes);
 
     const mostVoted = voteCounts[0]?.player ?? null;
-    const impostors = state.players.filter((p) => p.isImpostor);
+    const impostors = active.filter((p) => p.isImpostor);
     const isCorrect = mostVoted?.isImpostor ?? false;
 
-    const remainingAfterElimination = state.players.filter(
-      (p) => p.id !== mostVoted?.id,
-    );
+    const remaining = active.filter((p) => p.id !== mostVoted?.id);
     const impostorCount = impostors.length;
-    const civilianCount = remainingAfterElimination.filter(
-      (p) => !p.isImpostor,
-    ).length;
+    const civilianCount = remaining.filter((p) => !p.isImpostor).length;
     const canContinue = !isCorrect && civilianCount > impostorCount;
 
     return { mostVoted, voteCounts, impostors, isCorrect, canContinue };
@@ -264,18 +295,20 @@ export class GameService {
 
     if (!mostVoted) return false;
 
-    const remainingPlayers = state.players
-      .filter((p) => p.id !== mostVoted.id)
-      .map((p) => ({ ...p, vote: null, hasSeenRole: p.hasSeenRole }));
+    // Marcar como eliminado en la lista completa
+    const players = state.players.map((p) =>
+      p.id === mostVoted.id ? { ...p, isEliminated: true, vote: null } : p
+    );
 
-    const impostors = remainingPlayers.filter((p) => p.isImpostor);
-    const civilians = remainingPlayers.filter((p) => !p.isImpostor);
+    const active = players.filter((p) => !p.isEliminated);
+    const impostors = active.filter((p) => p.isImpostor);
+    const civilians = active.filter((p) => !p.isImpostor);
 
     if (civilians.length <= impostors.length) return false;
 
     this.updateState({
       phase: "discussion",
-      players: remainingPlayers,
+      players,
       currentRevealIndex: 0,
     });
     return true;
@@ -283,18 +316,23 @@ export class GameService {
 
   newRound(): void {
     const state = this.currentState;
+
+    // Resetear estado de juego, mantener jugadores y eliminaciones
+    const players = state.players.map((p) => ({
+      ...p,
+      isImpostor: false,
+      hasSeenRole: false,
+      vote: null,
+      // isEliminated se mantiene
+    }));
+
     this.updateState({
       phase: "players",
+      players,
       currentWord: null,
       currentCategory: null,
       currentRevealIndex: 0,
       roundNumber: 0,
-      players: state.players.map((p) => ({
-        ...p,
-        isImpostor: false,
-        hasSeenRole: false,
-        vote: null,
-      })),
     });
   }
 
@@ -305,20 +343,34 @@ export class GameService {
 
     if (!mostVoted) return false;
 
-    const remainingPlayers = state.players
-      .filter((p) => p.id !== mostVoted.id)
-      .map((p) => ({ ...p, hasSeenRole: false, vote: null }));
+    // Marcar eliminado y resetear estado por ronda
+    const players = state.players.map((p) => {
+      if (p.id === mostVoted.id) {
+        return { ...p, isEliminated: true, hasSeenRole: false, vote: null };
+      }
+      return { ...p, hasSeenRole: false, vote: null };
+    });
 
-    const impostors = remainingPlayers.filter((p) => p.isImpostor);
-    const civilians = remainingPlayers.filter((p) => !p.isImpostor);
+    const active = players.filter((p) => !p.isEliminated);
+    const impostors = active.filter((p) => p.isImpostor);
+    const civilians = active.filter((p) => !p.isImpostor);
 
     if (impostors.length >= civilians.length) return false;
 
+    const { word, category } = getRandomWord(
+      state.config.selectedCategories.length > 0
+        ? state.config.selectedCategories
+        : undefined,
+      state.config.selectedDifficulties.length > 0
+        ? state.config.selectedDifficulties
+        : undefined
+    );
+
     this.updateState({
       phase: "role-reveal",
-      players: remainingPlayers,
-      currentWord: null,
-      currentCategory: null,
+      players,
+      currentWord: word,
+      currentCategory: category,
       currentRevealIndex: 0,
       roundNumber: state.roundNumber + 1,
       inspireMessage: getRandomInspireMessage(),
@@ -329,6 +381,10 @@ export class GameService {
   fullReset(): void {
     this.state.next({ ...INITIAL_STATE });
   }
+
+  // ─────────────────────────────────────────────────────
+  // MÉTODOS PRIVADOS
+  // ─────────────────────────────────────────────────────
 
   private updateState(partial: Partial<GameState>): void {
     this.state.next({ ...this.state.getValue(), ...partial });

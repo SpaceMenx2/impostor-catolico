@@ -150,7 +150,7 @@
                   class="btn-continue"
                   (click)="playAgain(); $event.preventDefault(); $event.stopPropagation()">
         <ion-icon slot="start" name="search-circle-outline"></ion-icon>
-        Seguir buscando ({{ state.players.length - 1 }} jugadores)
+        Seguir buscando ({{ players.length - 1 }} jugadores)
       </ion-button>
 
       <!-- BOTÓN: Nueva Partida (si terminó la ronda) -->

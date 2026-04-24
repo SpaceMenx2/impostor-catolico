@@ -74,6 +74,10 @@ export class ResultPage implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
   ) {}
 
+  get players() {
+    return this.gameService.activePlayers;
+  }
+
   ngOnInit(): void {
     this.sub = this.gameService.state$.subscribe((s) => {
       this.state = s;

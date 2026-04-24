@@ -25,8 +25,14 @@ export class VotingPage implements OnInit, OnDestroy {
   private sub!: Subscription;
 
   playerColors = [
-    "#d4a728", "#2a6bb5", "#2ec478", "#dc5050",
-    "#8b5a2b", "#8e44ad", "#1abc9c", "#e67e22",
+    "#d4a728",
+    "#2a6bb5",
+    "#2ec478",
+    "#dc5050",
+    "#8b5a2b",
+    "#8e44ad",
+    "#1abc9c",
+    "#e67e22",
   ];
 
   constructor(
@@ -41,7 +47,7 @@ export class VotingPage implements OnInit, OnDestroy {
       this.state = s;
     });
 
-    this.voterTurns = this.gameService.currentState.players.map((p) => ({
+    this.voterTurns = this.gameService.activePlayers.map((p) => ({
       voter: p,
       selectedVote: null,
       done: false,
@@ -59,8 +65,10 @@ export class VotingPage implements OnInit, OnDestroy {
   }
 
   get candidates(): Player[] {
-    if (!this.currentTurn) return [];
-    return this.state.players.filter((p) => p.id !== this.currentTurn!.voter.id);
+    const active = this.gameService.activePlayers;
+    const currentVoterId = this.currentTurn?.voter?.id;
+
+    return active.filter((p) => p.id !== currentVoterId);
   }
 
   selectVote(candidateId: string): void {
@@ -71,7 +79,10 @@ export class VotingPage implements OnInit, OnDestroy {
   confirmVote(): void {
     if (!this.currentTurn?.selectedVote) return;
 
-    this.gameService.castVote(this.currentTurn.voter.id, this.currentTurn.selectedVote);
+    this.gameService.castVote(
+      this.currentTurn.voter.id,
+      this.currentTurn.selectedVote,
+    );
     this.currentTurn.done = true;
     this.voteConfirmed = true;
 
@@ -101,7 +112,8 @@ export class VotingPage implements OnInit, OnDestroy {
 
   showResults(): void {
     this.gameService.showResult();
-    this.navCtrl.navigateRoot("/result", { animated: true, replaceUrl: true })
+    this.navCtrl
+      .navigateRoot("/result", { animated: true, replaceUrl: true })
       .catch((err) => console.error("[VOTING] Nav error:", err));
   }
 
@@ -118,7 +130,10 @@ export class VotingPage implements OnInit, OnDestroy {
           handler: () => {
             if (this.sub) this.sub.unsubscribe();
             this.gameService.newRound();
-            this.navCtrl.navigateRoot("/players", { animated: true, replaceUrl: true });
+            this.navCtrl.navigateRoot("/players", {
+              animated: true,
+              replaceUrl: true,
+            });
           },
         },
       ],
