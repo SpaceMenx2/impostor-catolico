@@ -1,6 +1,6 @@
 {
   "name": "impostor-catequesis",
-  "version": "1.0.0-dev0.1",
+  "version": "1.1.0",
   "description": "Juego social catequético inspirado en Impostor",
   "author": "Catequesis App",
   "private": true,
@@ -9,6 +9,7 @@
 
   "scripts": {
     "ng": "ng",
+      "prebuild": "node -e \"const fs=require('fs'); const pkg=require('./package.json'); const env=fs.readFileSync('src/environments/environment.ts','utf8'); fs.writeFileSync('src/environments/environment.ts', env.replace(/appVersion: '.*'/, `appVersion: '${pkg.version}'`))\"",
 
     "────────── DESARROLLO WEB ──────────": "─────",
     "start": "ng serve",
