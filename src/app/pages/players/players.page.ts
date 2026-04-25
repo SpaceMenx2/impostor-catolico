@@ -16,6 +16,7 @@ import { Subscription } from "rxjs";
   styleUrls: ["players.page.scss"],
 })
 export class PlayersPage implements OnDestroy {
+  showed!: boolean;
   players: Player[] = [];
   config: GameConfig = DEFAULT_CONFIG;
   isStarting = false;
@@ -197,12 +198,21 @@ export class PlayersPage implements OnDestroy {
   }
 
   private async showToast(message: string, color: string): Promise<void> {
+    if (this.showed) return;
+    this.showed = true;
+
     const toast = await this.toastCtrl.create({
       message,
       duration: 2000,
-      color,
-      position: "top",
+      position: "bottom",
+      cssClass: `toast-catequesis toast-${color}`,
+      animated: true,
     });
+
     await toast.present();
+
+    toast.onDidDismiss().then(() => {
+      this.showed = false;
+    });
   }
 }

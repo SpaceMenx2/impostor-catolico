@@ -212,7 +212,20 @@ h1, h2, h3, .title-font {
 
 
 /* ---- Transiciones de página (router) ---- */
-/*ion-router-outlet {
+ion-router-outlet {
   contain: layout style;
 }
-*/
+
+/* Toast simple y limpio */
+.toast-catequesis {
+  --background: rgba(13, 34, 81, 0.95); /* Fondo oscuro translúcido (tu azul de la app) */
+  --color: #ffffff;                     /* Texto blanco */
+  --border-radius: 10px;                /* Bordes suavemente redondeados */
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Bordecito de color abajo para saber si es éxito o error (opcional pero útil) */
+.toast-success { border-bottom: 2px solid #2ec478; }
+.toast-warning { border-bottom: 2px solid #f59e0b; }
+.toast-danger  { border-bottom: 2px solid #dc5050; }
