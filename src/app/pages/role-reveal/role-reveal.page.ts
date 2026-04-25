@@ -6,15 +6,18 @@ import { Subscription } from "rxjs";
 
 type RevealStep = "waiting" | "showing" | "hidden";
 
-// NEW #8: Santos para civiles y Judas para impostores
+const BASE = (name: string) => `assets/backgrounds/${name}.webp`
+
 const SAINT_BACKGROUNDS = [
-  "assets/backgrounds/saint-francis.webp",
-  "assets/backgrounds/saint-teresa.webp",
-  "assets/backgrounds/saint-mary.webp",
-  "assets/backgrounds/saint-peter.webp",
-  /*"assets/backgrounds/saint-paul.webp",*/
+  BASE("saint-francis"),
+  BASE("saint-teresa"),
+  BASE("saint-mary"),
+  BASE("saint-peter"),
+  BASE("saint-paul"),
+  BASE("saint-carlo-acutis"),
+  BASE("saint-pier-giorgio")
 ];
-const JUDAS_BACKGROUND =  "assets/backgrounds/judas.webp";
+const JUDAS_BACKGROUND =  BASE("judas");
 
 @Component({
   selector: "app-role-reveal",
