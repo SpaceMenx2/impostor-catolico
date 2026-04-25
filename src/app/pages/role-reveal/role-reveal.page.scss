@@ -16,7 +16,7 @@ ion-content.reveal-content {
   z-index: 0;
 }
 
-// NEW #8: Fondo contextual con overlay para legibilidad
+// ✅ MODIFICADO: Overlay más transparente para ver mejor la imagen de fondo
 .role-bg-image {
   position: fixed;
   inset: 0;
@@ -27,21 +27,21 @@ ion-content.reveal-content {
   opacity: 0;
   transition: opacity 0.5s ease;
 
-  // Overlay oscuro encima de la imagen (garantiza legibilidad del texto)
+  // Overlay más suave (reducido de 0.72 a 0.45)
   &::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: rgba(7, 22, 48, 0.72);
+    background: rgba(7, 22, 48, 0.45);  // ← Antes: 0.72, Ahora: 0.45
   }
 
   &.loaded {
     opacity: 1;
   }
 
-  // Para impostores: overlay más rojizo
+  // Para impostores: overlay más rojizo pero también más transparente
   &.impostor-bg::after {
-    background: rgba(60, 10, 10, 0.75);
+    background: rgba(60, 10, 10, 0.50);  // ← Antes: 0.75, Ahora: 0.50
   }
 }
 
@@ -84,7 +84,7 @@ ion-toolbar {
 // ---- Contenedor principal ----
 .reveal-container {
   position: relative;
-  z-index: 5; // encima del fondo contextual
+  z-index: 5;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -145,21 +145,17 @@ ion-toolbar {
     text-transform: uppercase;
   }
 
-  // FIX #2: Texto del nombre — evitar transform + will-change que causa blur en Android GPU
   .call-name {
     font-family: var(--font-title);
     font-size: 2.2rem;
     color: #fff;
     font-weight: 600;
     letter-spacing: 0.03em;
-    // FIX #2: Antialiasing explícito para render nítido en Android WebView
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    // FIX #2: Forzar compositing propio del texto (evita herencia de layer del padre)
     will-change: auto;
     transform: none;
-    // FIX #2: Evitar que el texto quede en una capa compuesta por backdrop-filter del padre
     isolation: isolate;
   }
 }
@@ -171,7 +167,6 @@ ion-toolbar {
   max-width: 280px;
   margin: 0;
   line-height: 1.6;
-  // FIX #2: Antialiasing también en texto secundario
   -webkit-font-smoothing: antialiased;
 
   strong { color: rgba(255,255,255,0.8); }
@@ -205,8 +200,6 @@ ion-toolbar {
   border: 1px solid;
   position: relative;
   z-index: 1;
-  // FIX #2: No usar backdrop-filter aquí para no crear compositing layer que difumine hijos
-  // background sólido con alfa nativo en vez de blur
   backdrop-filter: none;
 
   &.role-player {
@@ -258,7 +251,6 @@ ion-toolbar {
   background: rgba(42,107,181,0.3);
   color: #6ab0f0;
   border: 1px solid rgba(42,107,181,0.4);
-  // FIX #2: antialiasing en badges
   -webkit-font-smoothing: antialiased;
 
   &.impostor-badge {
@@ -289,23 +281,18 @@ ion-toolbar {
   border: 1px solid rgba(212,167,40,0.3);
 }
 
-// FIX #2: LA CAUSA PRINCIPAL del blur — -webkit-background-clip: text crea
-// una capa separada en Android que se renderiza borrosa cuando el padre tiene transform.
-// Solución: usar color sólido + text-shadow para simular efecto dorado sin clip.
 .the-word {
   font-family: var(--font-title);
   font-size: 2rem;
   font-weight: 700;
   letter-spacing: 0.05em;
-  // FIX #2: color sólido en lugar de background-clip que difumina en Android
   color: #f0c940;
   text-shadow: 0 0 20px rgba(240, 196, 64, 0.5), 0 1px 3px rgba(0,0,0,0.4);
-  // FIX #2: forzar pixel rendering nítido
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: geometricPrecision;
   will-change: auto;
-  transform: translateZ(0); // Promueve a capa GPU propia para evitar herencia
+  transform: translateZ(0);
 }
 
 .category-badge {
@@ -355,7 +342,6 @@ ion-toolbar {
   }
 }
 
-// FIX #2: Instrucciones también antialiased
 .role-instruction {
   font-size: 0.8rem;
   color: rgba(255,255,255,0.55);
@@ -396,7 +382,6 @@ ion-toolbar {
 }
 
 // ---- Alerta de cancelación ----
-// NEW #3: Estilos del alert de confirmación
 .cancel-alert {
   --background: #0d2251;
   --color: #fff;
