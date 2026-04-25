@@ -38,19 +38,6 @@ ion-toolbar {
   margin: 0 auto;
 }
 
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.animate-fadeInUp {
-  animation: fadeInUp 0.4s ease-out both;
-  &.delay-1 { animation-delay: 0.1s; }
-  &.delay-2 { animation-delay: 0.2s; }
-  &.delay-3 { animation-delay: 0.3s; }
-  &.delay-4 { animation-delay: 0.4s; }
-}
-
 // ---- Agregar jugador ----
 .add-player-card {
   background: rgba(255, 255, 255, 0.08);
@@ -92,7 +79,6 @@ ion-toolbar {
   font-size: 0.95rem;
 }
 
-// FIX #4: Botón "+" con contraste WCAG AA — background sólido dorado, icono oscuro
 .btn-add-visible {
   display: flex;
   align-items: center;
@@ -115,7 +101,6 @@ ion-toolbar {
     background: #c8960c;
   }
 
-  // FIX #4: Cuando está deshabilitado, bajamos opacidad pero mantenemos borde visible
   &.btn-add-disabled {
     background: rgba(212, 167, 40, 0.25);
     border-color: rgba(212, 167, 40, 0.4);
@@ -210,7 +195,7 @@ ion-toolbar {
   flex-shrink: 0;
 }
 
-// ---- NEW #7: Quién empieza ----
+// ---- Quién empieza ----
 .starting-player-section {
   margin-bottom: 20px;
 
@@ -312,6 +297,8 @@ ion-toolbar {
   margin-bottom: 14px;
   flex-wrap: wrap;
   gap: 8px;
+
+  &:last-of-type { margin-bottom: 0; }
 }
 
 .config-label {
@@ -390,40 +377,7 @@ ion-toolbar {
     font-weight: 700;
   }
 
-  &:hover:not(.active) {
-    background: rgba(255,255,255,0.08);
-  }
-}
-
-// ---- Botón iniciar ----
-.start-section { padding-top: 8px; }
-
-.btn-start-game {
-  --background: linear-gradient(135deg, #d4a728 0%, #f0c940 50%, #c8960c 100%);
-  --background-disabled: rgba(255,255,255,0.15);
-  --color: #0d2251;
-  --color-disabled: rgba(255,255,255,0.3);
-  --border-radius: 50px;
-  --box-shadow: 0 6px 25px rgba(212,167,40,0.4);
-  font-family: var(--font-title);
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  height: 56px;
-
-  ion-icon { font-size: 1.3rem; }
-}
-
-.start-hint {
-  text-align: center;
-  font-size: 0.78rem;
-  color: rgba(255,255,255,0.4);
-  margin: 10px 0 0;
-  font-style: italic;
-}
-
-.config-row:last-of-type {
-  margin-bottom: 0; // Elimina margen extra si es el último elemento
+  &:hover:not(.active) { background: rgba(255,255,255,0.08); }
 }
 
 // ---- Dificultades ----
@@ -462,12 +416,36 @@ ion-toolbar {
     box-shadow: 0 0 0 2px rgba(255,255,255,0.05);
   }
 
-  &:hover:not(.active) {
-    background: rgba(255,255,255,0.08);
-  }
+  &:hover:not(.active) { background: rgba(255,255,255,0.08); }
 
-  // Colores específicos al estar activos (opcional, para refuerzo visual)
   &[style*="#2ec478"].active { box-shadow: 0 0 0 2px rgba(46, 196, 120, 0.25); }
   &[style*="#f39c12"].active { box-shadow: 0 0 0 2px rgba(243, 156, 18, 0.25); }
   &[style*="#dc5050"].active { box-shadow: 0 0 0 2px rgba(220, 80, 80, 0.25); }
+}
+
+// ---- Botón iniciar ----
+.start-section { padding-top: 8px; }
+
+.btn-start-game {
+  --background: linear-gradient(135deg, #d4a728 0%, #f0c940 50%, #c8960c 100%);
+  --background-disabled: rgba(255,255,255,0.15);
+  --color: #0d2251;
+  --color-disabled: rgba(255,255,255,0.3);
+  --border-radius: 50px;
+  --box-shadow: 0 6px 25px rgba(212,167,40,0.4);
+  font-family: var(--font-title);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  height: 56px;
+
+  ion-icon { font-size: 1.3rem; }
+}
+
+.start-hint {
+  text-align: center;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.4);
+  margin: 10px 0 0;
+  font-style: italic;
 }

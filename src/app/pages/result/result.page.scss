@@ -1,6 +1,5 @@
 // src/app/pages/result/result.page.scss
 
-// Base
 ion-content.result-content {
   --background: linear-gradient(160deg, #071630 0%, #0d2251 30%, #0e3320 60%, #1a4a2a 100%);
   --color: #fff;
@@ -44,7 +43,7 @@ ion-toolbar {
   width: 100%;
 }
 
-// Partículas
+// ---- Partículas ----
 .particles {
   position: fixed;
   inset: 0;
@@ -52,6 +51,7 @@ ion-toolbar {
   pointer-events: none;
   overflow: hidden;
 }
+
 .particle {
   position: absolute;
   width: 8px;
@@ -59,6 +59,7 @@ ion-toolbar {
   border-radius: 2px;
   animation: particleFall linear infinite;
 }
+
 @for $i from 1 through 8 {
   .p#{$i} {
     left: (($i - 1) * 14 + 2) * 1%;
@@ -67,12 +68,13 @@ ion-toolbar {
     background: nth((#d4a728, #2ec478, #f0c940, #2a6bb5, #dc5050, #8e44ad, #fff, #d4a728), $i);
   }
 }
+
 @keyframes particleFall {
-  0% { top: -10px; transform: rotate(0deg) scale(1); opacity: 1; }
+  0%   { top: -10px; transform: rotate(0deg) scale(1); opacity: 1; }
   100% { top: 110%; transform: rotate(720deg) scale(0.3); opacity: 0; }
 }
 
-// Veredicto
+// ---- Veredicto ----
 .verdict-section {
   display: flex;
   flex-direction: column;
@@ -81,12 +83,15 @@ ion-toolbar {
   padding: 24px 20px;
   text-align: center;
 }
+
 .verdict-icon-wrapper {
   border-radius: 50%;
   padding: 16px;
   margin-bottom: 4px;
 }
+
 .verdict-icon { font-size: 4.5rem; }
+
 .verdict-title {
   font-family: var(--font-title);
   font-size: 1.8rem;
@@ -94,6 +99,7 @@ ion-toolbar {
   margin: 0;
   letter-spacing: 0.04em;
 }
+
 .verdict-sub {
   font-size: 0.88rem;
   color: rgba(255,255,255,0.55);
@@ -101,7 +107,7 @@ ion-toolbar {
   font-style: italic;
 }
 
-// Revelado de impostor
+// ---- Revelado de impostor ----
 .impostor-reveal {
   background: rgba(220,80,80,0.1);
   border: 1px solid rgba(220,80,80,0.25);
@@ -109,6 +115,7 @@ ion-toolbar {
   padding: 18px;
   text-align: center;
 }
+
 .reveal-label {
   display: flex;
   align-items: center;
@@ -121,18 +128,21 @@ ion-toolbar {
   color: rgba(255,150,150,0.7);
   margin-bottom: 14px;
 }
+
 .impostors-row {
   display: flex;
   justify-content: center;
   gap: 16px;
   flex-wrap: wrap;
 }
+
 .impostor-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
 }
+
 .impostor-avatar {
   width: 60px;
   height: 60px;
@@ -146,12 +156,14 @@ ion-toolbar {
   color: #fff;
   border: 3px solid rgba(220,80,80,0.5);
 }
+
 .impostor-name {
   font-family: var(--font-title);
   font-size: 1.2rem;
   font-weight: 600;
   color: #fff;
 }
+
 .impostor-badge-row {
   display: flex;
   align-items: center;
@@ -166,13 +178,14 @@ ion-toolbar {
   border-radius: 20px;
 }
 
-// Conteo de votos
+// ---- Conteo de votos ----
 .votes-section {
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 16px;
   padding: 16px;
 }
+
 .votes-title {
   display: flex;
   align-items: center;
@@ -184,11 +197,13 @@ ion-toolbar {
   color: rgba(255,255,255,0.4);
   margin-bottom: 14px;
 }
+
 .votes-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
+
 .vote-row {
   display: flex;
   align-items: center;
@@ -196,11 +211,13 @@ ion-toolbar {
   padding: 8px 10px;
   border-radius: 10px;
   background: rgba(255,255,255,0.03);
+
   &.top-vote {
     background: rgba(212,167,40,0.08);
     border: 1px solid rgba(212,167,40,0.2);
   }
 }
+
 .vote-avatar {
   width: 34px;
   height: 34px;
@@ -214,29 +231,34 @@ ion-toolbar {
   color: #fff;
   flex-shrink: 0;
 }
+
 .vote-info {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
+
 .vote-player-name {
   font-size: 0.88rem;
   font-weight: 600;
   color: #fff;
 }
+
 .vote-bar-track {
   height: 4px;
   background: rgba(255,255,255,0.08);
   border-radius: 2px;
   overflow: hidden;
 }
+
 .vote-bar-fill {
   height: 100%;
   background: rgba(255,255,255,0.25);
   border-radius: 2px;
   transition: width 0.8s ease;
 }
+
 .vote-count {
   font-family: var(--font-title);
   font-size: 1.1rem;
@@ -246,7 +268,7 @@ ion-toolbar {
   text-align: right;
 }
 
-// Reflexión
+// ---- Reflexión ----
 .reflexion-section {
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(212,167,40,0.2);
@@ -254,6 +276,7 @@ ion-toolbar {
   border-radius: 16px;
   padding: 18px 16px;
 }
+
 .reflexion-header {
   display: flex;
   align-items: center;
@@ -265,11 +288,13 @@ ion-toolbar {
   color: var(--color-gold);
   margin-bottom: 12px;
 }
+
 .small-cross {
   width: 18px;
   height: 22px;
   flex-shrink: 0;
 }
+
 .reflexion-text {
   font-size: 0.88rem;
   color: rgba(255,255,255,0.75);
@@ -278,18 +303,20 @@ ion-toolbar {
   font-style: italic;
 }
 
-// Acciones
+// ---- Acciones ----
 .actions-section {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
+
 .btn-continue, .btn-play-again, .btn-home {
   --border-radius: 50px;
   font-family: var(--font-title);
   font-weight: 700;
   letter-spacing: 0.06em;
 }
+
 .btn-continue {
   --background: linear-gradient(135deg, #2ec478 0%, #4dd490 100%);
   --color: #0d2251;
@@ -297,17 +324,20 @@ ion-toolbar {
   font-size: 1rem;
   height: 56px;
 }
+
 .btn-play-again {
   --background: linear-gradient(135deg, #d4a728 0%, #f0c940 100%);
   --color: #0d2251;
   --box-shadow: 0 6px 25px rgba(212,167,40,0.4);
   font-size: 1rem;
   height: 56px;
+
+  &.btn-lose {
+    --background: linear-gradient(135deg, #dc5050 0%, #ff6b6b 100%);
+    --color: #fff;
+  }
 }
-.btn-play-again.btn-lose {
-  --background: linear-gradient(135deg, #dc5050 0%, #ff6b6b 100%);
-  --color: #fff;
-}
+
 .btn-home {
   --color: rgba(255,255,255,0.6);
   --border-color: rgba(255,255,255,0.2);
@@ -315,7 +345,7 @@ ion-toolbar {
   height: 50px;
 }
 
-// Mensajes
+// ---- Mensajes de hint ----
 .elimination-hint {
   text-align: center;
   font-size: 0.8rem;
@@ -327,54 +357,57 @@ ion-toolbar {
   gap: 6px;
   padding: 10px 16px;
   border-radius: 10px;
-}
-.elimination-hint.continue-impostor-hint {
-  color: rgba(212,167,40,0.9);
-  background: rgba(212,167,40,0.08);
-  border: 1px solid rgba(212,167,40,0.2);
-}
-.elimination-hint.continue-civilian-hint {
-  color: rgba(107,140,191,0.9);
-  background: rgba(107,140,191,0.08);
-  border: 1px solid rgba(107,140,191,0.2);
-}
-.elimination-hint.win-hint {
-  color: rgba(46,196,120,0.9);
-  background: rgba(46,196,120,0.1);
-  border: 1px solid rgba(46,196,120,0.25);
-}
-.elimination-hint.lose-hint {
-  color: rgba(255,107,107,0.9);
-  background: rgba(220,80,80,0.1);
-  border: 1px solid rgba(220,80,80,0.25);
+
+  &.continue-impostor-hint {
+    color: rgba(212,167,40,0.9);
+    background: rgba(212,167,40,0.08);
+    border: 1px solid rgba(212,167,40,0.2);
+  }
+
+  &.continue-civilian-hint {
+    color: rgba(107,140,191,0.9);
+    background: rgba(107,140,191,0.08);
+    border: 1px solid rgba(107,140,191,0.2);
+  }
+
+  &.win-hint {
+    color: rgba(46,196,120,0.9);
+    background: rgba(46,196,120,0.1);
+    border: 1px solid rgba(46,196,120,0.25);
+  }
+
+  &.lose-hint {
+    color: rgba(255,107,107,0.9);
+    background: rgba(220,80,80,0.1);
+    border: 1px solid rgba(220,80,80,0.25);
+  }
 }
 
-// Glow states (combinados para ahorrar)
-.verdict-icon-wrapper.win-glow,
-.verdict-icon-wrapper.continue-impostor-glow,
-.verdict-icon-wrapper.continue-civilian-glow,
-.verdict-icon-wrapper.lose-glow {
-  background: rgba(255,255,255,0.1);
-}
-.verdict-icon-wrapper.win-glow { box-shadow: 0 0 40px rgba(46,196,120,0.3); }
-.verdict-icon-wrapper.continue-impostor-glow { box-shadow: 0 0 40px rgba(212,167,40,0.3); }
-.verdict-icon-wrapper.continue-civilian-glow { box-shadow: 0 0 40px rgba(107,140,191,0.3); }
-.verdict-icon-wrapper.lose-glow { box-shadow: 0 0 40px rgba(220,80,80,0.4); }
-.verdict-icon.icon-win { color: #2ec478; }
-.verdict-icon.icon-continue-impostor { color: var(--color-gold); }
-.verdict-icon.icon-continue-civilian { color: var(--ion-color-medium); }
-.verdict-icon.icon-lose { color: #ff6b6b; }
-.verdict-title.title-win { color: #2ec478; }
-.verdict-title.title-continue-impostor { color: var(--color-gold-light); }
-.verdict-title.title-continue-civilian { color: var(--ion-color-medium); }
-.verdict-title.title-lose { color: #ff6b6b; }
+// ---- Glow states ----
+.verdict-icon-wrapper {
+  &.win-glow,
+  &.continue-impostor-glow,
+  &.continue-civilian-glow,
+  &.lose-glow {
+    background: rgba(255,255,255,0.1);
+  }
 
-// Animaciones
-@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes rotateIn { from { opacity: 0; transform: rotate(-10deg) scale(0.8); } to { opacity: 1; transform: rotate(0) scale(1); } }
-.animate-fadeInUp { animation: fadeInUp 0.5s ease-out both; opacity: 1 !important; }
-.animate-rotateIn { animation: rotateIn 0.5s ease-out both; }
-.delay-2 { animation-delay: 0.2s; }
-.delay-3 { animation-delay: 0.3s; }
-.delay-4 { animation-delay: 0.4s; }
-.delay-5 { animation-delay: 0.5s; }
+  &.win-glow                { box-shadow: 0 0 40px rgba(46,196,120,0.3); }
+  &.continue-impostor-glow  { box-shadow: 0 0 40px rgba(212,167,40,0.3); }
+  &.continue-civilian-glow  { box-shadow: 0 0 40px rgba(107,140,191,0.3); }
+  &.lose-glow               { box-shadow: 0 0 40px rgba(220,80,80,0.4); }
+}
+
+.verdict-icon {
+  &.icon-win               { color: #2ec478; }
+  &.icon-continue-impostor { color: var(--color-gold); }
+  &.icon-continue-civilian { color: var(--ion-color-medium); }
+  &.icon-lose              { color: #ff6b6b; }
+}
+
+.verdict-title {
+  &.title-win               { color: #2ec478; }
+  &.title-continue-impostor { color: var(--color-gold-light); }
+  &.title-continue-civilian { color: var(--ion-color-medium); }
+  &.title-lose              { color: #ff6b6b; }
+}

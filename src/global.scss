@@ -3,7 +3,6 @@
    Estilos globales y utilitarios
    ============================================================ */
 
-/* Importar variables de Ionic */
 @import './theme/variables.scss';
 
 /* ---- Reset y base ---- */
@@ -63,8 +62,8 @@ h1, h2, h3, .title-font {
   100% { transform: scale(1); }
 }
 
-/* ---- Utilidades ---- */
-.animate-fadeInUp  { animation: fadeInUp 0.5s ease both; }
+/* ---- Utilidades de animación ---- */
+.animate-fadeInUp  { animation: fadeInUp 0.5s ease both; opacity: 1 !important; }
 .animate-fadeIn    { animation: fadeIn 0.4s ease both; }
 .animate-pulse     { animation: pulse 2s ease-in-out infinite; }
 .animate-rotateIn  { animation: rotateIn 0.5s ease both; }
@@ -149,17 +148,14 @@ h1, h2, h3, .title-font {
 }
 
 /* ---- Scrollbar personalizada ---- */
-::-webkit-scrollbar {
-  width: 4px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.2);
   border-radius: 2px;
 }
 
+/* ---- Alerta de cancelación ---- */
 .cancel-alert {
   .alert-wrapper {
     background: #0d2251 !important;
@@ -188,7 +184,7 @@ h1, h2, h3, .title-font {
   }
 }
 
-// ---- NEW #7: Hint de jugador inicial en discussion ----
+/* ---- Hint de jugador inicial en discussion ---- */
 .starting-player-hint {
   display: flex;
   align-items: center;
@@ -210,22 +206,33 @@ h1, h2, h3, .title-font {
   strong { color: #f0c940; }
 }
 
-
 /* ---- Transiciones de página (router) ---- */
 ion-router-outlet {
   contain: layout style;
 }
 
-/* Toast simple y limpio */
+/* ---- Toasts ---- */
 .toast-catequesis {
-  --background: rgba(13, 34, 81, 0.95); /* Fondo oscuro translúcido (tu azul de la app) */
-  --color: #ffffff;                     /* Texto blanco */
-  --border-radius: 10px;                /* Bordes suavemente redondeados */
+  --background: rgba(13, 34, 81, 0.95);
+  --color: #ffffff;
+  --border-radius: 10px;
   font-size: 0.9rem;
   font-weight: 500;
 }
 
-/* Bordecito de color abajo para saber si es éxito o error (opcional pero útil) */
 .toast-success { border-bottom: 2px solid #2ec478; }
 .toast-warning { border-bottom: 2px solid #f59e0b; }
 .toast-danger  { border-bottom: 2px solid #dc5050; }
+
+body.no-page-animations {
+  .animate-fadeIn,
+  .animate-fadeInUp,
+  .animate-rotateIn,
+  .animate-pulse,
+  [class*="animate-"] {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}

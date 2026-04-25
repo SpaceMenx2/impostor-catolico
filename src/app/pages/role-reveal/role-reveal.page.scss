@@ -16,7 +16,6 @@ ion-content.reveal-content {
   z-index: 0;
 }
 
-// ✅ MODIFICADO: Overlay más transparente para ver mejor la imagen de fondo
 .role-bg-image {
   position: fixed;
   inset: 0;
@@ -27,21 +26,17 @@ ion-content.reveal-content {
   opacity: 0;
   transition: opacity 0.5s ease;
 
-  // Overlay más suave (reducido de 0.72 a 0.45)
   &::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: rgba(7, 22, 48, 0.45);  // ← Antes: 0.72, Ahora: 0.45
+    background: rgba(7, 22, 48, 0.45);
   }
 
-  &.loaded {
-    opacity: 1;
-  }
+  &.loaded { opacity: 1; }
 
-  // Para impostores: overlay más rojizo pero también más transparente
   &.impostor-bg::after {
-    background: rgba(60, 10, 10, 0.50);  // ← Antes: 0.75, Ahora: 0.50
+    background: rgba(60, 10, 10, 0.50);
   }
 }
 
@@ -59,7 +54,6 @@ ion-toolbar {
   color: rgba(255,255,255,0.8);
 }
 
-// NEW #3: Botón cancelar en toolbar
 .btn-cancel-game {
   --color: rgba(255, 255, 255, 0.5);
   ion-icon { font-size: 1.4rem; }
@@ -95,26 +89,6 @@ ion-toolbar {
   margin: 0 auto;
   width: 100%;
 }
-
-// ---- Animaciones ----
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes rotateIn {
-  from { opacity: 0; transform: scale(0.9) rotate(-2deg); }
-  to   { opacity: 1; transform: scale(1) rotate(0); }
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50%       { transform: scale(1.05); }
-}
-
-.animate-fadeIn   { animation: fadeIn 0.4s ease-out both; opacity: 1; }
-.animate-rotateIn { animation: rotateIn 0.5s ease-out both; opacity: 1; }
-.animate-pulse    { animation: pulse 2s infinite ease-in-out; }
 
 // ---- PASO 1: Esperando ----
 .step-waiting {
@@ -379,10 +353,4 @@ ion-toolbar {
     font-size: 0.9rem;
     -webkit-font-smoothing: antialiased;
   }
-}
-
-// ---- Alerta de cancelación ----
-.cancel-alert {
-  --background: #0d2251;
-  --color: #fff;
 }
