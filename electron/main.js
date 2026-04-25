@@ -1,171 +1,136 @@
 /**
- * electron/main.js
- * ─────────────────────────────────────────────────────────────────────────────
- * Proceso principal de Electron para "Impostor de Catequesis"
- *
- * ¿Qué es el proceso principal?
- *   Electron tiene DOS tipos de procesos:
- *   1. Main process  → Este archivo. Corre en Node.js. Controla ventanas.
- *   2. Renderer process → La app Angular que corre dentro del BrowserWindow.
- *
- * MODOS:
- *   --dev  → Carga desde http://localhost:4200 (ng serve corriendo)
- *   prod   → Carga desde www/index.html (build de Angular)
- * ─────────────────────────────────────────────────────────────────────────────
+ * electron/main.js - Proceso principal de Electron para "Impostor de Catequesis"
  */
 
-const { app, BrowserWindow, Menu, dialog, shell } = require('electron');
-const appInfo = require("../package.json")
-const path = require('path');
+const { app, BrowserWindow, Menu, dialog, shell } = require("electron");
+const appInfo = require("../package.json");
+const path = require("path");
+const { existsSync } = require("fs");
 
-// ── Variables globales ────────────────────────────────────────────────────────
 let mainWindow = null;
+const isDev =
+  process.argv.includes("--dev") || process.env.NODE_ENV === "development";
 
-// ¿Estamos en modo desarrollo?
-// Se activa con: npx electron electron/main.js --dev
-const isDev = process.argv.includes('--dev') || process.env.NODE_ENV === 'development';
-
-// ── Función para resolver íconos ──────────────────────────────────────────────
 function getIconPath() {
   if (isDev) {
-    // En desarrollo, los assets están en src/
-    return path.join(__dirname, '../src/assets/icons/favicon.ico');
+    return path.join(__dirname, "../src/assets/icons/favicon.ico");
   }
-  // En producción (instalador), electron-builder copia los assets a resourcesPath
-  const prodIcon = path.join(process.resourcesPath, 'assets/icons/favicon.ico');
-  // Fallback: si no encontró el .ico, intenta con .png
-  const { existsSync } = require('fs');
+  const prodIcon = path.join(process.resourcesPath, "assets/icons/favicon.ico");
   if (existsSync(prodIcon)) return prodIcon;
-  return path.join(process.resourcesPath, 'assets/icons/favicon.png');
+  return path.join(process.resourcesPath, "assets/icons/favicon.png");
 }
 
-// ── Función principal: crea la ventana ───────────────────────────────────────
 function createWindow() {
   mainWindow = new BrowserWindow({
-    // Tamaño inicial — simula pantalla de móvil (el diseño es Ionic)
     width: 480,
     height: 900,
     minWidth: 360,
     minHeight: 640,
-
-    title: 'Impostor de Catequesis',
+    title: "Impostor de Catequesis",
     icon: getIconPath(),
-
     webPreferences: {
-      /**
-       * nodeIntegration: false  → Angular NO puede usar require() de Node.
-       *   Esto es SEGURO. Sin esto cualquier script en la web podría leer
-       *   archivos de tu computadora.
-       *
-       * contextIsolation: true  → El preload.js corre en su propio contexto
-       *   aislado. Es la forma MODERNA y segura de comunicar main ↔ renderer.
-       *
-       * preload → Script que se ejecuta ANTES de que cargue Angular.
-       *   Úsalo para exponer APIs seguras al renderer vía contextBridge.
-       */
       nodeIntegration: false,
       contextIsolation: true,
-      webSecurity: !isDev, // En dev desactivamos para evitar errores de CORS con localhost
-      preload: path.join(__dirname, 'preload.js'),
+      webSecurity: true,
+      allowRunningInsecureContent: false,
+      preload: path.join(__dirname, "preload.js"),
     },
-
-    backgroundColor: '#1a3a6b', // Color de fondo mientras carga (tu color de app)
-    show: false, // No mostrar hasta que esté lista (evita el parpadeo blanco)
+    backgroundColor: "#1a3a6b",
+    show: false,
+  });
+  const session = mainWindow.webContents.session;
+  session.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        "Content-Security-Policy": [
+          "default-src 'self';",
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval';",
+          "style-src 'self' 'unsafe-inline';",
+          "img-src 'self' data: https:;",
+          "connect-src 'self' http://localhost:4200;",
+        ].join(" "),
+      },
+    });
   });
 
-  // ── Carga del contenido ─────────────────────────────────────────────────────
   if (isDev) {
-    // DESARROLLO: carga desde el servidor de Angular (ng serve)
-    console.log('🔧 Modo desarrollo → http://localhost:4200');
-    mainWindow.loadURL('http://localhost:4200');
-    mainWindow.webContents.openDevTools(); // Abre DevTools automáticamente
+    mainWindow.loadURL("http://localhost:4200");
+    mainWindow.webContents.openDevTools();
   } else {
-    // PRODUCCIÓN: carga desde el build de Angular (carpeta www/)
-    const indexPath = path.join(__dirname, '../www/index.html');
-    console.log('🚀 Modo producción →', indexPath);
-
-    /**
-     * ¡IMPORTANTE! Usamos loadFile() y NO loadURL('file://...')
-     * loadFile() maneja correctamente las rutas relativas de Angular.
-     */
+    const indexPath = path.join(__dirname, "../www/index.html");
     mainWindow.loadFile(indexPath).catch((err) => {
       dialog.showErrorBox(
-        'Error al cargar la aplicación',
-        `No se encontró www/index.html.\n\nAsegúrate de haber ejecutado:\nnpm run build:angular\n\nDetalle: ${err.message}`
+        "Error al cargar la aplicación",
+        `No se encontró www/index.html.\n\nAsegúrate de haber ejecutado:\nnpm run build:angular\n\nDetalle: ${err.message}`,
       );
     });
   }
 
-  // ── Eventos de la ventana ───────────────────────────────────────────────────
-
-  // Mostrar ventana recién cuando terminó de cargar (sin parpadeo)
-  mainWindow.once('ready-to-show', () => {
+  mainWindow.once("ready-to-show", () => {
     mainWindow.show();
-    if (!isDev) {
-      mainWindow.focus();
-    }
+    if (!isDev) mainWindow.focus();
   });
 
-  // Error al cargar (URL no responde, archivo no existe, etc.)
-  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDesc, validatedURL) => {
-    console.error('❌ Error al cargar:', errorCode, errorDesc);
-
+  mainWindow.webContents.on("did-fail-load", (event, errorCode, errorDesc) => {
+    console.error("❌ Error al cargar:", errorCode, errorDesc);
     if (isDev && errorCode === -102) {
-      // -102 = CONNECTION_REFUSED → ng serve no está corriendo
-      dialog.showMessageBox(mainWindow, {
-        type: 'warning',
-        title: 'Servidor no encontrado',
-        message: 'No se puede conectar a http://localhost:4200',
-        detail: 'Asegúrate de que "ng serve" esté corriendo en otra terminal.\n\nEjecuta: npm start',
-        buttons: ['Reintentar', 'Cerrar'],
-      }).then(({ response }) => {
-        if (response === 0) mainWindow.reload();
-        else mainWindow.close();
-      });
+      dialog
+        .showMessageBox(mainWindow, {
+          type: "warning",
+          title: "Servidor no encontrado",
+          message: "No se puede conectar a http://localhost:4200",
+          detail:
+            'Asegúrate de que "ng serve" esté corriendo en otra terminal.\n\nEjecuta: npm start',
+          buttons: ["Reintentar", "Cerrar"],
+        })
+        .then(({ response }) => {
+          if (response === 0) mainWindow.reload();
+          else mainWindow.close();
+        });
     }
   });
 
-  // Limpiar referencia cuando se cierra
-  mainWindow.on('closed', () => {
+  mainWindow.on("closed", () => {
     mainWindow = null;
   });
 
-  // Abrir links externos en el navegador (no en Electron)
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith('http')) {
+    if (url.startsWith("http")) {
       shell.openExternal(url);
-      return { action: 'deny' };
+      return { action: "deny" };
     }
-    return { action: 'allow' };
+    return { action: "allow" };
   });
 
-  // ── Menú de la aplicación ───────────────────────────────────────────────────
   buildMenu();
 }
 
-// ── Menú personalizado ────────────────────────────────────────────────────────
 function buildMenu() {
   const template = [
     {
-      label: 'Aplicación',
+      label: "Aplicación",
       submenu: [
         {
-          label: 'Acerca de Impostor de Catequesis',
+          label: "Acerca de Impostor de Catequesis",
           accelerator: "F1",
           click: () => {
             dialog.showMessageBox(mainWindow, {
-              type: 'info',
-              title: 'Acerca de',
-              message: 'Impostor de Catequesis',
-              detail: 'Versión ' + appInfo.version + '\nJuego social catequético creado con mucho amor ❤️',
-              buttons: ['Cerrar'],
+              type: "info",
+              title: "Acerca de",
+              message: "Impostor de Catequesis",
+              detail:
+                "Versión " +
+                appInfo.version +
+                "\nJuego social catequético creado con mucho amor ❤️",
+              buttons: ["Cerrar"],
             });
           },
         },
-        { type: 'separator' },
+        { type: "separator" },
         {
-          label: 'Salir',
-          accelerator: 'Alt+F4',
+          label: "Salir",
+          accelerator: "Alt+F4",
           click: () => app.quit(),
         },
       ],
@@ -173,16 +138,16 @@ function buildMenu() {
     ...(isDev
       ? [
           {
-            label: '🔧 Desarrollo',
+            label: "🔧 Desarrollo",
             submenu: [
               {
-                label: 'Recargar',
-                accelerator: 'Ctrl+R',
+                label: "Recargar",
+                accelerator: "Ctrl+R",
                 click: () => mainWindow?.reload(),
               },
               {
-                label: 'DevTools',
-                accelerator: 'F12',
+                label: "DevTools",
+                accelerator: "F12",
                 click: () => mainWindow?.webContents.toggleDevTools(),
               },
             ],
@@ -190,31 +155,20 @@ function buildMenu() {
         ]
       : []),
   ];
-
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
-// ── Ciclo de vida de la app ───────────────────────────────────────────────────
+app.on("ready", createWindow);
 
-// 'ready' se dispara cuando Electron terminó de inicializar
-app.on('ready', createWindow);
-
-// En Windows/Linux: cerrar todas las ventanas = salir de la app
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") app.quit();
 });
 
-// En macOS: hacer click en el ícono del dock re-abre la ventana
-app.on('activate', () => {
-  if (mainWindow === null) {
-    createWindow();
-  }
+app.on("activate", () => {
+  if (mainWindow === null) createWindow();
 });
 
-// Manejo global de errores no capturados
-process.on('uncaughtException', (error) => {
-  console.error('💥 Error no capturado:', error);
-  dialog.showErrorBox('Error inesperado', error.message);
+process.on("uncaughtException", (error) => {
+  console.error("💥 Error no capturado:", error);
+  dialog.showErrorBox("Error inesperado", error.message);
 });
