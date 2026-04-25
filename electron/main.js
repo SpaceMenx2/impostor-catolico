@@ -38,6 +38,7 @@ function createWindow() {
     backgroundColor: "#1a3a6b",
     show: false,
   });
+  
   const session = mainWindow.webContents.session;
   session.webRequest.onHeadersReceived((details, callback) => {
     callback({
@@ -46,9 +47,10 @@ function createWindow() {
         "Content-Security-Policy": [
           "default-src 'self';",
           "script-src 'self' 'unsafe-inline' 'unsafe-eval';",
-          "style-src 'self' 'unsafe-inline';",
+          "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;",
+          "font-src 'self' https://fonts.gstatic.com;",
           "img-src 'self' data: https:;",
-          "connect-src 'self' http://localhost:4200;",
+          "connect-src 'self' http://localhost:4200 ws://localhost:4200 https://api.github.com;",
         ].join(" "),
       },
     });
