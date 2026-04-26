@@ -19,6 +19,7 @@ export class DiscussionPage implements OnDestroy {
     currentRevealIndex: 0,
     roundNumber: 1,
     inspireMessage: "",
+    resolvedStartingPlayerId: null
   };
 
   timeLeft = 0;
@@ -128,9 +129,9 @@ export class DiscussionPage implements OnDestroy {
     return this.gameService.activePlayers?.map((p) => p.name) ?? [];
   }
 
-  // NEW #3: Mostrar quién empieza si fue configurado
+  // Bug 1: leer el jugador inicial resuelto (puede haber sido elegido al azar)
   get startingPlayerName(): string | null {
-    const id = this.state?.config?.startingPlayerId;
+    const id = this.state?.resolvedStartingPlayerId;
     if (!id) return null;
     return this.state?.players?.find((p) => p.id === id)?.name ?? null;
   }

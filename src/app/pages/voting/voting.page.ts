@@ -6,7 +6,7 @@ import { Subscription } from "rxjs";
 
 interface VoterTurn {
   voter: Player;
-  selectedVote: string | null;
+  selectedVotes: string[];
   done: boolean;
 }
 
@@ -47,9 +47,22 @@ export class VotingPage implements OnInit, OnDestroy {
       this.state = s;
     });
 
-    this.voterTurns = this.gameService.activePlayers.map((p) => ({
+    // Bug 1: ordenar el turno de votación empezando desde el jugador inicial
+    const activePlayers = this.gameService.activePlayers;
+    const startingId = this.gameService.currentState.resolvedStartingPlayerId;
+    let startIndex = startingId
+      ? activePlayers.findIndex((p) => p.id === startingId)
+      : 0;
+    if (startIndex < 0) startIndex = 0;
+
+    const ordered = [
+      ...activePlayers.slice(startIndex),
+      ...activePlayers.slice(0, startIndex),
+    ];
+
+    this.voterTurns = ordered.map((p) => ({
       voter: p,
-      selectedVote: null,
+      selectedVotes: [],
       done: false,
     }));
 
@@ -64,24 +77,36 @@ export class VotingPage implements OnInit, OnDestroy {
     return this.voterTurns[this.currentVoterIndex] ?? null;
   }
 
+  // Bug 2: cuántos votos debe emitir cada jugador = cantidad de impostores activos
+  get requiredVotes(): number {
+    return this.gameService.activePlayers.filter((p) => p.isImpostor).length;
+  }
+
   get candidates(): Player[] {
     const active = this.gameService.activePlayers;
     const currentVoterId = this.currentTurn?.voter?.id;
-
     return active.filter((p) => p.id !== currentVoterId);
   }
 
+  // Bug 2: toggle de selección múltiple hasta el límite requerido
   selectVote(candidateId: string): void {
     if (!this.currentTurn || this.voteConfirmed) return;
-    this.currentTurn.selectedVote = candidateId;
+    const votes = this.currentTurn.selectedVotes;
+    const idx = votes.indexOf(candidateId);
+    if (idx >= 0) {
+      this.currentTurn.selectedVotes = votes.filter((id) => id !== candidateId);
+    } else if (votes.length < this.requiredVotes) {
+      this.currentTurn.selectedVotes = [...votes, candidateId];
+    }
   }
 
+  // Bug 2: confirmar voto solo cuando se hayan elegido exactamente los votos requeridos
   confirmVote(): void {
-    if (!this.currentTurn?.selectedVote) return;
+    if (!this.currentTurn || this.currentTurn.selectedVotes.length < this.requiredVotes) return;
 
     this.gameService.castVote(
       this.currentTurn.voter.id,
-      this.currentTurn.selectedVote,
+      this.currentTurn.selectedVotes,
     );
     this.currentTurn.done = true;
     this.voteConfirmed = true;
@@ -108,6 +133,12 @@ export class VotingPage implements OnInit, OnDestroy {
 
   getCandidateName(candidateId: string): string {
     return this.state.players.find((p) => p.id === candidateId)?.name ?? "";
+  }
+
+  getCandidateNames(candidateIds: string[]): string {
+    return candidateIds
+      .map((id) => this.getCandidateName(id))
+      .join(" y ");
   }
 
   showResults(): void {

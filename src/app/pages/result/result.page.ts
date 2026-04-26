@@ -23,12 +23,20 @@ export class ResultPage implements OnInit, OnDestroy {
 
   get canContinue(): boolean {
     if (!this.mostVoted) return false;
-    const impostorCount = this.state.players.filter((p) => p.isImpostor).length;
+    // Bug 3: considerar el estado después de eliminar al votado
     const remaining = this.state.players.filter(
-      (p) => p.id !== this.mostVoted!.id,
+      (p) => !p.isEliminated && p.id !== this.mostVoted!.id,
     );
-    const civilianCount = remaining.filter((p) => !p.isImpostor).length;
-    return !this.isCorrect && civilianCount > impostorCount;
+    const impostorRemaining = remaining.filter((p) => p.isImpostor).length;
+    const civilianRemaining = remaining.filter((p) => !p.isImpostor).length;
+
+    if (this.isCorrect) {
+      // Se eliminó un impostor: continuar si aún quedan impostores y hay más civiles que impostores
+      return impostorRemaining > 0 && civilianRemaining > impostorRemaining;
+    } else {
+      // Se eliminó un civil: continuar si hay más civiles que impostores
+      return civilianRemaining > impostorRemaining;
+    }
   }
 
   get remainingImpostors(): number {
@@ -130,11 +138,9 @@ export class ResultPage implements OnInit, OnDestroy {
   }
 
   playAgain(): void {
-    const currentResult = this.gameService.votingResult;
-    const isCorrect = currentResult.isCorrect;
-    const canContinue = currentResult.canContinue;
-
-    if (!isCorrect && canContinue) {
+    // Bug 3: this.canContinue ya maneja correctamente tanto la eliminación
+    // de un civil como de un impostor cuando quedan más impostores
+    if (this.canContinue) {
       this.navCtrl.navigateRoot("/discussion", {
         animated: true,
         replaceUrl: true,

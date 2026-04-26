@@ -14,7 +14,7 @@ export interface Player {
   name: string;
   isImpostor: boolean;
   hasSeenRole: boolean;
-  vote: string | null;
+  votes: string[];
   isEliminated: boolean;
 }
 
@@ -45,6 +45,7 @@ export interface GameState {
   currentRevealIndex: number;
   roundNumber: number;
   inspireMessage: string;
+  resolvedStartingPlayerId: string | null;
 }
 
 export const DEFAULT_CONFIG: GameConfig = {
@@ -66,16 +67,13 @@ const INITIAL_STATE: GameState = {
   currentRevealIndex: 0,
   roundNumber: 0,
   inspireMessage: "",
+  resolvedStartingPlayerId: null,
 };
 
 @Injectable({ providedIn: "root" })
 export class GameService {
   private state = new BehaviorSubject<GameState>({ ...INITIAL_STATE });
   public state$ = this.state.asObservable();
-
-  // ─────────────────────────────────────────────────────
-  // GETTERS PÚBLICOS
-  // ─────────────────────────────────────────────────────
 
   get currentState(): GameState {
     return this.state.getValue();
@@ -85,25 +83,19 @@ export class GameService {
     return WORD_CATEGORIES;
   }
 
-  /** Jugadores activos (filtro de solo lectura) */
   get activePlayers(): Player[] {
     return this.currentState.players.filter((p) => !p.isEliminated);
   }
 
-  /** Jugador actual en la fase de revelación de roles */
   get currentRevealPlayer(): Player | null {
     const active = this.activePlayers;
     return active[this.currentState.currentRevealIndex] ?? null;
   }
 
-  /** Verifica si todos los jugadores activos votaron */
   get allVotesCast(): boolean {
-    return this.activePlayers.every((p) => p.vote !== null);
+    const required = this.activePlayers.filter((p) => p.isImpostor).length;
+    return this.activePlayers.every((p) => p.votes.length >= required);
   }
-
-  // ─────────────────────────────────────────────────────
-  // MÉTODOS DE CONFIGURACIÓN (fase setup)
-  // ─────────────────────────────────────────────────────
 
   addPlayer(name: string): boolean {
     const trimmed = name.trim();
@@ -111,7 +103,6 @@ export class GameService {
 
     const state = this.currentState;
 
-    // Evitar duplicados entre jugadores activos
     const exists = state.players.some(
       (p) => !p.isEliminated && p.name.toLowerCase() === trimmed.toLowerCase()
     );
@@ -122,7 +113,7 @@ export class GameService {
       name: trimmed,
       isImpostor: false,
       hasSeenRole: false,
-      vote: null,
+      votes: [],
       isEliminated: false,
     };
 
@@ -133,9 +124,8 @@ export class GameService {
   removePlayer(playerId: string): void {
     const state = this.currentState;
 
-    // Solo permitir eliminación durante la configuración
     if (state.phase !== "home" && state.phase !== "players") {
-      return; // En juego, usar eliminación por votación
+      return;
     }
 
     const players = state.players.filter((p) => p.id !== playerId);
@@ -159,10 +149,6 @@ export class GameService {
     this.updateState({ config: { ...state.config, ...config } });
   }
 
-  // ─────────────────────────────────────────────────────
-  // MÉTODOS DE JUEGO (preservan lista completa)
-  // ─────────────────────────────────────────────────────
-
   startGame(): boolean {
     const state = this.currentState;
     const active = this.activePlayers;
@@ -170,22 +156,18 @@ export class GameService {
     const minPlayers = state.config.impostorCount + 2;
     if (active.length < minPlayers) return false;
 
-    // Resetear estado de juego para todos, mantener lista intacta
     const updatedPlayers = state.players.map((p) => ({
       ...p,
       isImpostor: false,
       hasSeenRole: false,
-      vote: null,
-      // isEliminated se mantiene (jugadores removidos en setup)
+      votes: [],
     }));
 
-    // Obtener índices globales de jugadores activos
     const activeIndices = updatedPlayers
       .map((p, i) => ({ active: !p.isEliminated, index: i }))
       .filter(({ active }) => active)
       .map(({ index }) => index);
 
-    // Asignar roles de impostor solo a activos
     const impostorLocalIndices = this.pickRandomIndices(
       activeIndices.length,
       state.config.impostorCount
@@ -204,6 +186,13 @@ export class GameService {
         : undefined
     );
 
+    // Bug 1: Si no hay jugador inicial configurado, elegir uno al azar
+    let resolvedStartingPlayerId = state.config.startingPlayerId;
+    if (!resolvedStartingPlayerId && active.length > 0) {
+      resolvedStartingPlayerId =
+        active[Math.floor(Math.random() * active.length)].id;
+    }
+
     this.updateState({
       phase: "role-reveal",
       players: updatedPlayers,
@@ -212,6 +201,7 @@ export class GameService {
       currentRevealIndex: 0,
       roundNumber: state.roundNumber + 1,
       inspireMessage: getRandomInspireMessage(),
+      resolvedStartingPlayerId,
     });
 
     return true;
@@ -225,7 +215,6 @@ export class GameService {
 
     const targetPlayer = active[state.currentRevealIndex];
 
-    // Actualizar solo el jugador objetivo en la lista completa
     const players = state.players.map((p) =>
       p.id === targetPlayer.id ? { ...p, hasSeenRole: true } : p
     );
@@ -244,10 +233,11 @@ export class GameService {
     this.updateState({ phase: "voting" });
   }
 
-  castVote(voterId: string, votedId: string): void {
+  // Bug 2: castVote ahora acepta un array de IDs votados
+  castVote(voterId: string, votedIds: string[]): void {
     const state = this.currentState;
     const players = state.players.map((p) =>
-      p.id === voterId ? { ...p, vote: votedId } : p
+      p.id === voterId ? { ...p, votes: votedIds } : p
     );
     this.updateState({ players });
   }
@@ -266,10 +256,11 @@ export class GameService {
     const active = this.activePlayers;
     const voteMap: { [id: string]: number } = {};
 
+    // Bug 2: contar votos desde el array de cada jugador
     active.forEach((p) => {
-      if (p.vote) {
-        voteMap[p.vote] = (voteMap[p.vote] || 0) + 1;
-      }
+      p.votes.forEach((votedId) => {
+        voteMap[votedId] = (voteMap[votedId] || 0) + 1;
+      });
     });
 
     const voteCounts = active
@@ -295,9 +286,10 @@ export class GameService {
 
     if (!mostVoted) return false;
 
-    // Marcar como eliminado en la lista completa
     const players = state.players.map((p) =>
-      p.id === mostVoted.id ? { ...p, isEliminated: true, vote: null } : p
+      p.id === mostVoted.id
+        ? { ...p, isEliminated: true, votes: [] }
+        : { ...p, votes: [] }
     );
 
     const active = players.filter((p) => !p.isEliminated);
@@ -317,13 +309,11 @@ export class GameService {
   newRound(): void {
     const state = this.currentState;
 
-    // Resetear estado de juego, mantener jugadores y eliminaciones
     const players = state.players.map((p) => ({
       ...p,
       isImpostor: false,
       hasSeenRole: false,
-      vote: null,
-      // isEliminated se mantiene
+      votes: [],
     }));
 
     this.updateState({
@@ -333,6 +323,7 @@ export class GameService {
       currentCategory: null,
       currentRevealIndex: 0,
       roundNumber: 0,
+      resolvedStartingPlayerId: null,
     });
   }
 
@@ -343,12 +334,11 @@ export class GameService {
 
     if (!mostVoted) return false;
 
-    // Marcar eliminado y resetear estado por ronda
     const players = state.players.map((p) => {
       if (p.id === mostVoted.id) {
-        return { ...p, isEliminated: true, hasSeenRole: false, vote: null };
+        return { ...p, isEliminated: true, hasSeenRole: false, votes: [] };
       }
-      return { ...p, hasSeenRole: false, vote: null };
+      return { ...p, hasSeenRole: false, votes: [] };
     });
 
     const active = players.filter((p) => !p.isEliminated);
@@ -374,6 +364,7 @@ export class GameService {
       currentRevealIndex: 0,
       roundNumber: state.roundNumber + 1,
       inspireMessage: getRandomInspireMessage(),
+      resolvedStartingPlayerId: null,
     });
     return true;
   }
@@ -381,10 +372,6 @@ export class GameService {
   fullReset(): void {
     this.state.next({ ...INITIAL_STATE });
   }
-
-  // ─────────────────────────────────────────────────────
-  // MÉTODOS PRIVADOS
-  // ─────────────────────────────────────────────────────
 
   private updateState(partial: Partial<GameState>): void {
     this.state.next({ ...this.state.getValue(), ...partial });

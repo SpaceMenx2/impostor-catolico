@@ -56,16 +56,17 @@
           </div>
         </div>
 
+        <!-- Bug 2: texto de instrucción según cantidad de votos requeridos -->
         <p class="vote-instruction animate-fadeInUp delay-2">
-          ¿Quién creés que es el impostor?
+          {{ requiredVotes === 1 ? '¿Quién creés que es el impostor?' : '¿Quiénes son los ' + requiredVotes + ' impostores? (' + currentTurn.selectedVotes.length + '/' + requiredVotes + ' elegidos)' }}
         </p>
 
         <div class="candidates-list animate-fadeInUp delay-3">
           <div
             *ngFor="let candidate of candidates; let i = index"
             class="candidate-item"
-            [class.selected]="currentTurn.selectedVote === candidate.id"
-            [class.confirmed]="voteConfirmed && currentTurn.selectedVote === candidate.id"
+            [class.selected]="currentTurn.selectedVotes.includes(candidate.id)"
+            [class.confirmed]="voteConfirmed && currentTurn.selectedVotes.includes(candidate.id)"
             (click)="selectVote(candidate.id)"
           >
             <div
@@ -77,8 +78,8 @@
             <span class="candidate-name">{{ candidate.name }}</span>
             <ion-icon
               class="check-icon"
-              [name]="currentTurn.selectedVote === candidate.id ? 'checkmark-circle' : 'ellipse-outline'"
-              [style.color]="currentTurn.selectedVote === candidate.id ? '#d4a728' : 'rgba(255,255,255,0.2)'"
+              [name]="currentTurn.selectedVotes.includes(candidate.id) ? 'checkmark-circle' : 'ellipse-outline'"
+              [style.color]="currentTurn.selectedVotes.includes(candidate.id) ? '#d4a728' : 'rgba(255,255,255,0.2)'"
             ></ion-icon>
           </div>
         </div>
@@ -87,14 +88,15 @@
           <ion-button
             expand="block"
             class="btn-confirm"
-            [disabled]="!currentTurn.selectedVote || voteConfirmed"
+            [disabled]="currentTurn.selectedVotes.length < requiredVotes || voteConfirmed"
             (click)="confirmVote(); $event.preventDefault(); $event.stopPropagation()"
           >
             <ion-icon slot="start" name="checkmark-done-outline"></ion-icon>
             Confirmar voto
           </ion-button>
-          <p class="confirm-hint" *ngIf="!currentTurn.selectedVote">
-            Seleccioná a quién querés votar
+          <!-- Bug 2: hint dinámico según votos faltantes -->
+          <p class="confirm-hint" *ngIf="currentTurn.selectedVotes.length < requiredVotes">
+            {{ requiredVotes === 1 ? 'Seleccioná a quién querés votar' : 'Seleccioná ' + requiredVotes + ' jugadores (' + currentTurn.selectedVotes.length + ' elegidos)' }}
           </p>
         </div>
 
@@ -116,10 +118,11 @@
             Votos emitidos
           </div>
           <div class="summary-list">
+            <!-- Bug 2: mostrar todos los votados (pueden ser múltiples) -->
             <div *ngFor="let turn of voterTurns" class="summary-item">
               <span class="summary-voter">{{ turn.voter.name }}</span>
               <ion-icon name="arrow-forward-outline" class="summary-arrow"></ion-icon>
-              <span class="summary-voted">{{ getCandidateName(turn.selectedVote!) }}</span>
+              <span class="summary-voted">{{ getCandidateNames(turn.selectedVotes) }}</span>
             </div>
           </div>
         </div>
