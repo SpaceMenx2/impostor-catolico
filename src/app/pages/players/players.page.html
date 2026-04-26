@@ -20,7 +20,7 @@
         type="button"
         fill="clear"
         color="secondary"
-        (click)="toggleConfig(); $event.preventDefault(); $event.stopPropagation()"
+        (click)="openConfigModal(); $event.preventDefault(); $event.stopPropagation()"
       >
         <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
       </ion-button>
@@ -136,140 +136,6 @@
       </div>
     </div>
 
-    <!-- CONFIGURACIÓN (colapsable) -->
-    <div class="config-section animate-fadeInUp delay-3" *ngIf="showConfig">
-      <div class="config-title">
-        <ion-icon name="options-outline"></ion-icon>
-        Configuración del juego
-      </div>
-
-      <!-- Impostores -->
-      <div class="config-row">
-        <div class="config-label">
-          <ion-icon name="eye-off-outline"></ion-icon>
-          <span>Impostores</span>
-        </div>
-        <div class="config-buttons">
-          <button
-            type="button"
-            class="count-btn"
-            [class.active]="config.impostorCount === 1"
-            (click)="updateImpostorCount(1); $event.preventDefault()"
-          >
-            1
-          </button>
-          <button
-            type="button"
-            class="count-btn"
-            [class.active]="config.impostorCount === 2"
-            (click)="updateImpostorCount(2); $event.preventDefault()"
-          >
-            2
-          </button>
-        </div>
-      </div>
-
-      <!-- FIX #6: Temporizador — Off es un estado activo que requiere click explícito -->
-      <div class="config-row">
-        <div class="config-label">
-          <ion-icon name="timer-outline"></ion-icon>
-          <span>Temporizador</span>
-        </div>
-        <div class="config-buttons">
-          <!-- FIX #6: Off llama setTimerOff(), no toggleTimer() -->
-          <button
-            type="button"
-            class="count-btn"
-            [class.active]="!config.showTimer"
-            (click)="setTimerOff(); $event.preventDefault()"
-          >
-            Off
-          </button>
-          <button
-            type="button"
-            class="count-btn"
-            [class.active]="config.showTimer && config.timerMinutes === 2"
-            (click)="updateTimer(2); $event.preventDefault()"
-          >
-            2 min
-          </button>
-          <button
-            type="button"
-            class="count-btn"
-            [class.active]="config.showTimer && config.timerMinutes === 3"
-            (click)="updateTimer(3); $event.preventDefault()"
-          >
-            3 min
-          </button>
-          <button
-            type="button"
-            class="count-btn"
-            [class.active]="config.showTimer && config.timerMinutes === 5"
-            (click)="updateTimer(5); $event.preventDefault()"
-          >
-            5 min
-          </button>
-        </div>
-      </div>
-
-      <!-- Categorías -->
-      <div class="config-categories">
-        <div class="config-label-full">
-          <ion-icon name="bookmark-outline"></ion-icon>
-          <span>Categorías (vacío = todas)</span>
-        </div>
-        <div class="categories-grid">
-          <button
-            type="button"
-            *ngFor="let cat of categories"
-            class="cat-btn"
-            [class.active]="config.selectedCategories.includes(cat.id)"
-            [style.border-color]="config.selectedCategories.includes(cat.id) ? cat.color : 'rgba(255,255,255,0.15)'"
-            [style.color]="config.selectedCategories.includes(cat.id) ? cat.color : 'rgba(255,255,255,0.55)'"
-            (click)="toggleCategory(cat.id); $event.preventDefault()"
-          >
-            <ion-icon [name]="cat.icon"></ion-icon>
-            {{ cat.name }}
-          </button>
-        </div>
-      </div>
-      <!-- Dificultades -->
-      <div class="config-difficulties">
-        <div class="config-label-full">
-          <ion-icon name="stats-chart-outline"></ion-icon>
-          <span>Dificultad (vacío = todas)</span>
-        </div>
-        <div class="difficulties-grid">
-          <button
-            type="button"
-            *ngFor="let diff of difficultyOptions"
-            class="diff-btn"
-            [class.active]="config.selectedDifficulties.includes(diff.id)"
-            [style.border-color]="config.selectedDifficulties.includes(diff.id) ? diff.color : 'rgba(255,255,255,0.15)'"
-            [style.color]="config.selectedDifficulties.includes(diff.id) ? diff.color : 'rgba(255,255,255,0.55)'"
-            (click)="toggleDifficulty(diff.id); $event.preventDefault()"
-          >
-            <ion-icon [name]="diff.icon"></ion-icon>
-            {{ diff.label }}
-          </button>
-        </div>
-        <div class="config-row">
-          <div class="config-label">
-            <ion-icon name="eye-outline"></ion-icon>
-            <span>Pista para impostores</span>
-          </div>
-          <button
-            type="button"
-            class="count-btn"
-            [class.active]="config.impostorHints"
-            (click)="updateImpostorHints(); $event.preventDefault()"
-          >
-            {{ config.impostorHints ? 'Activada' : 'Desactivada' }}
-          </button>
-        </div>
-      </div>
-    </div>
-
     <!-- BOTÓN INICIAR -->
     <div class="start-section animate-fadeInUp delay-4">
       <ion-button
@@ -286,6 +152,229 @@
       <p class="start-hint" *ngIf="!canStart">
         Necesitás {{ minPlayersNeeded - players.length }} jugador/es más
       </p>
+    </div>
+
+    <!-- ========== MODAL DE CONFIGURACIÓN (SLIDE-UP) ========== -->
+    <div
+      class="config-modal-overlay"
+      *ngIf="showConfigModal"
+      (click)="closeConfigModal(false); $event.stopPropagation()"
+    >
+      <div
+        class="config-modal-panel animate-slideUp"
+        (click)="$event.stopPropagation()"
+      >
+        <!-- Header del modal -->
+        <div class="config-modal-header">
+          <h3 class="config-modal-title">
+            <ion-icon name="options-outline"></ion-icon>
+            Configuración
+          </h3>
+          <ion-button
+            type="button"
+            fill="clear"
+            color="medium"
+            size="small"
+            (click)="closeConfigModal(false); $event.preventDefault(); $event.stopPropagation()"
+            class="btn-modal-close"
+          >
+            <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+          </ion-button>
+        </div>
+
+        <!-- Contenido scrolleable -->
+        <div class="config-modal-content">
+          
+          <!-- Impostores -->
+          <div class="config-row">
+            <div class="config-label">
+              <ion-icon name="eye-off-outline"></ion-icon>
+              <span>Impostores</span>
+            </div>
+            <div class="config-buttons">
+              <button
+                type="button"
+                class="count-btn"
+                [class.active]="(tempConfig?.impostorCount ?? 1) === 1"
+                (click)="updateImpostorCountModal(1); $event.preventDefault()"
+              >
+                1
+              </button>
+              <button
+                type="button"
+                class="count-btn"
+                [class.active]="(tempConfig?.impostorCount ?? 1) === 2"
+                (click)="updateImpostorCountModal(2); $event.preventDefault()"
+              >
+                2
+              </button>
+            </div>
+          </div>
+
+          <!-- Temporizador -->
+          <div class="config-row">
+            <div class="config-label">
+              <ion-icon name="timer-outline"></ion-icon>
+              <span>Temporizador</span>
+            </div>
+            <div class="config-buttons">
+              <button
+                type="button"
+                class="count-btn"
+                [class.active]="!(tempConfig?.showTimer ?? true)"
+                (click)="setTimerOffModal(); $event.preventDefault()"
+              >
+                Off
+              </button>
+              <button
+                type="button"
+                class="count-btn"
+                [class.active]="(tempConfig?.showTimer ?? true) && (tempConfig?.timerMinutes ?? 3) === 2"
+                (click)="updateTimerModal(2); $event.preventDefault()"
+              >
+                2 min
+              </button>
+              <button
+                type="button"
+                class="count-btn"
+                [class.active]="(tempConfig?.showTimer ?? true) && (tempConfig?.timerMinutes ?? 3) === 3"
+                (click)="updateTimerModal(3); $event.preventDefault()"
+              >
+                3 min
+              </button>
+              <button
+                type="button"
+                class="count-btn"
+                [class.active]="(tempConfig?.showTimer ?? true) && (tempConfig?.timerMinutes ?? 3) === 5"
+                (click)="updateTimerModal(5); $event.preventDefault()"
+              >
+                5 min
+              </button>
+            </div>
+          </div>
+
+          <!-- Categorías -->
+          <div class="config-section-block">
+            <div class="config-label-full">
+              <ion-icon name="bookmark-outline"></ion-icon>
+              <span>Categorías (vacío = todas)</span>
+            </div>
+            <div class="categories-grid">
+              <button
+                type="button"
+                *ngFor="let cat of categories"
+                class="cat-btn"
+                [class.active]="(tempConfig?.selectedCategories ?? []).includes(cat.id)"
+                [style.border-color]="(tempConfig?.selectedCategories ?? []).includes(cat.id) ? cat.color : 'rgba(255,255,255,0.15)'"
+                [style.color]="(tempConfig?.selectedCategories ?? []).includes(cat.id) ? cat.color : 'rgba(255,255,255,0.55)'"
+                (click)="toggleCategoryModal(cat.id); $event.preventDefault()"
+              >
+                <ion-icon [name]="cat.icon"></ion-icon>
+                {{ cat.name }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Dificultades -->
+          <div class="config-section-block">
+            <div class="config-label-full">
+              <ion-icon name="stats-chart-outline"></ion-icon>
+              <span>Dificultad (vacío = todas)</span>
+            </div>
+            <div class="difficulties-grid">
+              <button
+                type="button"
+                *ngFor="let diff of difficultyOptions"
+                class="diff-btn"
+                [class.active]="(tempConfig?.selectedDifficulties ?? []).includes(diff.id)"
+                [style.border-color]="(tempConfig?.selectedDifficulties ?? []).includes(diff.id) ? diff.color : 'rgba(255,255,255,0.15)'"
+                [style.color]="(tempConfig?.selectedDifficulties ?? []).includes(diff.id) ? diff.color : 'rgba(255,255,255,0.55)'"
+                (click)="toggleDifficultyModal(diff.id); $event.preventDefault()"
+              >
+                <ion-icon [name]="diff.icon"></ion-icon>
+                {{ diff.label }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Pistas para impostores -->
+          <div class="config-row">
+            <div class="config-label">
+              <ion-icon name="eye-outline"></ion-icon>
+              <span>Pista para impostores</span>
+            </div>
+            <button
+              type="button"
+              class="count-btn"
+              [class.active]="tempConfig?.impostorHints ?? true"
+              (click)="updateImpostorHintsModal(); $event.preventDefault()"
+            >
+              {{ (tempConfig?.impostorHints ?? true) ? 'Activada' : 'Desactivada' }}
+            </button>
+          </div>
+
+          <!-- Quién empieza (solo si hay jugadores suficientes) -->
+          <div
+            class="config-section-block"
+            *ngIf="players.length >= minPlayersNeeded"
+          >
+            <div class="config-label-full">
+              <ion-icon name="chatbubble-outline"></ion-icon>
+              <span
+                >¿Quién empieza?
+                <span class="optional-hint">(opcional)</span></span
+              >
+            </div>
+            <div class="starting-players-grid">
+              <button
+                type="button"
+                *ngFor="let player of players; let i = index"
+                class="starting-btn"
+                [class.active]="(tempConfig?.startingPlayerId ?? null) === player.id"
+                [style.--player-color]="getPlayerColor(i)"
+                (click)="setStartingPlayerModal(player.id); $event.preventDefault()"
+              >
+                <span
+                  class="starting-avatar"
+                  [style.background]="getPlayerColor(i)"
+                >
+                  {{ getPlayerInitial(player.name) }}
+                </span>
+                {{ player.name }}
+                <ion-icon
+                  *ngIf="(tempConfig?.startingPlayerId ?? null) === player.id"
+                  name="checkmark-circle"
+                  class="starting-check"
+                ></ion-icon>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Footer con botones de acción -->
+        <div class="config-modal-footer">
+          <ion-button
+            type="button"
+            fill="outline"
+            color="medium"
+            expand="block"
+            class="btn-modal-cancel"
+            (click)="closeConfigModal(false); $event.preventDefault(); $event.stopPropagation()"
+          >
+            Cancelar
+          </ion-button>
+          <ion-button
+            type="button"
+            expand="block"
+            class="btn-modal-save"
+            (click)="closeConfigModal(true); $event.preventDefault(); $event.stopPropagation()"
+          >
+            <ion-icon slot="start" name="checkmark-done-outline"></ion-icon>
+            Guardar cambios
+          </ion-button>
+        </div>
+      </div>
     </div>
   </div>
 </ion-content>

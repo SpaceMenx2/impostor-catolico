@@ -1,5 +1,10 @@
 // src/app/pages/players/players.page.ts
-import { Component, ChangeDetectorRef, OnDestroy } from "@angular/core";
+import {
+  Component,
+  ChangeDetectorRef,
+  OnDestroy,
+  HostListener,
+} from "@angular/core";
 import { ToastController, NavController } from "@ionic/angular";
 import {
   GameService,
@@ -24,6 +29,8 @@ export class PlayersPage implements OnDestroy {
   categories: WordCategory[] = WORD_CATEGORIES;
   showConfig = false;
   private sub?: Subscription;
+  showConfigModal = false;
+  tempConfig: GameConfig | null = null;
 
   playerColors = [
     "#d4a728",
@@ -214,5 +221,79 @@ export class PlayersPage implements OnDestroy {
     toast.onDidDismiss().then(() => {
       this.showed = false;
     });
+  }
+
+  openConfigModal(): void {
+    // Guardar copia temporal para editar sin afectar el estado real
+    this.tempConfig = { ...this.config };
+    this.showConfigModal = true;
+    document.body.style.overflow = "hidden"; // ✅ Bloquear scroll del body
+  }
+
+  closeConfigModal(save: boolean): void {
+    if (save && this.tempConfig) {
+      // Aplicar cambios al servicio
+      this.gameService.updateConfig(this.tempConfig);
+      this.config = { ...this.tempConfig };
+    }
+
+    this.showConfigModal = false;
+    this.tempConfig = null;
+    document.body.style.overflow = ""; // ✅ Restaurar scroll
+  }
+
+  toggleCategoryModal(categoryId: string): void {
+    if (!this.tempConfig) return;
+    const selected = [...this.tempConfig.selectedCategories];
+    const idx = selected.indexOf(categoryId);
+    if (idx >= 0) selected.splice(idx, 1);
+    else selected.push(categoryId);
+    this.tempConfig.selectedCategories = selected;
+  }
+
+  updateImpostorCountModal(count: number): void {
+    if (!this.tempConfig) return;
+    this.tempConfig.impostorCount = count;
+  }
+
+  updateTimerModal(minutes: number): void {
+    if (!this.tempConfig) return;
+    this.tempConfig.timerMinutes = minutes;
+    this.tempConfig.showTimer = true;
+  }
+
+  setTimerOffModal(): void {
+    if (!this.tempConfig) return;
+    this.tempConfig.showTimer = false;
+  }
+
+  toggleDifficultyModal(difficultyId: string): void {
+    if (!this.tempConfig) return;
+    const selected = [...this.tempConfig.selectedDifficulties];
+    const idx = selected.indexOf(difficultyId);
+    if (idx >= 0) selected.splice(idx, 1);
+    else selected.push(difficultyId);
+    this.tempConfig.selectedDifficulties = selected;
+  }
+
+  setStartingPlayerModal(playerId: string): void {
+    if (!this.tempConfig) return;
+    const newId =
+      this.tempConfig.startingPlayerId === playerId ? null : playerId;
+    this.tempConfig.startingPlayerId = newId;
+  }
+
+  updateImpostorHintsModal(): void {
+    if (!this.tempConfig) return;
+    this.tempConfig.impostorHints = !this.tempConfig.impostorHints;
+  }
+
+  // ✅ Cerrar modal al presionar ESC
+  @HostListener("document:keydown.escape", ["$event"])
+  handleEscapeKey(event: KeyboardEvent): void {
+    if (this.showConfigModal) {
+      event.preventDefault();
+      this.closeConfigModal(false);
+    }
   }
 }

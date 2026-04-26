@@ -1,17 +1,21 @@
-// src/app/pages/players/players.page.scss
-
+// ============================================================
+// VARIABLES Y CONFIGURACIÓN BASE
+// ============================================================
 ion-content.players-content {
   --background: transparent;
   --color: #fff;
 }
 
+// Fondo global de página
 .page-bg {
   position: fixed;
   inset: 0;
   background: linear-gradient(160deg, #071630 0%, #0d2251 40%, #1a3a6b 100%);
   z-index: 0;
+  pointer-events: none;
 }
 
+// Toolbar
 ion-toolbar {
   --background: rgba(7, 22, 48, 0.95);
   --border-width: 0;
@@ -30,6 +34,7 @@ ion-toolbar {
   .title-icon { color: var(--color-gold); }
 }
 
+// Contenedor principal
 .players-container {
   position: relative;
   z-index: 1;
@@ -38,7 +43,161 @@ ion-toolbar {
   margin: 0 auto;
 }
 
-// ---- Agregar jugador ----
+// ============================================================
+// UTILIDADES COMPARTIDAS (Página + Modal)
+// ============================================================
+
+// Labels de configuración
+.config-label-full {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 12px;
+  font-weight: 600;
+
+  ion-icon { font-size: 1rem; color: var(--color-gold-light); }
+
+  .optional-hint {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 400;
+  }
+}
+
+.config-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.75);
+
+  ion-icon { font-size: 1rem; color: var(--color-gold-light); }
+}
+
+// Botones de selección (count, categorías, dificultades)
+.config-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.count-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.55);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &.active {
+    background: var(--color-gold);
+    color: #0d2251;
+    border-color: var(--color-gold);
+    font-weight: 700;
+  }
+
+  &:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+}
+
+// Grids reutilizables
+.categories-grid,
+.difficulties-grid,
+.starting-players-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+// Botones de categorías/dificultades
+.cat-btn,
+.diff-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.55);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  ion-icon { font-size: 0.9rem; }
+
+  &.active {
+    background: rgba(255, 255, 255, 0.1);
+    font-weight: 700;
+  }
+
+  &:hover:not(.active) { background: rgba(255, 255, 255, 0.08); }
+}
+
+// Colores específicos para dificultades activas
+.diff-btn {
+  &[style*="#2ec478"].active { box-shadow: 0 0 0 2px rgba(46, 196, 120, 0.25); }
+  &[style*="#f39c12"].active { box-shadow: 0 0 0 2px rgba(243, 156, 18, 0.25); }
+  &[style*="#dc5050"].active { box-shadow: 0 0 0 2px rgba(220, 80, 80, 0.25); }
+}
+
+// Botones de jugador inicial
+.starting-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px 7px 8px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.65);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.18s;
+
+  .starting-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  .starting-check {
+    color: var(--color-success);
+    font-size: 1rem;
+    margin-left: 2px;
+  }
+
+  &.active {
+    border-color: var(--player-color, var(--color-gold));
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-weight: 700;
+  }
+}
+
+// ============================================================
+// SECCIÓN: AGREGAR JUGADOR
+// ============================================================
 .add-player-card {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -68,10 +227,10 @@ ion-toolbar {
 }
 
 .player-input {
-  --background: rgba(255,255,255,0.07);
+  --background: rgba(255, 255, 255, 0.07);
   --color: #fff;
-  --placeholder-color: rgba(255,255,255,0.35);
-  --border-color: rgba(255,255,255,0.2);
+  --placeholder-color: rgba(255, 255, 255, 0.35);
+  --border-color: rgba(255, 255, 255, 0.2);
   --border-radius: 12px;
   --padding-start: 14px;
   --padding-end: 14px;
@@ -110,7 +269,9 @@ ion-toolbar {
   }
 }
 
-// ---- Encabezado de sección ----
+// ============================================================
+// SECCIÓN: LISTA DE JUGADORES
+// ============================================================
 .section-header {
   display: flex;
   justify-content: space-between;
@@ -119,7 +280,7 @@ ion-toolbar {
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.5);
+  color: rgba(255, 255, 255, 0.5);
   margin-bottom: 12px;
 
   .min-info {
@@ -127,13 +288,13 @@ ion-toolbar {
     align-items: center;
     gap: 4px;
     font-size: 0.75rem;
+
     ion-icon { font-size: 0.9rem; }
-    &.ok   { color: var(--color-success); }
+    &.ok { color: var(--color-success); }
     &.warn { color: var(--color-gold); }
   }
 }
 
-// ---- Lista de jugadores ----
 .players-list {
   margin-bottom: 20px;
   display: flex;
@@ -148,7 +309,7 @@ ion-toolbar {
   align-items: center;
   gap: 10px;
   padding: 30px 20px;
-  color: rgba(255,255,255,0.3);
+  color: rgba(255, 255, 255, 0.3);
   font-size: 0.85rem;
   text-align: center;
 
@@ -159,8 +320,8 @@ ion-toolbar {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   padding: 10px 6px 10px 12px;
   animation: fadeInUp 0.3s ease-out both;
@@ -177,14 +338,14 @@ ion-toolbar {
   font-size: 1rem;
   color: #fff;
   flex-shrink: 0;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .player-name {
   flex: 1;
   font-size: 0.95rem;
   font-weight: 500;
-  color: rgba(255,255,255,0.9);
+  color: rgba(255, 255, 255, 0.9);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -195,244 +356,24 @@ ion-toolbar {
   flex-shrink: 0;
 }
 
-// ---- Quién empieza ----
+// ============================================================
+// SECCIÓN: INICIAR PARTIDA
+// ============================================================
 .starting-player-section {
   margin-bottom: 20px;
-
-  .optional-hint {
-    font-size: 0.7rem;
-    color: rgba(255,255,255,0.35);
-    font-weight: 400;
-  }
 }
 
-.starting-players-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 8px;
+.start-section {
+  padding-top: 8px;
 }
-
-.starting-btn {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 7px 12px 7px 8px;
-  border-radius: 30px;
-  border: 1px solid rgba(255,255,255,0.18);
-  background: rgba(255,255,255,0.05);
-  color: rgba(255,255,255,0.65);
-  font-family: var(--font-body);
-  font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.18s;
-
-  .starting-avatar {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: #fff;
-    flex-shrink: 0;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-  }
-
-  .starting-check {
-    color: var(--color-success);
-    font-size: 1rem;
-    margin-left: 2px;
-  }
-
-  &.active {
-    border-color: var(--player-color, var(--color-gold));
-    background: rgba(255,255,255,0.1);
-    color: #fff;
-    font-weight: 700;
-  }
-}
-
-.config-label-full {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.85rem;
-  color: rgba(255,255,255,0.75);
-  margin-bottom: 10px;
-
-  ion-icon { font-size: 1rem; color: var(--color-gold-light); }
-}
-
-// ---- Configuración ----
-.config-section {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 16px;
-  padding: 16px;
-  margin-bottom: 20px;
-}
-
-.config-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-gold);
-  margin-bottom: 16px;
-
-  ion-icon { font-size: 1rem; }
-}
-
-.config-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-  flex-wrap: wrap;
-  gap: 8px;
-
-  &:last-of-type { margin-bottom: 0; }
-}
-
-.config-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.85rem;
-  color: rgba(255,255,255,0.75);
-
-  ion-icon { font-size: 1rem; color: var(--color-gold-light); }
-}
-
-.config-buttons {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.count-btn {
-  padding: 6px 14px;
-  border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.2);
-  background: transparent;
-  color: rgba(255,255,255,0.55);
-  font-family: var(--font-body);
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &.active {
-    background: var(--color-gold);
-    color: #0d2251;
-    border-color: var(--color-gold);
-    font-weight: 700;
-  }
-
-  &:hover:not(.active) {
-    background: rgba(255,255,255,0.1);
-    color: #fff;
-  }
-}
-
-// ---- Categorías ----
-.config-categories {
-  margin-top: 6px;
-  border-top: 1px solid rgba(255,255,255,0.1);
-  padding-top: 14px;
-}
-
-.categories-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.cat-btn {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 12px;
-  border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.15);
-  background: rgba(255,255,255,0.05);
-  color: rgba(255,255,255,0.55);
-  font-family: var(--font-body);
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  ion-icon { font-size: 0.9rem; }
-
-  &.active {
-    background: rgba(255,255,255,0.1);
-    font-weight: 700;
-  }
-
-  &:hover:not(.active) { background: rgba(255,255,255,0.08); }
-}
-
-// ---- Dificultades ----
-.config-difficulties {
-  margin-top: 6px;
-  border-top: 1px solid rgba(255,255,255,0.1);
-  padding-top: 14px;
-}
-
-.difficulties-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.diff-btn {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 12px;
-  border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.15);
-  background: rgba(255,255,255,0.05);
-  color: rgba(255,255,255,0.55);
-  font-family: var(--font-body);
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  ion-icon { font-size: 0.9rem; }
-
-  &.active {
-    background: rgba(255,255,255,0.1);
-    font-weight: 700;
-    box-shadow: 0 0 0 2px rgba(255,255,255,0.05);
-  }
-
-  &:hover:not(.active) { background: rgba(255,255,255,0.08); }
-
-  &[style*="#2ec478"].active { box-shadow: 0 0 0 2px rgba(46, 196, 120, 0.25); }
-  &[style*="#f39c12"].active { box-shadow: 0 0 0 2px rgba(243, 156, 18, 0.25); }
-  &[style*="#dc5050"].active { box-shadow: 0 0 0 2px rgba(220, 80, 80, 0.25); }
-}
-
-// ---- Botón iniciar ----
-.start-section { padding-top: 8px; }
 
 .btn-start-game {
   --background: linear-gradient(135deg, #d4a728 0%, #f0c940 50%, #c8960c 100%);
-  --background-disabled: rgba(255,255,255,0.15);
+  --background-disabled: rgba(255, 255, 255, 0.15);
   --color: #0d2251;
-  --color-disabled: rgba(255,255,255,0.3);
+  --color-disabled: rgba(255, 255, 255, 0.3);
   --border-radius: 50px;
-  --box-shadow: 0 6px 25px rgba(212,167,40,0.4);
+  --box-shadow: 0 6px 25px rgba(212, 167, 40, 0.4);
   font-family: var(--font-title);
   font-size: 1rem;
   font-weight: 700;
@@ -445,7 +386,179 @@ ion-toolbar {
 .start-hint {
   text-align: center;
   font-size: 0.78rem;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.4);
   margin: 10px 0 0;
   font-style: italic;
+}
+
+// ============================================================
+// MODAL DE CONFIGURACIÓN — Slide-up panel
+// ============================================================
+.config-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 22, 48, 0.85);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+
+  @media (min-aspect-ratio: 4/3) {
+    align-items: center;
+  }
+}
+
+.config-modal-panel {
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  background: linear-gradient(180deg, #0d2251 0%, #071630 100%);
+  border-radius: 24px 24px 0 0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-bottom: none;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.5);
+
+  @media (min-aspect-ratio: 4/3) {
+    border-radius: 24px;
+    max-height: 85vh;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+// Header del modal
+.config-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  flex-shrink: 0;
+}
+
+.config-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-title);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+
+  ion-icon { color: var(--color-gold); font-size: 1.2rem; }
+}
+
+.btn-modal-close {
+  --padding-start: 8px;
+  --padding-end: 8px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+}
+
+// Contenido scrolleable
+.config-modal-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px 20px 20px;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+  }
+}
+
+// Bloques de sección dentro del modal
+.config-section-block {
+  margin: 16px 0;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+  &:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+}
+
+// Footer del modal
+.config-modal-footer {
+  padding: 16px 20px 24px;
+  background: rgba(255, 255, 255, 0.03);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-shrink: 0;
+
+  @media (min-aspect-ratio: 4/3) {
+    flex-direction: row;
+
+    .btn-modal-cancel,
+    .btn-modal-save { flex: 1; }
+  }
+}
+
+.btn-modal-cancel {
+  --border-radius: 12px;
+  --border-color: rgba(255, 255, 255, 0.2);
+  --color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+  height: 48px;
+}
+
+.btn-modal-save {
+  --background: linear-gradient(135deg, #d4a728 0%, #f0c940 100%);
+  --color: #0d2251;
+  --border-radius: 12px;
+  --box-shadow: 0 4px 20px rgba(212, 167, 40, 0.35);
+  font-weight: 700;
+  height: 48px;
+}
+
+// ============================================================
+// AJUSTES ESPECÍFICOS Y MEDIA QUERIES
+// ============================================================
+
+// Scroll suave en iOS
+.ios .config-modal-content {
+  -webkit-overflow-scrolling: touch;
+}
+
+// Pantallas muy pequeñas (<600px de alto)
+@media (max-height: 600px) {
+  .config-modal-panel {
+    max-height: 95vh;
+    border-radius: 20px 20px 0 0;
+  }
+
+  .config-modal-content { padding: 12px 16px 16px; }
+  .config-modal-footer { padding: 12px 16px 20px; }
+}
+
+// Ajuste de padding en botones del modal para escritorio
+@media (min-aspect-ratio: 4/3) {
+  .cat-btn,
+  .diff-btn,
+  .starting-btn {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+  }
 }
