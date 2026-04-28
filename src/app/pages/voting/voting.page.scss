@@ -330,3 +330,333 @@ ion-toolbar {
   height: 58px;
   width: 100%;
 }
+
+// ============================================================
+// RESUMEN DE ELIMINADOS — Estilos nuevos
+// ============================================================
+
+.done-icon-wrapper {
+  // Estilos base
+  ion-icon {
+    font-size: 5rem;
+    color: var(--color-gold);
+    filter: drop-shadow(0 0 16px rgba(212,167,40,0.5));
+    transition: all 0.3s ease;
+  }
+  
+  // Variantes según resultado
+  &.victory ion-icon {
+    color: var(--color-success);
+    filter: drop-shadow(0 0 20px rgba(46,196,120,0.6));
+    animation: trophyShine 2s ease-in-out infinite;
+  }
+  
+  &.continue ion-icon {
+    color: var(--color-gold);
+  }
+  
+  &.warning ion-icon {
+    color: var(--color-danger);
+    filter: drop-shadow(0 0 16px rgba(220,80,80,0.5));
+  }
+}
+
+@keyframes trophyShine {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.done-title {
+  font-family: var(--font-title);
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 16px 0 8px;
+  letter-spacing: 0.03em;
+  color: #fff;
+  text-align: center;
+  line-height: 1.2;
+  
+  &.victory {
+    color: var(--color-success);
+    text-shadow: 0 0 20px rgba(46,196,120,0.4);
+  }
+  
+  &.continue {
+    color: var(--color-gold);
+  }
+}
+
+.done-subtitle {
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.7);
+  margin: 0 0 20px;
+  text-align: center;
+  line-height: 1.4;
+  max-width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+// Resumen de eliminados
+.eliminated-summary {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.eliminated-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.group-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 8px;
+  border-radius: 8px;
+  
+  ion-icon { font-size: 0.9rem; }
+  
+  &.header-impostor {
+    background: rgba(220, 80, 80, 0.15);
+    color: var(--color-danger);
+    border: 1px solid rgba(220, 80, 80, 0.3);
+  }
+  
+  &.header-civilian {
+    background: rgba(42, 107, 181, 0.15);
+    color: var(--color-blue);
+    border: 1px solid rgba(42, 107, 181, 0.3);
+  }
+}
+
+.eliminated-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.eliminated-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 10px;
+  border-left: 3px solid transparent;
+  
+  &.item-impostor {
+    border-left-color: var(--color-danger);
+    background: rgba(220, 80, 80, 0.08);
+  }
+  
+  &.item-civilian {
+    border-left-color: var(--color-blue);
+    background: rgba(42, 107, 181, 0.08);
+  }
+}
+
+.eliminated-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.eliminated-name {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.eliminated-role {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 8px;
+  border-radius: 10px;
+  
+  .item-impostor & {
+    background: rgba(220, 80, 80, 0.2);
+    color: var(--color-danger);
+  }
+  
+  .item-civilian & {
+    background: rgba(42, 107, 181, 0.2);
+    color: var(--color-blue);
+  }
+}
+
+// Details colapsable para votos
+.votes-details {
+  width: 100%;
+  margin-bottom: 16px;
+  
+  summary {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.6);
+    cursor: pointer;
+    padding: 8px 0;
+    list-style: none;
+    
+    ion-icon { font-size: 0.9rem; }
+    
+    &::-webkit-details-marker { display: none; }
+    
+    &::after {
+      content: '▼';
+      font-size: 0.7rem;
+      margin-left: auto;
+      transition: transform 0.2s;
+    }
+  }
+  
+  &[open] summary::after {
+    transform: rotate(180deg);
+  }
+  
+  .votes-summary {
+    background: rgba(255,255,255,0.03);
+    border-radius: 12px;
+    padding: 12px;
+    margin-top: 8px;
+  }
+}
+
+.summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+
+.summary-voter {
+  color: rgba(255,255,255,0.8);
+  font-weight: 600;
+  min-width: 70px;
+}
+
+.summary-arrow {
+  color: rgba(255,255,255,0.3);
+  font-size: 0.8rem;
+}
+
+.summary-voted {
+  color: var(--color-gold-light);
+  font-weight: 600;
+}
+
+// Botones de acción
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.btn-continue {
+  --background: linear-gradient(135deg, #2ec478 0%, #27ae60 100%);
+  --color: #fff;
+  --border-radius: 50px;
+  --box-shadow: 0 4px 20px rgba(46,196,120,0.35);
+  font-weight: 700;
+  height: 52px;
+  font-size: 1rem;
+}
+
+.btn-reveal-final {
+  --background: linear-gradient(135deg, #d4a728 0%, #f0c940 100%);
+  --color: #0d2251;
+  --border-radius: 50px;
+  --box-shadow: 0 4px 20px rgba(212,167,40,0.35);
+  font-weight: 700;
+  height: 52px;
+  font-size: 1rem;
+}
+
+// Banner de victoria
+.victory-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, rgba(46,196,120,0.15), rgba(46,196,120,0.05));
+  border: 1px solid rgba(46,196,120,0.3);
+  border-radius: 12px;
+  padding: 10px 16px;
+  margin-top: 4px;
+  
+  ion-icon {
+    color: var(--color-success);
+    font-size: 1.1rem;
+  }
+  
+  span {
+    font-weight: 700;
+    color: var(--color-success);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
+
+// Responsive para móvil
+@media (max-aspect-ratio: 9/16) {
+  .done-title {
+    font-size: 1.6rem;
+  }
+  
+  .done-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .eliminated-item {
+    padding: 6px 10px;
+  }
+  
+  .eliminated-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+  
+  .eliminated-name {
+    font-size: 0.85rem;
+  }
+  
+  .eliminated-role {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+  }
+}

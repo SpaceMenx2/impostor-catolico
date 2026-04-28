@@ -26,6 +26,8 @@ export interface GameConfig {
   startingPlayerId: string | null;
   selectedDifficulties: string[];
   impostorHints: boolean;
+  voteMode: "impostor-count" | "one-per-player";
+  eliminationMode: "match-votes" | "most-voted-only";
 }
 
 export type GamePhase =
@@ -56,6 +58,8 @@ export const DEFAULT_CONFIG: GameConfig = {
   startingPlayerId: null,
   selectedDifficulties: [],
   impostorHints: true,
+  voteMode: "impostor-count",
+  eliminationMode: "most-voted-only",
 };
 
 const INITIAL_STATE: GameState = {
@@ -93,21 +97,22 @@ export class GameService {
   }
 
   get allVotesCast(): boolean {
-    const required = this.activePlayers.filter((p) => p.isImpostor).length;
+    const state = this.currentState;
+    const required =
+      state.config.voteMode === "one-per-player"
+        ? 1
+        : state.config.impostorCount;
     return this.activePlayers.every((p) => p.votes.length >= required);
   }
 
   addPlayer(name: string): boolean {
     const trimmed = name.trim();
     if (!trimmed) return false;
-
     const state = this.currentState;
-
     const exists = state.players.some(
       (p) => !p.isEliminated && p.name.toLowerCase() === trimmed.toLowerCase()
     );
     if (exists) return false;
-
     const newPlayer: Player = {
       id: this.generateId(),
       name: trimmed,
@@ -116,24 +121,18 @@ export class GameService {
       votes: [],
       isEliminated: false,
     };
-
     this.updateState({ players: [...state.players, newPlayer] });
     return true;
   }
 
   removePlayer(playerId: string): void {
     const state = this.currentState;
-
-    if (state.phase !== "home" && state.phase !== "players") {
-      return;
-    }
-
+    if (state.phase !== "home" && state.phase !== "players") return;
     const players = state.players.filter((p) => p.id !== playerId);
     const startingPlayerId =
       state.config.startingPlayerId === playerId
         ? null
         : state.config.startingPlayerId;
-
     this.updateState({
       players,
       config: { ...state.config, startingPlayerId },
@@ -152,22 +151,18 @@ export class GameService {
   startGame(): boolean {
     const state = this.currentState;
     const active = this.activePlayers;
-
     const minPlayers = state.config.impostorCount + 2;
     if (active.length < minPlayers) return false;
-
     const updatedPlayers = state.players.map((p) => ({
       ...p,
       isImpostor: false,
       hasSeenRole: false,
       votes: [],
     }));
-
     const activeIndices = updatedPlayers
       .map((p, i) => ({ active: !p.isEliminated, index: i }))
       .filter(({ active }) => active)
       .map(({ index }) => index);
-
     const impostorLocalIndices = this.pickRandomIndices(
       activeIndices.length,
       state.config.impostorCount
@@ -176,7 +171,6 @@ export class GameService {
       const globalIdx = activeIndices[localIdx];
       updatedPlayers[globalIdx].isImpostor = true;
     });
-
     const { word, category } = getRandomWord(
       state.config.selectedCategories.length > 0
         ? state.config.selectedCategories
@@ -185,14 +179,11 @@ export class GameService {
         ? state.config.selectedDifficulties
         : undefined
     );
-
-    // Bug 1: Si no hay jugador inicial configurado, elegir uno al azar
     let resolvedStartingPlayerId = state.config.startingPlayerId;
     if (!resolvedStartingPlayerId && active.length > 0) {
       resolvedStartingPlayerId =
         active[Math.floor(Math.random() * active.length)].id;
     }
-
     this.updateState({
       phase: "role-reveal",
       players: updatedPlayers,
@@ -203,25 +194,19 @@ export class GameService {
       inspireMessage: getRandomInspireMessage(),
       resolvedStartingPlayerId,
     });
-
     return true;
   }
 
   markRoleSeen(): void {
     const state = this.currentState;
     const active = this.activePlayers;
-
     if (state.currentRevealIndex >= active.length) return;
-
     const targetPlayer = active[state.currentRevealIndex];
-
     const players = state.players.map((p) =>
       p.id === targetPlayer.id ? { ...p, hasSeenRole: true } : p
     );
-
     const nextIndex = state.currentRevealIndex + 1;
     const shouldAdvance = nextIndex < active.length;
-
     this.updateState({
       players,
       currentRevealIndex: shouldAdvance ? nextIndex : 0,
@@ -233,7 +218,6 @@ export class GameService {
     this.updateState({ phase: "voting" });
   }
 
-  // Bug 2: castVote ahora acepta un array de IDs votados
   castVote(voterId: string, votedIds: string[]): void {
     const state = this.currentState;
     const players = state.players.map((p) =>
@@ -246,51 +230,132 @@ export class GameService {
     this.updateState({ phase: "result" });
   }
 
+  // ✅ RESULTADO SIMPLIFICADO: Todo en uno
   get votingResult(): {
-    mostVoted: Player | null;
-    voteCounts: { player: Player; votes: number }[];
-    impostors: Player[];
-    isCorrect: boolean;
+    eliminatedPlayers: Player[];
+    eliminatedImpostors: Player[];
+    eliminatedCivilians: Player[];
+    remainingImpostors: number;
+    remainingCivilians: number;
+    isCivilVictory: boolean;
+    isImpostorVictory: boolean;
     canContinue: boolean;
+    summaryTitle: string;
+    summaryMessage: string;
   } {
+    const state = this.currentState;
     const active = this.activePlayers;
-    const voteMap: { [id: string]: number } = {};
 
-    // Bug 2: contar votos desde el array de cada jugador
+    // Contar votos
+    const voteMap: { [id: string]: number } = {};
     active.forEach((p) => {
       p.votes.forEach((votedId) => {
         voteMap[votedId] = (voteMap[votedId] || 0) + 1;
       });
     });
 
+    // Calcular cuántos votos puede emitir cada jugador
+    const votesPerPlayer =
+      state.config.voteMode === "one-per-player" ? 1 : state.config.impostorCount;
+
+    // Calcular cuántos eliminar
+    const maxEliminable =
+      state.config.eliminationMode === "match-votes"
+        ? Math.min(votesPerPlayer, Math.max(1, active.length - 1))
+        : 1;
+
+    // Obtener top N más votados
     const voteCounts = active
       .map((p) => ({ player: p, votes: voteMap[p.id] || 0 }))
       .sort((a, b) => b.votes - a.votes);
 
-    const mostVoted = voteCounts[0]?.player ?? null;
-    const impostors = active.filter((p) => p.isImpostor);
-    const isCorrect = mostVoted?.isImpostor ?? false;
+    const eliminatedPlayers: Player[] = [];
+    for (const entry of voteCounts) {
+      if (eliminatedPlayers.length >= maxEliminable) break;
+      if (entry.votes > 0) {
+        eliminatedPlayers.push(entry.player);
+      }
+    }
 
-    const remaining = active.filter((p) => p.id !== mostVoted?.id);
-    const impostorCount = impostors.length;
-    const civilianCount = remaining.filter((p) => !p.isImpostor).length;
-    const canContinue = !isCorrect && civilianCount > impostorCount;
+    // Separar por rol
+    const eliminatedImpostors = eliminatedPlayers.filter((p) => p.isImpostor);
+    const eliminatedCivilians = eliminatedPlayers.filter((p) => !p.isImpostor);
 
-    return { mostVoted, voteCounts, impostors, isCorrect, canContinue };
+    // Calcular restantes
+    const remaining = active.filter((p) => !eliminatedPlayers.includes(p));
+    const remainingImpostors = remaining.filter((p) => p.isImpostor).length;
+    const remainingCivilians = remaining.filter((p) => !p.isImpostor).length;
+
+    // ✅ Determinar victorias (lógica simple)
+    const isCivilVictory = remainingImpostors === 0 && eliminatedImpostors.length > 0;
+    const isImpostorVictory =
+      remainingCivilians === 0 || remainingImpostors >= remainingCivilians;
+
+    // ¿Se puede continuar? Solo si NO hay victoria y hubo eliminaciones
+    const canContinue = !isCivilVictory && !isImpostorVictory && eliminatedPlayers.length > 0;
+
+    // ✅ Mensajes claros
+    let summaryTitle = "";
+    let summaryMessage = "";
+
+    if (isCivilVictory) {
+      summaryTitle = "🎉 ¡Victoria de los Civiles!";
+      summaryMessage = `Los impostores ${eliminatedImpostors
+        .map((p) => p.name)
+        .join(", ")} han sido eliminados.`;
+    } else if (isImpostorVictory) {
+      summaryTitle = "😈 ¡Victoria de los Impostores!";
+      summaryMessage =
+        remainingCivilians === 0
+          ? "No quedan civiles en el juego."
+          : "Los impostores son mayoría.";
+    } else if (eliminatedImpostors.length > 0) {
+      summaryTitle = "✅ Impostor eliminado";
+      const civPart =
+        eliminatedCivilians.length > 0
+          ? ` También: ${eliminatedCivilians.map((p) => p.name).join(", ")}.`
+          : "";
+      summaryMessage = `Se eliminó a ${eliminatedImpostors
+        .map((p) => p.name)
+        .join(", ")}.${civPart} ¡La búsqueda continúa!`;
+    } else if (eliminatedCivilians.length > 0) {
+      summaryTitle = "⚠️ Civiles eliminados";
+      summaryMessage = `Se eliminaron ${eliminatedCivilians
+        .map((p) => p.name)
+        .join(", ")}. ¡Cuidado con los impostores!`;
+    } else {
+      summaryTitle = "🔄 Sin eliminaciones";
+      summaryMessage = "Nadie fue eliminado en esta ronda.";
+    }
+
+    return {
+      eliminatedPlayers,
+      eliminatedImpostors,
+      eliminatedCivilians,
+      remainingImpostors,
+      remainingCivilians,
+      isCivilVictory,
+      isImpostorVictory,
+      canContinue,
+      summaryTitle,
+      summaryMessage,
+    };
   }
 
+  // ✅ Continuar con misma palabra (solo si canContinue)
   continueWithSameWord(): boolean {
     const state = this.currentState;
     const result = this.votingResult;
-    const mostVoted = result.mostVoted;
+    const { eliminatedPlayers } = result;
 
-    if (!mostVoted) return false;
+    if (!eliminatedPlayers || eliminatedPlayers.length === 0) return false;
 
-    const players = state.players.map((p) =>
-      p.id === mostVoted.id
-        ? { ...p, isEliminated: true, votes: [] }
-        : { ...p, votes: [] }
-    );
+    const players = state.players.map((p) => {
+      if (eliminatedPlayers.some((ep) => ep.id === p.id)) {
+        return { ...p, isEliminated: true, votes: [] };
+      }
+      return { ...p, votes: [] };
+    });
 
     const active = players.filter((p) => !p.isEliminated);
     const impostors = active.filter((p) => p.isImpostor);
@@ -308,14 +373,12 @@ export class GameService {
 
   newRound(): void {
     const state = this.currentState;
-
     const players = state.players.map((p) => ({
       ...p,
       isImpostor: false,
       hasSeenRole: false,
       votes: [],
     }));
-
     this.updateState({
       phase: "players",
       players,
@@ -330,23 +393,18 @@ export class GameService {
   continueGame(): boolean {
     const state = this.currentState;
     const result = this.votingResult;
-    const mostVoted = result.mostVoted;
-
-    if (!mostVoted) return false;
-
+    const { eliminatedPlayers } = result;
+    if (!eliminatedPlayers || eliminatedPlayers.length === 0) return false;
     const players = state.players.map((p) => {
-      if (p.id === mostVoted.id) {
+      if (eliminatedPlayers.some((ep) => ep.id === p.id)) {
         return { ...p, isEliminated: true, hasSeenRole: false, votes: [] };
       }
       return { ...p, hasSeenRole: false, votes: [] };
     });
-
     const active = players.filter((p) => !p.isEliminated);
     const impostors = active.filter((p) => p.isImpostor);
     const civilians = active.filter((p) => !p.isImpostor);
-
     if (impostors.length >= civilians.length) return false;
-
     const { word, category } = getRandomWord(
       state.config.selectedCategories.length > 0
         ? state.config.selectedCategories
@@ -355,7 +413,6 @@ export class GameService {
         ? state.config.selectedDifficulties
         : undefined
     );
-
     this.updateState({
       phase: "role-reveal",
       players,

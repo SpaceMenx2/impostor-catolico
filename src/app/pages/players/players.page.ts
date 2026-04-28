@@ -1,10 +1,5 @@
 // src/app/pages/players/players.page.ts
-import {
-  Component,
-  ChangeDetectorRef,
-  OnDestroy,
-  HostListener,
-} from "@angular/core";
+import { Component, ChangeDetectorRef, OnDestroy, HostListener } from "@angular/core";
 import { ToastController, NavController } from "@ionic/angular";
 import {
   GameService,
@@ -27,30 +22,21 @@ export class PlayersPage implements OnDestroy {
   isStarting = false;
   newPlayerName = "";
   categories: WordCategory[] = WORD_CATEGORIES;
-  showConfig = false;
-  private sub?: Subscription;
+  
+  // ✅ Para modal de configuración
   showConfigModal = false;
   tempConfig: GameConfig | null = null;
 
+  private sub?: Subscription;
+
   playerColors = [
-    "#d4a728",
-    "#2a6bb5",
-    "#2ec478",
-    "#dc5050",
-    "#8b5a2b",
-    "#8e44ad",
-    "#1abc9c",
-    "#e67e22",
+    "#d4a728", "#2a6bb5", "#2ec478", "#dc5050",
+    "#8b5a2b", "#8e44ad", "#1abc9c", "#e67e22",
   ];
 
   difficultyOptions = [
     { id: "easy", label: "Fácil", icon: "leaf-outline", color: "#2ec478" },
-    {
-      id: "medium",
-      label: "Media",
-      icon: "speedometer-outline",
-      color: "#f39c12",
-    },
+    { id: "medium", label: "Media", icon: "speedometer-outline", color: "#f39c12" },
     { id: "hard", label: "Difícil", icon: "flame-outline", color: "#dc5050" },
   ];
 
@@ -81,6 +67,15 @@ export class PlayersPage implements OnDestroy {
 
   ngOnDestroy(): void {
     if (this.sub) this.sub.unsubscribe();
+  }
+
+  // ✅ HostListener para cerrar modal con ESC
+  @HostListener('document:keydown.escape', ['$event'])
+  handleEscapeKey(event: KeyboardEvent): void {
+    if (this.showConfigModal) {
+      event.preventDefault();
+      this.closeConfigModal(false);
+    }
   }
 
   get canStart(): boolean {
@@ -139,18 +134,11 @@ export class PlayersPage implements OnDestroy {
     this.gameService.updateConfig({ showTimer: false });
   }
 
-  toggleConfig(): void {
-    this.showConfig = !this.showConfig;
-  }
-
   toggleDifficulty(difficultyId: string): void {
     const selected = [...this.config.selectedDifficulties];
     const idx = selected.indexOf(difficultyId);
-    if (idx >= 0) {
-      selected.splice(idx, 1);
-    } else {
-      selected.push(difficultyId);
-    }
+    if (idx >= 0) selected.splice(idx, 1);
+    else selected.push(difficultyId);
     this.config.selectedDifficulties = selected;
     this.gameService.updateConfig({ selectedDifficulties: selected });
   }
@@ -164,6 +152,122 @@ export class PlayersPage implements OnDestroy {
   updateImpostorHints(): void {
     this.config.impostorHints = !this.config.impostorHints;
     this.gameService.updateConfig({ impostorHints: this.config.impostorHints });
+  }
+
+  // ✅ MÉTODOS PARA EL MODAL DE CONFIGURACIÓN
+
+  openConfigModal(): void {
+    this.tempConfig = { ...this.config };
+    this.showConfigModal = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeConfigModal(save: boolean): void {
+    if (save && this.tempConfig) {
+      this.gameService.updateConfig(this.tempConfig);
+      this.config = { ...this.tempConfig };
+    }
+    this.showConfigModal = false;
+    this.tempConfig = null;
+    document.body.style.overflow = '';
+  }
+
+  // Helpers para categorías
+  toggleCategoryModal(categoryId: string): void {
+    if (!this.tempConfig) return;
+    const selected = [...(this.tempConfig.selectedCategories ?? [])];
+    const idx = selected.indexOf(categoryId);
+    if (idx >= 0) selected.splice(idx, 1);
+    else selected.push(categoryId);
+    this.tempConfig.selectedCategories = selected;
+  }
+
+  isCategorySelectedInModal(categoryId: string): boolean {
+    return (this.tempConfig?.selectedCategories ?? []).includes(categoryId);
+  }
+
+  // Helpers para dificultades
+  toggleDifficultyModal(difficultyId: string): void {
+    if (!this.tempConfig) return;
+    const selected = [...(this.tempConfig.selectedDifficulties ?? [])];
+    const idx = selected.indexOf(difficultyId);
+    if (idx >= 0) selected.splice(idx, 1);
+    else selected.push(difficultyId);
+    this.tempConfig.selectedDifficulties = selected;
+  }
+
+  isDifficultySelectedInModal(difficultyId: string): boolean {
+    return (this.tempConfig?.selectedDifficulties ?? []).includes(difficultyId);
+  }
+
+  // Helpers para impostores
+  updateImpostorCountModal(count: number): void {
+    if (!this.tempConfig) return;
+    this.tempConfig.impostorCount = count;
+  }
+
+  getImpostorCountInModal(): number {
+    return this.tempConfig?.impostorCount ?? 1;
+  }
+
+  // Helpers para timer
+  updateTimerModal(minutes: number): void {
+    if (!this.tempConfig) return;
+    this.tempConfig.timerMinutes = minutes;
+    this.tempConfig.showTimer = true;
+  }
+
+  setTimerOffModal(): void {
+    if (!this.tempConfig) return;
+    this.tempConfig.showTimer = false;
+  }
+
+  isTimerOffInModal(): boolean {
+    return !(this.tempConfig?.showTimer ?? true);
+  }
+
+  getTimerMinutesInModal(): number {
+    return this.tempConfig?.timerMinutes ?? 3;
+  }
+
+  // Helpers para pistas
+  updateImpostorHintsModal(): void {
+    if (!this.tempConfig) return;
+    this.tempConfig.impostorHints = !(this.tempConfig.impostorHints ?? true);
+  }
+
+  getImpostorHintsInModal(): boolean {
+    return this.tempConfig?.impostorHints ?? true;
+  }
+
+  // Helpers para quién empieza
+  setStartingPlayerModal(playerId: string): void {
+    if (!this.tempConfig) return;
+    const newId = (this.tempConfig.startingPlayerId ?? null) === playerId ? null : playerId;
+    this.tempConfig.startingPlayerId = newId;
+  }
+
+  isStartingPlayerInModal(playerId: string): boolean {
+    return (this.tempConfig?.startingPlayerId ?? null) === playerId;
+  }
+
+  // ✅ Helpers para NUEVAS reglas de votación
+  updateVoteModeModal(mode: 'impostor-count' | 'one-per-player'): void {
+    if (!this.tempConfig) return;
+    this.tempConfig.voteMode = mode;
+  }
+
+  getVoteModeInModal(): 'impostor-count' | 'one-per-player' {
+    return this.tempConfig?.voteMode ?? 'impostor-count';
+  }
+
+  updateEliminationModeModal(mode: 'match-votes' | 'most-voted-only'): void {
+    if (!this.tempConfig) return;
+    this.tempConfig.eliminationMode = mode;
+  }
+
+  getEliminationModeInModal(): 'match-votes' | 'most-voted-only' {
+    return this.tempConfig?.eliminationMode ?? 'most-voted-only';
   }
 
   async startGame(): Promise<void> {
@@ -217,83 +321,6 @@ export class PlayersPage implements OnDestroy {
     });
 
     await toast.present();
-
-    toast.onDidDismiss().then(() => {
-      this.showed = false;
-    });
-  }
-
-  openConfigModal(): void {
-    // Guardar copia temporal para editar sin afectar el estado real
-    this.tempConfig = { ...this.config };
-    this.showConfigModal = true;
-    document.body.style.overflow = "hidden"; // ✅ Bloquear scroll del body
-  }
-
-  closeConfigModal(save: boolean): void {
-    if (save && this.tempConfig) {
-      // Aplicar cambios al servicio
-      this.gameService.updateConfig(this.tempConfig);
-      this.config = { ...this.tempConfig };
-    }
-
-    this.showConfigModal = false;
-    this.tempConfig = null;
-    document.body.style.overflow = ""; // ✅ Restaurar scroll
-  }
-
-  toggleCategoryModal(categoryId: string): void {
-    if (!this.tempConfig) return;
-    const selected = [...this.tempConfig.selectedCategories];
-    const idx = selected.indexOf(categoryId);
-    if (idx >= 0) selected.splice(idx, 1);
-    else selected.push(categoryId);
-    this.tempConfig.selectedCategories = selected;
-  }
-
-  updateImpostorCountModal(count: number): void {
-    if (!this.tempConfig) return;
-    this.tempConfig.impostorCount = count;
-  }
-
-  updateTimerModal(minutes: number): void {
-    if (!this.tempConfig) return;
-    this.tempConfig.timerMinutes = minutes;
-    this.tempConfig.showTimer = true;
-  }
-
-  setTimerOffModal(): void {
-    if (!this.tempConfig) return;
-    this.tempConfig.showTimer = false;
-  }
-
-  toggleDifficultyModal(difficultyId: string): void {
-    if (!this.tempConfig) return;
-    const selected = [...this.tempConfig.selectedDifficulties];
-    const idx = selected.indexOf(difficultyId);
-    if (idx >= 0) selected.splice(idx, 1);
-    else selected.push(difficultyId);
-    this.tempConfig.selectedDifficulties = selected;
-  }
-
-  setStartingPlayerModal(playerId: string): void {
-    if (!this.tempConfig) return;
-    const newId =
-      this.tempConfig.startingPlayerId === playerId ? null : playerId;
-    this.tempConfig.startingPlayerId = newId;
-  }
-
-  updateImpostorHintsModal(): void {
-    if (!this.tempConfig) return;
-    this.tempConfig.impostorHints = !this.tempConfig.impostorHints;
-  }
-
-  // ✅ Cerrar modal al presionar ESC
-  @HostListener("document:keydown.escape", ["$event"])
-  handleEscapeKey(event: KeyboardEvent): void {
-    if (this.showConfigModal) {
-      event.preventDefault();
-      this.closeConfigModal(false);
-    }
+    toast.onDidDismiss().then(() => { this.showed = false; });
   }
 }

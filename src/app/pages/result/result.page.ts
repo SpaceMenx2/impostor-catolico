@@ -1,7 +1,7 @@
 // src/app/pages/result/result.page.ts
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
 import { NavController } from "@ionic/angular";
-import { GameService, GameState, Player } from "../../services/game.service";
+import { GameService, Player } from "../../services/game.service";
 import { Subscription } from "rxjs";
 
 @Component({
@@ -10,161 +10,153 @@ import { Subscription } from "rxjs";
   styleUrls: ["result.page.scss"],
 })
 export class ResultPage implements OnInit, OnDestroy {
-  state!: GameState;
-  private sub!: Subscription;
+  private sub?: Subscription;
 
-  mostVoted: Player | null = null;
-  voteCounts: { player: Player; votes: number }[] = [];
-  impostors: Player[] = [];
+  // Datos del resultado (nueva estructura simplificada)
+  eliminatedPlayers: Player[] = [];
+  eliminatedImpostors: Player[] = [];
+  eliminatedCivilians: Player[] = [];
+  remainingImpostors = 0;
+  remainingCivilians = 0;
+  isCivilVictory = false;
+  isImpostorVictory = false;
+  canContinue = false;
+  summaryTitle = "";
+  summaryMessage = "";
 
-  get isCorrect(): boolean {
-    return this.mostVoted?.isImpostor ?? false;
-  }
-
-  get canContinue(): boolean {
-    if (!this.mostVoted) return false;
-    // Bug 3: considerar el estado después de eliminar al votado
-    const remaining = this.state.players.filter(
-      (p) => !p.isEliminated && p.id !== this.mostVoted!.id,
-    );
-    const impostorRemaining = remaining.filter((p) => p.isImpostor).length;
-    const civilianRemaining = remaining.filter((p) => !p.isImpostor).length;
-
-    if (this.isCorrect) {
-      // Se eliminó un impostor: continuar si aún quedan impostores y hay más civiles que impostores
-      return impostorRemaining > 0 && civilianRemaining > impostorRemaining;
-    } else {
-      // Se eliminó un civil: continuar si hay más civiles que impostores
-      return civilianRemaining > impostorRemaining;
-    }
-  }
-
-  get remainingImpostors(): number {
-    if (!this.mostVoted) return 0;
-    return this.state.players.filter(
-      (p) => p.isImpostor && p.id !== this.mostVoted!.id,
-    ).length;
-  }
-
-  reflexionMessage = "";
-  revealed = false;
-
-  playerColors = [
-    "#D4A728",
-    "#2A6BB5",
-    "#2EC478",
-    "#DC5050",
-    "#8B5A2B",
-    "#8E44AD",
-    "#1ABC9C",
-    "#E67E22",
-    "#C0392B",
-    "#2980B9",
-    "#27AE60",
-    "#D35400",
-    "#6C5CE7",
-    "#00B894",
-    "#E84393",
-    "#F39C12",
-    "#16A085",
-    "#9B59B6",
-    "#34495E",
-    "#E17055",
-    "#0984E3",
-    "#00CEC9",
-    "#A0522D",
-    "#5F27CD",
-  ];
+  // Datos para mostrar en la UI
+  players: Player[] = [];
+  activePlayers: Player[] = [];
 
   constructor(
     private gameService: GameService,
     private navCtrl: NavController,
-    private cdr: ChangeDetectorRef,
   ) {}
 
-  get players() {
-    return this.gameService.activePlayers;
+  ngOnInit(): void {
+    this.loadResult();
   }
 
-  ngOnInit(): void {
-    this.sub = this.gameService.state$.subscribe((s) => {
-      this.state = s;
+  ionViewWillEnter(): void {
+    this.loadResult();
+    
+    // Suscribirse por si cambia el estado (aunque en result no debería)
+    if (this.sub) this.sub.unsubscribe();
+    this.sub = this.gameService.state$.subscribe((state) => {
+      if (state.phase === "players" || state.phase === "home") {
+        this.navCtrl.navigateRoot("/home", { animated: true });
+      }
     });
+  }
 
-    const result = this.gameService.votingResult;
-    this.mostVoted = result.mostVoted;
-    this.voteCounts = result.voteCounts;
-    this.impostors = result.impostors;
-
-    setTimeout(() => {
-      const content = document.querySelector("ion-content.result-content");
-      if (content && !this.isCorrect) content.classList.add("lose-result");
-    }, 100);
-
-    const WIN_MESSAGES = [
-      "¡Bien hecho! Así como en el juego descubrieron la verdad, en nuestra vida estamos llamados a buscar la verdad que Cristo nos enseña.",
-      "¡La comunidad funcionó! Cuando trabajamos juntos, la verdad siempre sale a la luz.",
-      '"La verdad os hará libres." — Jn 8,32. ¡Esta ronda lo demostraron!',
-      "Encontraron al impostor porque se escucharon y observaron juntos. Así también funciona la comunidad cristiana.",
-    ];
-    const LOSE_MESSAGES = [
-      "El impostor los engañó esta vez. En la fe también debemos discernir con cuidado las voces que nos rodean.",
-      "¡El impostor ganó! Jesús nos enseña a ser astutos como serpientes y sencillos como palomas. ¡Próxima vez!",
-      "No lo encontraron... recuerden: en comunidad, vale la pena escucharse con más atención.",
-      '"Sed sagaces como serpientes." — Mt 10,16. ¡El impostor aplicó bien este consejo! 😄',
-    ];
-
-    const pool = this.isCorrect ? WIN_MESSAGES : LOSE_MESSAGES;
-    this.reflexionMessage = pool[Math.floor(Math.random() * pool.length)];
-
-    setTimeout(() => {
-      this.revealed = true;
-      this.cdr.detectChanges();
-    }, 400);
-
-    this.cdr.detectChanges();
+  ionViewWillLeave(): void {
+    if (this.sub) this.sub.unsubscribe();
   }
 
   ngOnDestroy(): void {
-    this.sub?.unsubscribe();
+    if (this.sub) this.sub.unsubscribe();
   }
 
+  // ✅ Cargar resultado desde el servicio (estructura nueva)
+  loadResult(): void {
+    const result = this.gameService.votingResult;
+    
+    // Mapear nueva estructura a propiedades locales
+    this.eliminatedPlayers = result.eliminatedPlayers || [];
+    this.eliminatedImpostors = result.eliminatedImpostors || [];
+    this.eliminatedCivilians = result.eliminatedCivilians || [];
+    this.remainingImpostors = result.remainingImpostors || 0;
+    this.remainingCivilians = result.remainingCivilians || 0;
+    this.isCivilVictory = result.isCivilVictory || false;
+    this.isImpostorVictory = result.isImpostorVictory || false;
+    this.canContinue = result.canContinue || false;
+    this.summaryTitle = result.summaryTitle || "Resultado";
+    this.summaryMessage = result.summaryMessage || "";
+
+    // Cargar jugadores para mostrar en la UI
+    const state = this.gameService.currentState;
+    this.players = [...state.players];
+    this.activePlayers = this.players.filter((p) => !p.isEliminated);
+  }
+
+  // ========== GETTERS PARA EL TEMPLATE ==========
+
+  get victoryIcon(): string {
+    if (this.isCivilVictory) return "trophy-outline";
+    if (this.isImpostorVictory) return "skull-outline";
+    return "alert-circle-outline";
+  }
+
+  get victoryClass(): string {
+    if (this.isCivilVictory) return "victory-civil";
+    if (this.isImpostorVictory) return "victory-impostor";
+    return "victory-neutral";
+  }
+
+  get showContinueOption(): boolean {
+    // Solo mostrar "Nueva ronda" si NO hay victoria definitiva
+    return !this.isCivilVictory && !this.isImpostorVictory;
+  }
+
+  get victoryMessage(): string {
+    if (this.isCivilVictory) {
+      return this.eliminatedImpostors.length === 2
+        ? "¡Ambos impostores fueron eliminados!"
+        : "¡Los impostores han sido descubiertos!";
+    }
+    if (this.isImpostorVictory) {
+      return this.remainingCivilians === 0
+        ? "No quedan civiles en el juego."
+        : "Los impostores son mayoría.";
+    }
+    return this.summaryMessage;
+  }
+
+  // ========== UTILIDADES ==========
+
   getPlayerColor(index: number): string {
-    return this.playerColors[index % this.playerColors.length];
+    const colors = [
+      "#d4a728", "#2a6bb5", "#2ec478", "#dc5050",
+      "#8b5a2b", "#8e44ad", "#1abc9c", "#e67e22",
+    ];
+    return colors[index % colors.length];
+  }
+
+  getPlayerInitial(name: string): string {
+    return name.charAt(0).toUpperCase();
   }
 
   getPlayerIndex(playerId: string): number {
-    return this.state?.players?.findIndex((p) => p.id === playerId) ?? 0;
+    return this.players.findIndex((p) => p.id === playerId);
   }
 
-  playAgain(): void {
-    // Bug 3: this.canContinue ya maneja correctamente tanto la eliminación
-    // de un civil como de un impostor cuando quedan más impostores
+  // ========== ACCIONES ==========
+
+  newRound(): void {
+    this.gameService.newRound();
+    this.navCtrl.navigateRoot("/players", { animated: true });
+  }
+
+  continueGame(): void {
     if (this.canContinue) {
-      this.navCtrl.navigateRoot("/discussion", {
-        animated: true,
-        replaceUrl: true,
-      });
-
-      setTimeout(() => {
-        this.gameService.continueWithSameWord();
-      }, 50);
-    } else {
-      this.navCtrl.navigateRoot("/players", {
-        animated: true,
-        replaceUrl: true,
-      });
-
-      setTimeout(() => {
-        this.gameService.newRound();
-      }, 50);
+      const success = this.gameService.continueWithSameWord();
+      if (success) {
+        this.navCtrl.navigateRoot("/discussion", { animated: true });
+      } else {
+        // Si no se puede continuar, ir a nueva ronda
+        this.newRound();
+      }
     }
   }
 
   goHome(): void {
     this.gameService.fullReset();
-    setTimeout(() => {
-      this.navCtrl.navigateRoot("/home", { animated: true, replaceUrl: true });
-    }, 100);
+    this.navCtrl.navigateRoot("/home", { animated: true });
+  }
+
+  // Inspiración final (opcional)
+  get inspireMessage(): string {
+    const state = this.gameService.currentState;
+    return state.inspireMessage || "La verdad siempre sale a la luz.";
   }
 }
