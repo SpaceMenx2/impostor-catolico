@@ -254,14 +254,17 @@ export class GameService {
       });
     });
 
-    // Calcular cuántos votos puede emitir cada jugador
+    // ✅ Calcular cuántos votos puede emitir cada jugador ACTUALMENTE
+    // Se basa en los impostores RESTANTES, no en la configuración inicial
+    const currentImpostorCount = active.filter((p) => p.isImpostor).length;
     const votesPerPlayer =
-      state.config.voteMode === "one-per-player" ? 1 : state.config.impostorCount;
+      state.config.voteMode === "one-per-player" ? 1 : Math.max(1, currentImpostorCount);
 
-    // Calcular cuántos eliminar
+    // ✅ Calcular cuántos eliminar: debe coincidir con votos por jugador
+    // pero nunca más que los impostores restantes
     const maxEliminable =
       state.config.eliminationMode === "match-votes"
-        ? Math.min(votesPerPlayer, Math.max(1, active.length - 1))
+        ? Math.min(votesPerPlayer, Math.max(1, active.length - 1), currentImpostorCount)
         : 1;
 
     // Obtener top N más votados
@@ -286,8 +289,11 @@ export class GameService {
     const remainingImpostors = remaining.filter((p) => p.isImpostor).length;
     const remainingCivilians = remaining.filter((p) => !p.isImpostor).length;
 
-    // ✅ Determinar victorias (lógica simple)
-    const isCivilVictory = remainingImpostors === 0 && eliminatedImpostors.length > 0;
+    // ✅ Determinar victorias (lógica corregida)
+    // Victoria civil: NO quedan impostores (todos fueron eliminados)
+    const isCivilVictory = remainingImpostors === 0 && active.some((p) => p.isImpostor);
+    
+    // Victoria impostor: No hay civiles O los impostores son mayoría o empate
     const isImpostorVictory =
       remainingCivilians === 0 || remainingImpostors >= remainingCivilians;
 

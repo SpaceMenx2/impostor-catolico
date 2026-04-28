@@ -32,14 +32,15 @@ export class VotingPage implements OnDestroy {
     const state = this.gameService.currentState;
     this.players = [...state.players];
 
-    // Calcular votos requeridos según configuración
+    // ✅ Calcular votos requeridos según impostores RESTANTES, no configuración inicial
+    const activePlayers = this.players.filter((p) => !p.isEliminated);
+    const currentImpostorCount = activePlayers.filter((p) => p.isImpostor).length;
     this.requiredVotes =
       state.config.voteMode === "one-per-player"
         ? 1
-        : state.config.impostorCount;
+        : Math.max(1, currentImpostorCount);
 
     // Rotación circular para orden de votación
-    const activePlayers = this.players.filter((p) => !p.isEliminated);
     const startingId = state.resolvedStartingPlayerId;
     let orderedPlayers = [...activePlayers];
 
