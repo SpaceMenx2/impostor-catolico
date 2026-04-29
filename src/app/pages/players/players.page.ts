@@ -1,5 +1,5 @@
 // src/app/pages/players/players.page.ts
-import { Component, ChangeDetectorRef, OnDestroy, HostListener } from "@angular/core";
+import { Component, ChangeDetectorRef, OnDestroy, HostListener, ViewEncapsulation } from "@angular/core";
 import { ToastController, NavController } from "@ionic/angular";
 import {
   GameService,
@@ -14,6 +14,7 @@ import { Subscription } from "rxjs";
   selector: "app-players",
   templateUrl: "players.page.html",
   styleUrls: ["players.page.scss"],
+  encapsulation: ViewEncapsulation.None,
 })
 export class PlayersPage implements OnDestroy {
   showed!: boolean;

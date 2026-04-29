@@ -22,6 +22,9 @@
               { "glob": "**/*.svg", "input": "node_modules/ionicons/dist/ionicons/svg", "output": "svg" }
             ],
             "styles": ["src/theme/variables.scss", "src/global.scss"],
+            "stylePreprocessorOptions": {
+              "includePaths": ["src"]
+            },
             "scripts": []
           },
           "configurations": {

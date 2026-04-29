@@ -1,5 +1,5 @@
 // src/app/pages/discussion/discussion.page.ts
-import { Component, OnDestroy, ChangeDetectorRef } from "@angular/core";
+import { Component, OnDestroy, ChangeDetectorRef, ViewEncapsulation } from "@angular/core";
 import { NavController, AlertController } from "@ionic/angular";
 import { DEFAULT_CONFIG, GameService, GameState } from "../../services/game.service";
 import { Subscription } from "rxjs";
@@ -8,6 +8,7 @@ import { Subscription } from "rxjs";
   selector: "app-discussion",
   templateUrl: "discussion.page.html",
   styleUrls: ["discussion.page.scss"],
+  encapsulation: ViewEncapsulation.None,
 })
 export class DiscussionPage implements OnDestroy {
   state: GameState = {

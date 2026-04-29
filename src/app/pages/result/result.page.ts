@@ -1,5 +1,5 @@
 // src/app/pages/result/result.page.ts
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Component, OnInit, OnDestroy, ViewEncapsulation } from "@angular/core";
 import { NavController } from "@ionic/angular";
 import { GameService, Player } from "../../services/game.service";
 import { Subscription } from "rxjs";
@@ -8,6 +8,7 @@ import { Subscription } from "rxjs";
   selector: "app-result",
   templateUrl: "result.page.html",
   styleUrls: ["result.page.scss"],
+  encapsulation: ViewEncapsulation.None,
 })
 export class ResultPage implements OnInit, OnDestroy {
   private sub?: Subscription;

@@ -1,5 +1,5 @@
 // src/app/pages/home/home.page.ts
-import { Component } from "@angular/core";
+import { Component, ViewEncapsulation } from "@angular/core";
 import { NavController } from "@ionic/angular"; // <-- Usar NavController
 import { GameService } from "../../services/game.service";
 import { getRandomInspireMessage } from "../../data/words";
@@ -8,6 +8,7 @@ import { getRandomInspireMessage } from "../../data/words";
   selector: "app-home",
   templateUrl: "home.page.html",
   styleUrls: ["home.page.scss"],
+  encapsulation: ViewEncapsulation.None,
 })
 export class HomePage {
   inspireMessage = "";

@@ -1,5 +1,5 @@
 // src/app/pages/voting/voting.page.ts
-import { Component, OnDestroy } from "@angular/core";
+import { Component, OnDestroy, ViewEncapsulation } from "@angular/core";
 import { ToastController, NavController } from "@ionic/angular";
 import { GameService, Player } from "../../services/game.service";
 import { Subscription } from "rxjs";
@@ -8,6 +8,7 @@ import { Subscription } from "rxjs";
   selector: "app-voting",
   templateUrl: "voting.page.html",
   styleUrls: ["voting.page.scss"],
+  encapsulation: ViewEncapsulation.None,
 })
 export class VotingPage implements OnDestroy {
   private sub?: Subscription;

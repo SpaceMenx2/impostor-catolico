@@ -1,5 +1,5 @@
 // src/app/pages/role-reveal/role-reveal.page.ts
-import { Component, OnDestroy, ChangeDetectorRef } from "@angular/core";
+import { Component, OnDestroy, ChangeDetectorRef, ViewEncapsulation } from "@angular/core";
 import { NavController, AlertController } from "@ionic/angular";
 import { GameService, GameState, Player } from "../../services/game.service";
 import { Subscription } from "rxjs";
@@ -23,6 +23,7 @@ const JUDAS_BACKGROUND =  BASE("judas");
   selector: "app-role-reveal",
   templateUrl: "role-reveal.page.html",
   styleUrls: ["role-reveal.page.scss"],
+  encapsulation: ViewEncapsulation.None,
 })
 export class RoleRevealPage implements OnDestroy {
   state!: GameState;
