@@ -1,185 +1,299 @@
 // src/app/pages/voting/voting.page.scss
 
+// ============================================================
+// VARIABLES LOCALES
+// ============================================================
+$gold:    #d4a728;
+$success: #2ec478;
+$danger:  #dc5050;
+$blue:    #2a6bb5;
+
+// ============================================================
+// LAYOUT RAÍZ
+// ============================================================
 ion-content.voting-content {
-  --background: linear-gradient(160deg, #071630 0%, #0d2251 40%, #1a3a6b 100%);
+  --background: linear-gradient(160deg, #071630 0%, #0d2251 45%, #162d5e 100%);
   --color: #fff;
-  height: 100% !important;
-  min-height: 100% !important;
-  display: flex !important;
-  flex-direction: column !important;
 }
 
-.voting-bg { display: none; }
-
 ion-toolbar {
-  --background: rgba(7, 22, 48, 0.95);
+  --background: rgba(7, 22, 48, 0.92);
   --border-width: 0;
+  backdrop-filter: blur(12px);
   position: relative;
-  z-index: 2;
+  z-index: 10;
 }
 
 .toolbar-title {
   font-family: var(--font-title);
-  font-size: 1.1rem;
-  letter-spacing: 0.05em;
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  .title-icon { color: var(--color-gold); }
+
+  .title-cross { color: $gold; font-size: 0.9rem; }
 }
 
+.btn-cancel {
+  --color: rgba(255,255,255,0.45);
+  --border-radius: 50%;
+  font-size: 1.3rem;
+  transition: color 0.2s;
+
+  &:hover { --color: rgba(255,255,255,0.8); }
+}
+
+.toolbar-progress {
+  padding-right: 14px;
+
+  .tp-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: rgba($gold, 0.8);
+    letter-spacing: 0.05em;
+  }
+}
+
+// ============================================================
+// CONTENEDOR
+// ============================================================
 .voting-container {
   position: relative;
   z-index: 1;
-  flex: 1;
-  padding: 20px 16px 100px;
+  padding: 20px 16px 110px;
   max-width: 480px;
   margin: 0 auto;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  width: 100%;
+  gap: 16px;
 }
 
-// ---- Progreso de puntos ----
+// ============================================================
+// PROGRESO DE PUNTOS
+// ============================================================
 .vote-progress {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
+  justify-content: center;
 }
 
-.progress-dots {
+.progress-track {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
   justify-content: center;
-}
-
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.15);
-  transition: all 0.3s;
-
-  &.done {
-    background: var(--color-success);
-    transform: scale(0.9);
-  }
-
-  &.active {
-    background: var(--color-gold);
-    transform: scale(1.3);
-    box-shadow: 0 0 8px rgba(212,167,40,0.6);
-  }
-}
-
-.progress-label {
-  font-size: 0.75rem;
-  color: rgba(255,255,255,0.4);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-// ---- Quién vota ----
-.voter-header {
-  display: flex;
   align-items: center;
-  gap: 16px;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 16px;
-  padding: 16px;
+  padding: 10px 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 40px;
 }
 
-.voter-avatar {
-  width: 52px;
-  height: 52px;
+.progress-dot {
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-title);
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #fff;
-  flex-shrink: 0;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
-  border: 2px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.08);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  font-size: 0.75rem;
+  color: transparent;
+
+  ion-icon { font-size: 0.8rem; color: #fff; }
+
+  &.done {
+    background: rgba($success, 0.2);
+    border-color: rgba($success, 0.6);
+    color: $success;
+  }
+
+  &.active {
+    background: rgba($gold, 0.2);
+    border-color: $gold;
+    box-shadow: 0 0 12px rgba($gold, 0.4);
+    transform: scale(1.2);
+  }
+
+  &.pending {
+    opacity: 0.4;
+  }
 }
 
-.voter-info {
+// ============================================================
+// TARJETA DEL VOTANTE ACTUAL
+// ============================================================
+.voter-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px;
+  overflow: hidden;
+
+  // Fondo sutil con degradado
+  .voter-card__bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba($gold, 0.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  // Borde superior brillante
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 15%; right: 15%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba($gold, 0.4), transparent);
+  }
+}
+
+.voter-card__text {
   display: flex;
   flex-direction: column;
   gap: 3px;
 }
 
 .voter-label {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: rgba(255,255,255,0.4);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
+  font-weight: 600;
 }
 
 .voter-name {
   font-family: var(--font-title);
   font-size: 1.4rem;
-  font-weight: 600;
+  font-weight: 700;
   color: #fff;
+  line-height: 1.1;
 }
 
-// ---- Instrucción ----
+// Avatar con efecto de pulso
+.voter-avatar {
+  position: relative;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-title);
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  border: 2px solid rgba(255,255,255,0.2);
+
+  span { position: relative; z-index: 1; }
+
+  &.large {
+    width: 56px;
+    height: 56px;
+    font-size: 1.4rem;
+  }
+
+  .avatar-pulse {
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px solid rgba($gold, 0.3);
+    animation: pulseRing 2s ease-in-out infinite;
+  }
+}
+
+@keyframes pulseRing {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50%       { transform: scale(1.1); opacity: 0.2; }
+}
+
+// ============================================================
+// INSTRUCCIÓN
+// ============================================================
 .vote-instruction {
-  text-align: center;
-  font-size: 0.9rem;
-  color: rgba(255,255,255,0.6);
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
   margin: 0;
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.55);
   font-style: italic;
+  padding: 0 4px;
+
+  ion-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+    color: rgba($gold, 0.55);
+    margin-top: 1px;
+  }
 }
 
-// ---- Candidatos ----
+// ============================================================
+// CANDIDATOS
+// ============================================================
 .candidates-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 9px;
 }
 
 .candidate-item {
   display: flex;
   align-items: center;
   gap: 14px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 14px;
-  padding: 12px 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 13px 14px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.22s ease;
+  animation: candidateAppear 0.35s ease both;
+  user-select: none;
+  -webkit-user-select: none;
 
-  &:hover {
-    background: rgba(255,255,255,0.1);
-    border-color: rgba(212,167,40,0.3);
+  @keyframes candidateAppear {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:not(.selected):hover {
+    background: rgba(255,255,255,0.09);
+    border-color: rgba(255,255,255,0.18);
     transform: translateY(-1px);
   }
 
   &.selected {
-    background: rgba(212,167,40,0.12);
-    border-color: rgba(212,167,40,0.5);
-    box-shadow: 0 0 16px rgba(212,167,40,0.15);
+    background: rgba($gold, 0.1);
+    border-color: rgba($gold, 0.5);
+    box-shadow: 0 0 18px rgba($gold, 0.12), inset 0 0 0 1px rgba($gold, 0.08);
   }
 
-  &.confirmed { animation: confirmPulse 0.5s ease; }
+  &.confirmed {
+    animation: confirmPulse 0.45s ease;
+  }
 }
 
 @keyframes confirmPulse {
   0%   { transform: scale(1); }
-  50%  { transform: scale(1.03); }
+  40%  { transform: scale(1.025); }
   100% { transform: scale(1); }
 }
 
 .candidate-avatar {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -190,6 +304,9 @@ ion-toolbar {
   color: #fff;
   flex-shrink: 0;
   text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  transition: transform 0.2s ease;
+
+  .selected & { transform: scale(1.06); }
 }
 
 .candidate-name {
@@ -197,466 +314,415 @@ ion-toolbar {
   font-size: 1rem;
   font-weight: 600;
   color: #fff;
+  transition: color 0.2s;
+
+  .selected & { color: mix(white, $gold, 40%); }
 }
 
-.check-icon {
-  font-size: 1.4rem;
-  transition: all 0.2s;
+// Check box personalizado
+.candidate-check {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  transition: all 0.2s ease;
+  background: rgba(255,255,255,0.04);
+
+  ion-icon {
+    font-size: 0.95rem;
+    color: #fff;
+    opacity: 0;
+    transition: all 0.2s;
+    transform: scale(0.5);
+  }
+
+  &.checked {
+    border-color: $gold;
+    background: $gold;
+    box-shadow: 0 0 10px rgba($gold, 0.4);
+
+    ion-icon {
+      opacity: 1;
+      transform: scale(1);
+      color: #0c1e45;
+    }
+  }
 }
 
-// ---- Confirmar ----
+// ============================================================
+// CONFIRMAR VOTO
+// ============================================================
+.confirm-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .btn-confirm {
-  --background: linear-gradient(135deg, #d4a728 0%, #f0c940 100%);
-  --background-disabled: rgba(255,255,255,0.1);
-  --color: #0d2251;
-  --color-disabled: rgba(255,255,255,0.25);
+  --background: linear-gradient(135deg, #{$gold} 0%, #f0c940 100%);
+  --background-activated: linear-gradient(135deg, #c8960c 0%, #{$gold} 100%);
+  --color: #0c1e45;
   --border-radius: 50px;
-  --box-shadow: 0 6px 25px rgba(212,167,40,0.4);
+  --box-shadow: 0 6px 24px rgba(212, 167, 40, 0.35);
   font-family: var(--font-title);
-  font-size: 1rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  height: 56px;
+  letter-spacing: 0.04em;
+  height: 54px;
+  font-size: 1rem;
+  text-transform: uppercase;
   transition: opacity 0.2s;
+
+  &[disabled] {
+    --background: rgba(255,255,255,0.08);
+    --color: rgba(255,255,255,0.3);
+    --box-shadow: none;
+    opacity: 1;
+  }
 }
 
 .confirm-hint {
-  text-align: center;
-  font-size: 0.78rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 0.8rem;
   color: rgba(255,255,255,0.35);
-  margin: 8px 0 0;
-  font-style: italic;
+  text-align: center;
+
+  ion-icon { font-size: 0.9rem; color: rgba($gold, 0.4); }
 }
 
 // ============================================================
-// TODOS VOTARON
+// RESULTADOS DE VOTACIÓN
 // ============================================================
-.all-done-section {
+.vote-results {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-bottom: 8px;
+}
+
+// Header del resultado
+.vr-header {
+  text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
-  padding-top: 20px;
-  width: 100%;
-}
-
-.done-icon-wrapper {
-  ion-icon {
-    font-size: 5rem;
-    color: var(--color-gold);
-    filter: drop-shadow(0 0 16px rgba(212,167,40,0.5));
-  }
-}
-
-.done-title {
-  font-family: var(--font-title);
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0;
-  letter-spacing: 0.05em;
-  color: #fff;
-}
-
-.done-subtitle {
-  font-size: 0.9rem;
-  color: rgba(255,255,255,0.55);
-  margin: 0;
-  font-style: italic;
-}
-
-// ---- Resumen de votos ----
-.votes-summary {
-  width: 100%;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 16px;
-  padding: 16px;
-}
-
-.summary-title {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: rgba(255,255,255,0.4);
-  margin-bottom: 12px;
-
-  ion-icon { font-size: 0.9rem; }
-}
-
-.summary-list {
-  display: flex;
-  flex-direction: column;
   gap: 8px;
 }
 
-.summary-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 0.88rem;
-}
+.vr-icon-wrap {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 8px;
 
-.summary-voter {
-  color: rgba(255,255,255,0.7);
-  font-weight: 600;
-  min-width: 80px;
-}
-
-.summary-arrow {
-  color: rgba(255,255,255,0.25);
-  font-size: 0.9rem;
-}
-
-.summary-voted {
-  color: var(--color-gold-light);
-  font-weight: 700;
-}
-
-// ---- Botón revelar resultado ----
-.btn-reveal-result {
-  --background: linear-gradient(135deg, #d4a728 0%, #f0c940 100%);
-  --color: #0d2251;
-  --border-radius: 50px;
-  --box-shadow: 0 6px 30px rgba(212,167,40,0.5);
-  font-family: var(--font-title);
-  font-size: 1.05rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  height: 58px;
-  width: 100%;
-}
-
-// ============================================================
-// RESUMEN DE ELIMINADOS — Estilos nuevos
-// ============================================================
-
-.done-icon-wrapper {
-  // Estilos base
-  ion-icon {
-    font-size: 5rem;
-    color: var(--color-gold);
-    filter: drop-shadow(0 0 16px rgba(212,167,40,0.5));
-    transition: all 0.3s ease;
+  .vr-icon-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1.5px solid rgba($gold, 0.3);
+    animation: ringRotate 6s linear infinite;
+    border-top-color: $gold;
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
   }
-  
-  // Variantes según resultado
-  &.victory ion-icon {
-    color: var(--color-success);
-    filter: drop-shadow(0 0 20px rgba(46,196,120,0.6));
-    animation: trophyShine 2s ease-in-out infinite;
-  }
-  
-  &.continue ion-icon {
-    color: var(--color-gold);
-  }
-  
-  &.warning ion-icon {
-    color: var(--color-danger);
-    filter: drop-shadow(0 0 16px rgba(220,80,80,0.5));
-  }
-}
 
-@keyframes trophyShine {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
+  .vr-icon {
+    position: absolute;
+    inset: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.07);
+    border: 1.5px solid rgba($gold, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-.done-title {
-  font-family: var(--font-title);
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin: 16px 0 8px;
-  letter-spacing: 0.03em;
-  color: #fff;
-  text-align: center;
-  line-height: 1.2;
-  
+    ion-icon {
+      font-size: 1.85rem;
+      color: $gold;
+    }
+  }
+
   &.victory {
-    color: var(--color-success);
-    text-shadow: 0 0 20px rgba(46,196,120,0.4);
+    .vr-icon-ring { border-top-color: $success; }
+    .vr-icon {
+      border-color: rgba($success, 0.5);
+      background: rgba($success, 0.1);
+      ion-icon {
+        color: $success;
+        animation: trophyPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+      }
+    }
   }
-  
-  &.continue {
-    color: var(--color-gold);
+
+  &.defeat {
+    .vr-icon-ring { border-top-color: $danger; }
+    .vr-icon {
+      border-color: rgba($danger, 0.5);
+      background: rgba($danger, 0.1);
+      ion-icon { color: $danger; }
+    }
+  }
+
+  &.neutral .vr-icon ion-icon { color: rgba(255,255,255,0.6); }
+}
+
+@keyframes ringRotate {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes trophyPop {
+  0%   { transform: scale(0.4); opacity: 0; }
+  60%  { transform: scale(1.12); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.vr-title {
+  font-family: var(--font-title);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: #fff;
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+
+  &.victory {
+    color: $success;
+    text-shadow: 0 0 20px rgba($success, 0.35);
+  }
+  &.defeat {
+    color: $danger;
+    text-shadow: 0 0 20px rgba($danger, 0.3);
   }
 }
 
-.done-subtitle {
-  font-size: 0.95rem;
-  color: rgba(255,255,255,0.7);
-  margin: 0 0 20px;
-  text-align: center;
-  line-height: 1.4;
-  max-width: 90%;
-  margin-left: auto;
-  margin-right: auto;
+.vr-subtitle {
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.6);
+  margin: 0;
+  line-height: 1.45;
+  max-width: 88%;
 }
 
-// Resumen de eliminados
-.eliminated-summary {
-  width: 100%;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 16px;
-  padding: 12px 16px;
-  margin-bottom: 16px;
+// Panel de eliminados
+.vr-eliminated {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.vr-panel-header {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 16px;
+  background: rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+
+  ion-icon { font-size: 0.95rem; color: rgba($gold, 0.65); }
+
+  .vr-count {
+    margin-left: auto;
+    background: rgba(255,255,255,0.1);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.65);
+  }
 }
 
-.eliminated-group {
+.vr-panel-body {
+  padding: 11px 14px;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.group-header {
+.vr-card {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 4px 8px;
-  border-radius: 8px;
-  
-  ion-icon { font-size: 0.9rem; }
-  
-  &.header-impostor {
-    background: rgba(220, 80, 80, 0.15);
-    color: var(--color-danger);
-    border: 1px solid rgba(220, 80, 80, 0.3);
-  }
-  
-  &.header-civilian {
-    background: rgba(42, 107, 181, 0.15);
-    color: var(--color-blue);
-    border: 1px solid rgba(42, 107, 181, 0.3);
-  }
-}
-
-.eliminated-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.eliminated-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  background: rgba(255,255,255,0.04);
-  border-radius: 10px;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 13px;
   border-left: 3px solid transparent;
-  
-  &.item-impostor {
-    border-left-color: var(--color-danger);
-    background: rgba(220, 80, 80, 0.08);
+  animation: slideInLeft 0.3s ease both;
+
+  &.impostor {
+    background: rgba($danger, 0.07);
+    border-left-color: $danger;
   }
-  
-  &.item-civilian {
-    border-left-color: var(--color-blue);
-    background: rgba(42, 107, 181, 0.08);
+  &.civilian {
+    background: rgba($blue, 0.07);
+    border-left-color: $blue;
   }
 }
 
-.eliminated-avatar {
-  width: 32px;
-  height: 32px;
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.vr-avatar {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.85rem;
   font-weight: 700;
+  font-size: 0.95rem;
   color: #fff;
   flex-shrink: 0;
   text-shadow: 0 1px 2px rgba(0,0,0,0.3);
 }
 
-.eliminated-name {
+.vr-player-info {
   flex: 1;
-  font-size: 0.9rem;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.vr-player-name {
+  font-size: 0.93rem;
   font-weight: 600;
   color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.eliminated-role {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 3px 8px;
-  border-radius: 10px;
-  
-  .item-impostor & {
-    background: rgba(220, 80, 80, 0.2);
-    color: var(--color-danger);
-  }
-  
-  .item-civilian & {
-    background: rgba(42, 107, 181, 0.2);
-    color: var(--color-blue);
-  }
-}
-
-// Details colapsable para votos
-.votes-details {
-  width: 100%;
-  margin-bottom: 16px;
-  
-  summary {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.8rem;
-    color: rgba(255,255,255,0.6);
-    cursor: pointer;
-    padding: 8px 0;
-    list-style: none;
-    
-    ion-icon { font-size: 0.9rem; }
-    
-    &::-webkit-details-marker { display: none; }
-    
-    &::after {
-      content: '▼';
-      font-size: 0.7rem;
-      margin-left: auto;
-      transition: transform 0.2s;
-    }
-  }
-  
-  &[open] summary::after {
-    transform: rotate(180deg);
-  }
-  
-  .votes-summary {
-    background: rgba(255,255,255,0.03);
-    border-radius: 12px;
-    padding: 12px;
-    margin-top: 8px;
-  }
-}
-
-.summary-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.summary-item {
+.vr-role-badge {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.8rem;
+  gap: 4px;
+  font-size: 0.67rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: 8px;
+  align-self: flex-start;
+
+  ion-icon { font-size: 0.72rem; }
+
+  &.impostor { background: rgba($danger, 0.18); color: mix(white, $danger, 20%); }
+  &.civilian { background: rgba($blue, 0.2); color: mix(white, $blue, 30%); }
 }
 
-.summary-voter {
-  color: rgba(255,255,255,0.8);
-  font-weight: 600;
-  min-width: 70px;
+.vr-card-icon {
+  font-size: 1.1rem;
+  opacity: 0.5;
+  flex-shrink: 0;
+  color: $danger;
+
+  &.civilian { color: $blue; }
 }
 
-.summary-arrow {
-  color: rgba(255,255,255,0.3);
-  font-size: 0.8rem;
-}
-
-.summary-voted {
-  color: var(--color-gold-light);
-  font-weight: 600;
-}
-
-// Botones de acción
-.action-buttons {
+// Botones de resultado
+.vr-actions {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  width: 100%;
-  margin-top: 8px;
+  gap: 10px;
 }
 
 .btn-continue {
-  --background: linear-gradient(135deg, #2ec478 0%, #27ae60 100%);
+  --background: linear-gradient(135deg, #{$success} 0%, #27ae60 100%);
   --color: #fff;
   --border-radius: 50px;
-  --box-shadow: 0 4px 20px rgba(46,196,120,0.35);
+  --box-shadow: 0 5px 20px rgba(46, 196, 120, 0.3);
   font-weight: 700;
   height: 52px;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
-.btn-reveal-final {
-  --background: linear-gradient(135deg, #d4a728 0%, #f0c940 100%);
-  --color: #0d2251;
+.btn-final {
+  --background: linear-gradient(135deg, #{$gold} 0%, #f0c940 100%);
+  --color: #0c1e45;
   --border-radius: 50px;
-  --box-shadow: 0 4px 20px rgba(212,167,40,0.35);
+  --box-shadow: 0 5px 20px rgba(212, 167, 40, 0.3);
   font-weight: 700;
   height: 52px;
-  font-size: 1rem;
-}
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 
-// Banner de victoria
-.victory-banner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  background: linear-gradient(135deg, rgba(46,196,120,0.15), rgba(46,196,120,0.05));
-  border: 1px solid rgba(46,196,120,0.3);
-  border-radius: 12px;
-  padding: 10px 16px;
-  margin-top: 4px;
-  
-  ion-icon {
-    color: var(--color-success);
-    font-size: 1.1rem;
+  &.victory {
+    --background: linear-gradient(135deg, #{$success} 0%, #27ae60 100%);
+    --color: #fff;
+    --box-shadow: 0 5px 20px rgba(46, 196, 120, 0.35);
   }
-  
-  span {
-    font-weight: 700;
-    color: var(--color-success);
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+
+  &.defeat {
+    --background: linear-gradient(135deg, #{$danger} 0%, #c0392b 100%);
+    --color: #fff;
+    --box-shadow: 0 5px 20px rgba(220, 80, 80, 0.35);
   }
 }
 
-// Responsive para móvil
-@media (max-aspect-ratio: 9/16) {
-  .done-title {
-    font-size: 1.6rem;
-  }
-  
-  .done-subtitle {
-    font-size: 0.9rem;
-  }
-  
-  .eliminated-item {
-    padding: 6px 10px;
-  }
-  
-  .eliminated-avatar {
-    width: 28px;
-    height: 28px;
-    font-size: 0.75rem;
-  }
-  
-  .eliminated-name {
-    font-size: 0.85rem;
-  }
-  
-  .eliminated-role {
-    font-size: 0.65rem;
-    padding: 2px 6px;
-  }
+// ============================================================
+// ANIMACIONES COMPARTIDAS
+// ============================================================
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeInUp         { animation: fadeInUp 0.4s ease both; }
+.animate-fadeInUp.delay-1  { animation-delay: 0.1s; }
+.animate-fadeInUp.delay-2  { animation-delay: 0.2s; }
+.animate-fadeInUp.delay-3  { animation-delay: 0.3s; }
+.animate-fadeInUp.delay-4  { animation-delay: 0.4s; }
+
+// ============================================================
+// RESPONSIVE — MÓVIL 9:16 Y PANTALLAS BAJAS
+// ============================================================
+@media (max-aspect-ratio: 9/16), (max-height: 700px) {
+  .voting-container { padding: 14px 14px 96px; gap: 13px; }
+
+  .progress-dot { width: 24px; height: 24px; }
+
+  .voter-card { padding: 13px 14px; gap: 12px; }
+  .voter-avatar.large { width: 48px; height: 48px; font-size: 1.2rem; }
+  .voter-name { font-size: 1.25rem; }
+
+  .candidate-item { padding: 11px 12px; }
+  .candidate-avatar { width: 38px; height: 38px; font-size: 0.95rem; }
+  .candidate-name { font-size: 0.93rem; }
+
+  .btn-confirm { height: 50px; font-size: 0.93rem; }
+
+  .vr-icon-wrap { width: 68px; height: 68px; }
+  .vr-title { font-size: 1.3rem; }
+  .vr-subtitle { font-size: 0.83rem; }
+  .btn-continue, .btn-final { height: 50px; font-size: 0.9rem; }
+}
+
+// ============================================================
+// DESKTOP
+// ============================================================
+@media (min-aspect-ratio: 4/3) and (min-height: 700px) {
+  .voting-container { padding: 26px 24px 120px; max-width: 500px; }
+
+  .voter-avatar.large { width: 64px; height: 64px; font-size: 1.6rem; }
+  .voter-name { font-size: 1.55rem; }
+
+  .candidate-item { padding: 15px 16px; }
+  .candidate-avatar { width: 48px; height: 48px; font-size: 1.2rem; }
 }

@@ -23,7 +23,7 @@ export class VotingPage implements OnDestroy {
   constructor(
     private gameService: GameService,
     private toastCtrl: ToastController,
-    private navCtrl: NavController
+    private navCtrl: NavController,
   ) {}
 
   ionViewWillEnter(): void {
@@ -34,7 +34,9 @@ export class VotingPage implements OnDestroy {
 
     // ✅ Calcular votos requeridos según impostores RESTANTES, no configuración inicial
     const activePlayers = this.players.filter((p) => !p.isEliminated);
-    const currentImpostorCount = activePlayers.filter((p) => p.isImpostor).length;
+    const currentImpostorCount = activePlayers.filter(
+      (p) => p.isImpostor,
+    ).length;
     this.requiredVotes =
       state.config.voteMode === "one-per-player"
         ? 1
@@ -87,7 +89,7 @@ export class VotingPage implements OnDestroy {
   get candidates(): Player[] {
     const currentVoterId = this.currentTurn?.voter.id;
     return this.players.filter(
-      (p) => !p.isEliminated && p.id !== currentVoterId
+      (p) => !p.isEliminated && p.id !== currentVoterId,
     );
   }
 
@@ -156,6 +158,10 @@ export class VotingPage implements OnDestroy {
       .join(", ");
   }
 
+  getPlayerInitial(name: string): string {
+    return name.charAt(0).toUpperCase();
+  }
+
   // ========== LÓGICA DE VOTACIÓN ==========
 
   selectVote(candidateId: string): void {
@@ -190,7 +196,7 @@ export class VotingPage implements OnDestroy {
     this.voterTurns = this.voterTurns.map((turn) =>
       turn.voter.id === voterId
         ? { ...turn, selectedVotes: [...selectedVotes] }
-        : turn
+        : turn,
     );
     this.gameService.castVote(voterId, selectedVotes);
   }
@@ -211,7 +217,7 @@ export class VotingPage implements OnDestroy {
     const voterId = this.currentTurn?.voter.id;
     if (!voterId) return;
     this.voterTurns = this.voterTurns.map((turn) =>
-      turn.voter.id === voterId ? { ...turn, done: true } : turn
+      turn.voter.id === voterId ? { ...turn, done: true } : turn,
     );
   }
 

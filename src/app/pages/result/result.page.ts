@@ -39,7 +39,7 @@ export class ResultPage implements OnInit, OnDestroy {
 
   ionViewWillEnter(): void {
     this.loadResult();
-    
+
     // Suscribirse por si cambia el estado (aunque en result no debería)
     if (this.sub) this.sub.unsubscribe();
     this.sub = this.gameService.state$.subscribe((state) => {
@@ -60,7 +60,7 @@ export class ResultPage implements OnInit, OnDestroy {
   // ✅ Cargar resultado desde el servicio (estructura nueva)
   loadResult(): void {
     const result = this.gameService.votingResult;
-    
+
     // Mapear nueva estructura a propiedades locales
     this.eliminatedPlayers = result.eliminatedPlayers || [];
     this.eliminatedImpostors = result.eliminatedImpostors || [];
@@ -81,23 +81,26 @@ export class ResultPage implements OnInit, OnDestroy {
 
   // ========== GETTERS PARA EL TEMPLATE ==========
 
+  // ✅ Para el icono del veredicto
   get victoryIcon(): string {
     if (this.isCivilVictory) return "trophy-outline";
     if (this.isImpostorVictory) return "skull-outline";
     return "alert-circle-outline";
   }
 
+  // ✅ Para la clase CSS del fondo/estilos
   get victoryClass(): string {
-    if (this.isCivilVictory) return "victory-civil";
-    if (this.isImpostorVictory) return "victory-impostor";
-    return "victory-neutral";
+    if (this.isCivilVictory) return "victory";
+    if (this.isImpostorVictory) return "defeat";
+    return "";
   }
 
+  // ✅ Para mostrar botón "Nueva ronda" (si no hay victoria definitiva)
   get showContinueOption(): boolean {
-    // Solo mostrar "Nueva ronda" si NO hay victoria definitiva
     return !this.isCivilVictory && !this.isImpostorVictory;
   }
 
+  // ✅ Mensaje adaptado
   get victoryMessage(): string {
     if (this.isCivilVictory) {
       return this.eliminatedImpostors.length === 2
@@ -116,8 +119,14 @@ export class ResultPage implements OnInit, OnDestroy {
 
   getPlayerColor(index: number): string {
     const colors = [
-      "#d4a728", "#2a6bb5", "#2ec478", "#dc5050",
-      "#8b5a2b", "#8e44ad", "#1abc9c", "#e67e22",
+      "#d4a728",
+      "#2a6bb5",
+      "#2ec478",
+      "#dc5050",
+      "#8b5a2b",
+      "#8e44ad",
+      "#1abc9c",
+      "#e67e22",
     ];
     return colors[index % colors.length];
   }

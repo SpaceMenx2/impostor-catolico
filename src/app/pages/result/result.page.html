@@ -2,118 +2,172 @@
 <ion-header class="ion-no-border">
   <ion-toolbar>
     <ion-title class="toolbar-title">
-      <ion-icon name="flag-outline" class="title-icon"></ion-icon>
-      Resultado
+      <span class="title-cross">✝</span>
+      Resultado Final
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="result-content">
-  <div class="result-bg"></div>
+<ion-content
+  class="result-content"
+  [class.victory]="isCivilVictory"
+  [class.defeat]="isImpostorVictory"
+>
+  <!-- Capa de fondo atmosférico -->
+  <div class="result-bg">
+    <div class="bg-orb bg-orb--1"></div>
+    <div class="bg-orb bg-orb--2"></div>
+    <div class="bg-noise"></div>
+  </div>
+
+  <!-- Partículas de victoria (solo civil) -->
+  <div class="victory-particles" *ngIf="isCivilVictory" aria-hidden="true">
+    <span *ngFor="let i of [1,2,3,4,5,6,7,8,9,10,11,12]" class="particle"></span>
+  </div>
+
   <div class="result-container">
 
-    <!-- Icono y título de victoria/derrota -->
-    <div class="result-header animate-fadeInUp">
-      <div class="result-icon-wrapper" [class]="victoryClass">
-        <ion-icon [name]="victoryIcon"></ion-icon>
-      </div>
-      <h1 class="result-title" [class]="victoryClass">{{ summaryTitle }}</h1>
-      <p class="result-message">{{ victoryMessage }}</p>
-    </div>
+    <!-- ══════════════════════════════════════
+         VEREDICTO PRINCIPAL
+    ══════════════════════════════════════ -->
+    <div class="verdict-card animate-fadeInUp" [class.victory]="isCivilVictory" [class.defeat]="isImpostorVictory">
 
-    <!-- Lista de eliminados -->
-    <div class="eliminated-section" *ngIf="eliminatedPlayers.length > 0">
-      <h3 class="section-title">
-        <ion-icon name="person-remove-outline"></ion-icon>
-        Eliminados en esta ronda
-      </h3>
-
-      <!-- Impostores eliminados -->
-      <div class="eliminated-group" *ngIf="eliminatedImpostors.length > 0">
-        <div class="group-label label-impostor">
-          <ion-icon name="eye-off-outline"></ion-icon>
-          <span>Impostor{{ eliminatedImpostors.length > 1 ? 'es' : '' }}</span>
-        </div>
-        <div class="eliminated-grid">
-          <div *ngFor="let player of eliminatedImpostors" class="eliminated-card card-impostor">
-            <div class="card-avatar" [style.background]="getPlayerColor(getPlayerIndex(player.id))">
-              {{ getPlayerInitial(player.name) }}
-            </div>
-            <span class="card-name">{{ player.name }}</span>
-            <span class="card-role">Impostor</span>
-          </div>
+      <!-- Anillo decorativo del ícono -->
+      <div class="verdict-icon-wrap">
+        <div class="verdict-icon-ring outer"></div>
+        <div class="verdict-icon-ring inner"></div>
+        <div class="verdict-icon">
+          <ion-icon
+            [name]="isCivilVictory ? 'trophy-outline' : isImpostorVictory ? 'skull-outline' : 'alert-circle-outline'"
+          ></ion-icon>
         </div>
       </div>
 
-      <!-- Civiles eliminados -->
-      <div class="eliminated-group" *ngIf="eliminatedCivilians.length > 0">
-        <div class="group-label label-civilian">
+      <h1 class="verdict-title">{{ summaryTitle }}</h1>
+      <p class="verdict-message">{{ victoryMessage }}</p>
+
+      <!-- Línea decorativa -->
+      <div class="verdict-divider"></div>
+
+      <!-- Contadores rápidos -->
+      <div class="verdict-stats" *ngIf="!isCivilVictory && !isImpostorVictory">
+        <div class="stat-pill">
           <ion-icon name="person-outline"></ion-icon>
-          <span>Civil{{ eliminatedCivilians.length > 1 ? 'es' : '' }}</span>
+          <span>{{ remainingCivilians }} civiles</span>
         </div>
-        <div class="eliminated-grid">
-          <div *ngFor="let player of eliminatedCivilians" class="eliminated-card card-civilian">
-            <div class="card-avatar" [style.background]="getPlayerColor(getPlayerIndex(player.id))">
-              {{ getPlayerInitial(player.name) }}
-            </div>
-            <span class="card-name">{{ player.name }}</span>
-            <span class="card-role">Civil</span>
+        <div class="stat-sep">vs</div>
+        <div class="stat-pill danger">
+          <ion-icon name="eye-outline"></ion-icon>
+          <span>{{ remainingImpostors }} impostores</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════
+         ELIMINADOS
+    ══════════════════════════════════════ -->
+    <div
+      class="eliminated-section animate-fadeInUp delay-1"
+      *ngIf="eliminatedPlayers.length > 0"
+    >
+      <header class="section-header">
+        <ion-icon name="person-remove-outline"></ion-icon>
+        <span>Eliminados esta ronda</span>
+        <span class="count-chip">{{ eliminatedPlayers.length }}</span>
+      </header>
+
+      <div class="eliminated-list">
+
+        <!-- Impostores eliminados -->
+        <div
+          *ngFor="let player of eliminatedImpostors; let i = index"
+          class="eliminated-item impostor"
+          [style.animation-delay]="(i * 0.08) + 's'"
+        >
+          <div
+            class="elim-avatar"
+            [style.background]="getPlayerColor(getPlayerIndex(player.id))"
+          >
+            <span>{{ getPlayerInitial(player.name) }}</span>
+            <div class="elim-avatar-ring"></div>
           </div>
+          <div class="elim-info">
+            <span class="elim-name">{{ player.name }}</span>
+            <span class="elim-role impostor">
+              <ion-icon name="eye-off-outline"></ion-icon>
+              Impostor descubierto
+            </span>
+          </div>
+          <ion-icon name="checkmark-circle" class="elim-check impostor"></ion-icon>
         </div>
+
+        <!-- Civiles eliminados -->
+        <div
+          *ngFor="let player of eliminatedCivilians; let i = index"
+          class="eliminated-item civilian"
+          [style.animation-delay]="((eliminatedImpostors.length + i) * 0.08) + 's'"
+        >
+          <div
+            class="elim-avatar"
+            [style.background]="getPlayerColor(getPlayerIndex(player.id))"
+          >
+            <span>{{ getPlayerInitial(player.name) }}</span>
+            <div class="elim-avatar-ring"></div>
+          </div>
+          <div class="elim-info">
+            <span class="elim-name">{{ player.name }}</span>
+            <span class="elim-role civilian">
+              <ion-icon name="person-outline"></ion-icon>
+              Civil eliminado
+            </span>
+          </div>
+          <ion-icon name="close-circle" class="elim-check civilian"></ion-icon>
+        </div>
+
       </div>
     </div>
 
-    <!-- Jugadores restantes -->
-    <div class="remaining-section" *ngIf="activePlayers.length > 0">
-      <h3 class="section-title">
-        <ion-icon name="people-outline"></ion-icon>
-        Jugadores restantes ({{ activePlayers.length }})
-      </h3>
-      <div class="remaining-grid">
-        <div *ngFor="let player of activePlayers; let i = index" class="remaining-card">
-          <div class="card-avatar" [style.background]="getPlayerColor(i)">
-            {{ getPlayerInitial(player.name) }}
-          </div>
-          <span class="card-name">{{ player.name }}</span>
-          <span class="card-role" [class.role-impostor]="player.isImpostor" [class.role-civilian]="!player.isImpostor">
-            {{ player.isImpostor ? 'Impostor' : 'Civil' }}
-          </span>
-        </div>
-      </div>
-    </div>
+    <!-- ══════════════════════════════════════
+         MENSAJE INSPIRADOR
+    ══════════════════════════════════════ -->
+    <blockquote class="inspire-card animate-fadeInUp delay-2">
+      <ion-icon name="chatbubble-ellipses-outline" class="quote-icon"></ion-icon>
+      <p class="quote-text">{{ inspireMessage }}</p>
+      <div class="quote-bar"></div>
+    </blockquote>
 
-    <!-- Mensaje inspirador final -->
-    <div class="inspire-box animate-fadeInUp delay-2">
-      <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
-      <p class="inspire-text">"{{ inspireMessage }}"</p>
-    </div>
-
-    <!-- Botones de acción -->
+    <!-- ══════════════════════════════════════
+         ACCIONES
+    ══════════════════════════════════════ -->
     <div class="action-buttons animate-fadeInUp delay-3">
-      
-      <!-- Nueva ronda (si no hay victoria definitiva) -->
-      <ion-button *ngIf="showContinueOption"
-                  expand="block"
-                  class="btn-new-round"
-                  (click)="newRound()">
+
+      <ion-button
+        expand="block"
+        class="btn-primary"
+        (click)="newRound()"
+      >
         <ion-icon slot="start" name="refresh-outline"></ion-icon>
         Nueva ronda
       </ion-button>
 
-      <!-- Continuar con misma palabra (si canContinue) -->
-      <ion-button *ngIf="canContinue"
-                  expand="block"
-                  class="btn-continue"
-                  (click)="continueGame()">
+      <ion-button
+        *ngIf="canContinue"
+        expand="block"
+        fill="outline"
+        class="btn-secondary"
+        (click)="continueGame()"
+      >
         <ion-icon slot="start" name="play-circle-outline"></ion-icon>
         Continuar con misma palabra
       </ion-button>
 
-      <!-- Volver al inicio (siempre visible) -->
-      <ion-button expand="block"
-                  fill="outline"
-                  class="btn-home"
-                  (click)="goHome()">
+      <ion-button
+        expand="block"
+        fill="clear"
+        class="btn-ghost"
+        (click)="goHome()"
+      >
         <ion-icon slot="start" name="home-outline"></ion-icon>
         Volver al inicio
       </ion-button>

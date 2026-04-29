@@ -5,68 +5,86 @@
       <ion-button
         type="button"
         fill="clear"
-        color="medium"
+        class="btn-cancel"
         (click)="cancelGame(); $event.preventDefault(); $event.stopPropagation()"
         aria-label="Cancelar partida"
       >
-        <ion-icon slot="icon-only" name="close-circle-outline"></ion-icon>
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-title class="toolbar-title">
-      <ion-icon name="hand-right-outline" class="title-icon"></ion-icon>
+      <span class="title-cross">✝</span>
       Votación
     </ion-title>
+    <!-- Indicador de turno actual en toolbar -->
+    <div slot="end" class="toolbar-progress" *ngIf="!allDone">
+      <span class="tp-label">{{ currentVoterIndex + 1 }}/{{ voterTurns.length }}</span>
+    </div>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="voting-content">
-  <div class="voting-bg"></div>
   <div class="voting-container">
 
-    <!-- ESTADO: Votando uno por uno -->
+    <!-- ══════════════════════════════════════
+         ESTADO A: VOTANDO
+    ══════════════════════════════════════ -->
     <ng-container *ngIf="!allDone">
       <ng-container *ngIf="currentTurn">
+
+        <!-- Barra de progreso con puntos -->
         <div class="vote-progress animate-fadeInUp">
-          <div class="progress-dots">
+          <div class="progress-track">
             <div
               *ngFor="let turn of voterTurns; let i = index"
-              class="dot"
+              class="progress-dot"
               [class.done]="turn.done"
               [class.active]="i === currentVoterIndex"
-            ></div>
+              [class.pending]="i > currentVoterIndex"
+            >
+              <ion-icon *ngIf="turn.done" name="checkmark-outline"></ion-icon>
+            </div>
           </div>
-          <span class="progress-label">
-            Voto {{ currentVoterIndex + 1 }} de {{ voterTurns.length }}
-          </span>
         </div>
 
-        <div class="voter-header animate-fadeInUp delay-1">
+        <!-- Quién está votando -->
+        <div class="voter-card animate-fadeInUp delay-1">
+          <div class="voter-card__bg"></div>
           <div
-            class="voter-avatar"
+            class="voter-avatar large"
             [style.background]="getPlayerColor(getPlayerIndex(currentTurn.voter.id))"
           >
-            {{ currentTurn.voter.name.charAt(0).toUpperCase() }}
+            <span>{{ currentTurn.voter.name.charAt(0).toUpperCase() }}</span>
+            <div class="avatar-pulse"></div>
           </div>
-          <div class="voter-info">
+          <div class="voter-card__text">
             <span class="voter-label">Está votando</span>
             <span class="voter-name">{{ currentTurn.voter.name }}</span>
           </div>
         </div>
 
+        <!-- Instrucción contextual -->
         <p class="vote-instruction animate-fadeInUp delay-2">
-          {{ requiredVotes === 1 
-            ? '¿Quién creés que es el impostor?' 
-            : '¿Quiénes son los ' + requiredVotes + ' impostores? (' + currentTurn.selectedVotes.length + '/' + requiredVotes + ' elegidos)' 
-          }}
+          <ion-icon name="information-circle-outline"></ion-icon>
+          <span>
+            {{ requiredVotes === 1
+              ? '¿Quién creés que es el impostor?'
+              : '¿Quiénes son los ' + requiredVotes + ' impostores? (' + currentTurn.selectedVotes.length + '/' + requiredVotes + ' elegidos)'
+            }}
+          </span>
         </p>
 
+        <!-- Lista de candidatos -->
         <div class="candidates-list animate-fadeInUp delay-3">
           <div
             *ngFor="let candidate of candidates; let i = index"
             class="candidate-item"
             [class.selected]="currentTurn.selectedVotes.includes(candidate.id)"
             [class.confirmed]="voteConfirmed && currentTurn.selectedVotes.includes(candidate.id)"
+            [style.animation-delay]="(i * 0.06) + 's'"
             (click)="selectVote(candidate.id)"
+            role="button"
+            [attr.aria-pressed]="currentTurn.selectedVotes.includes(candidate.id)"
           >
             <div
               class="candidate-avatar"
@@ -75,14 +93,16 @@
               {{ candidate.name.charAt(0).toUpperCase() }}
             </div>
             <span class="candidate-name">{{ candidate.name }}</span>
-            <ion-icon
-              class="check-icon"
-              [name]="currentTurn.selectedVotes.includes(candidate.id) ? 'checkmark-circle' : 'ellipse-outline'"
-              [style.color]="currentTurn.selectedVotes.includes(candidate.id) ? '#d4a728' : 'rgba(255,255,255,0.2)'"
-            ></ion-icon>
+
+            <div class="candidate-check" [class.checked]="currentTurn.selectedVotes.includes(candidate.id)">
+              <ion-icon
+                [name]="currentTurn.selectedVotes.includes(candidate.id) ? 'checkmark' : ''"
+              ></ion-icon>
+            </div>
           </div>
         </div>
 
+        <!-- Confirmar voto -->
         <div class="confirm-section animate-fadeInUp delay-4">
           <ion-button
             expand="block"
@@ -91,101 +111,132 @@
             (click)="confirmVote(); $event.preventDefault(); $event.stopPropagation()"
           >
             <ion-icon slot="start" name="checkmark-done-outline"></ion-icon>
-            Confirmar voto
+            {{ voteConfirmed ? 'Confirmado…' : 'Confirmar voto' }}
           </ion-button>
+
           <p class="confirm-hint" *ngIf="currentTurn.selectedVotes.length < requiredVotes">
-            {{ requiredVotes === 1 
-              ? 'Seleccioná a quién querés votar' 
-              : 'Seleccioná ' + requiredVotes + ' jugadores (' + currentTurn.selectedVotes.length + ' elegidos)' 
+            <ion-icon name="hand-right-outline"></ion-icon>
+            {{ requiredVotes === 1
+              ? 'Tocá a quien querés votar'
+              : 'Seleccioná ' + requiredVotes + ' jugadores (' + currentTurn.selectedVotes.length + ' elegidos)'
             }}
           </p>
         </div>
+
       </ng-container>
     </ng-container>
 
-    <!-- ESTADO: Todos votaron -->
+    <!-- ══════════════════════════════════════
+         ESTADO B: TODOS VOTARON — RESULTADO
+    ══════════════════════════════════════ -->
     <ng-container *ngIf="allDone">
-      <div class="all-done-section animate-rotateIn">
-        
-        <!-- Icono según resultado -->
-        <div class="done-icon-wrapper animate-pulse"
-             [class.victory]="victoryType === 'civil'"
-             [class.defeat]="victoryType === 'impostor'"
-             [class.continue]="!victoryType">
-          <ion-icon [name]="victoryType === 'civil' ? 'trophy-outline' : 
-                           victoryType === 'impostor' ? 'skull-outline' : 
-                           'search-outline'"></ion-icon>
-        </div>
+      <div class="vote-results animate-fadeInUp">
 
-        <!-- Título y mensaje -->
-        <h2 class="done-title"
-            [class.civil-victory]="victoryType === 'civil'"
-            [class.impostor-victory]="victoryType === 'impostor'">
-          {{ summaryTitle }}
-        </h2>
-        <p class="done-subtitle">{{ summaryMessage }}</p>
-
-        <!-- Lista de eliminados -->
-        <div class="eliminated-summary" *ngIf="eliminatedPlayers.length > 0">
-          
-          <!-- Impostores eliminados -->
-          <div class="eliminated-group" *ngIf="eliminatedImpostors.length > 0">
-            <div class="group-header header-impostor">
-              <ion-icon name="eye-off-outline"></ion-icon>
-              <span>Impostor{{ eliminatedImpostors.length > 1 ? 'es' : '' }} eliminado{{ eliminatedImpostors.length > 1 ? 's' : '' }}</span>
-            </div>
-            <div class="eliminated-list">
-              <div *ngFor="let player of eliminatedImpostors" class="eliminated-item item-impostor">
-                <div class="eliminated-avatar" [style.background]="getPlayerColor(getPlayerIndex(player.id))">
-                  {{ player.name.charAt(0).toUpperCase() }}
-                </div>
-                <span class="eliminated-name">{{ player.name }}</span>
-              </div>
+        <!-- Ícono y título del resultado -->
+        <div class="vr-header">
+          <div
+            class="vr-icon-wrap"
+            [class.victory]="victoryType === 'civil'"
+            [class.defeat]="victoryType === 'impostor'"
+            [class.neutral]="!victoryType"
+          >
+            <div class="vr-icon-ring"></div>
+            <div class="vr-icon">
+              <ion-icon
+                [name]="victoryType === 'civil' ? 'trophy-outline' :
+                       victoryType === 'impostor' ? 'skull-outline' :
+                       'search-outline'"
+              ></ion-icon>
             </div>
           </div>
 
-          <!-- Civiles eliminados -->
-          <div class="eliminated-group" *ngIf="eliminatedCivilians.length > 0">
-            <div class="group-header header-civilian">
-              <ion-icon name="person-outline"></ion-icon>
-              <span>Civil{{ eliminatedCivilians.length > 1 ? 'es' : '' }} eliminado{{ eliminatedCivilians.length > 1 ? 's' : '' }}</span>
-            </div>
-            <div class="eliminated-list">
-              <div *ngFor="let player of eliminatedCivilians" class="eliminated-item item-civilian">
-                <div class="eliminated-avatar" [style.background]="getPlayerColor(getPlayerIndex(player.id))">
-                  {{ player.name.charAt(0).toUpperCase() }}
-                </div>
-                <span class="eliminated-name">{{ player.name }}</span>
-              </div>
-            </div>
-          </div>
+          <h2
+            class="vr-title"
+            [class.victory]="victoryType === 'civil'"
+            [class.defeat]="victoryType === 'impostor'"
+          >{{ summaryTitle }}</h2>
 
+          <p class="vr-subtitle">{{ summaryMessage }}</p>
         </div>
 
-        <!-- Botones -->
-        <div class="action-buttons">
-          
-          <!-- Continuar -->
-          <ion-button *ngIf="showContinueButton"
-                      expand="block"
-                      class="btn-continue"
-                      (click)="continueGame()">
+        <!-- Panel de eliminados -->
+        <div class="vr-eliminated" *ngIf="eliminatedPlayers.length > 0">
+          <div class="vr-panel-header">
+            <ion-icon name="person-remove-outline"></ion-icon>
+            <span>Eliminados</span>
+            <span class="vr-count">{{ eliminatedPlayers.length }}</span>
+          </div>
+          <div class="vr-panel-body">
+
+            <!-- Impostores -->
+            <div
+              *ngFor="let player of eliminatedImpostors"
+              class="vr-card impostor"
+            >
+              <div
+                class="vr-avatar"
+                [style.background]="getPlayerColor(getPlayerIndex(player.id))"
+              >{{ getPlayerInitial(player.name) }}</div>
+              <div class="vr-player-info">
+                <span class="vr-player-name">{{ player.name }}</span>
+                <span class="vr-role-badge impostor">
+                  <ion-icon name="eye-off-outline"></ion-icon>
+                  Impostor
+                </span>
+              </div>
+              <ion-icon name="flame-outline" class="vr-card-icon"></ion-icon>
+            </div>
+
+            <!-- Civiles -->
+            <div
+              *ngFor="let player of eliminatedCivilians"
+              class="vr-card civilian"
+            >
+              <div
+                class="vr-avatar"
+                [style.background]="getPlayerColor(getPlayerIndex(player.id))"
+              >{{ getPlayerInitial(player.name) }}</div>
+              <div class="vr-player-info">
+                <span class="vr-player-name">{{ player.name }}</span>
+                <span class="vr-role-badge civilian">
+                  <ion-icon name="person-outline"></ion-icon>
+                  Civil
+                </span>
+              </div>
+              <ion-icon name="shield-outline" class="vr-card-icon civilian"></ion-icon>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="vr-actions">
+          <ion-button
+            *ngIf="showContinueButton"
+            expand="block"
+            class="btn-continue"
+            (click)="continueGame()"
+          >
             <ion-icon slot="start" name="play-circle-outline"></ion-icon>
             Continuar buscando
           </ion-button>
 
-          <!-- Finalizar -->
-          <ion-button *ngIf="!showContinueButton"
-                      expand="block"
-                      class="btn-final"
-                      [class.btn-victory]="victoryType === 'civil'"
-                      [class.btn-defeat]="victoryType === 'impostor'"
-                      (click)="showResults()">
-            <ion-icon slot="start" name="flag-outline"></ion-icon>
-            {{ victoryType === 'civil' ? '¡Victoria!' : victoryType === 'impostor' ? 'Fin del Juego' : 'Ver Resultado' }}
+          <ion-button
+            *ngIf="!showContinueButton"
+            expand="block"
+            class="btn-final"
+            [class.victory]="victoryType === 'civil'"
+            [class.defeat]="victoryType === 'impostor'"
+            (click)="showResults()"
+          >
+            <ion-icon
+              slot="start"
+              [name]="victoryType === 'civil' ? 'trophy-outline' : victoryType === 'impostor' ? 'skull-outline' : 'flag-outline'"
+            ></ion-icon>
+            {{ victoryType === 'civil' ? '¡Ver Victoria!' : victoryType === 'impostor' ? 'Fin del Juego' : 'Ver Resultado' }}
           </ion-button>
-
         </div>
+
       </div>
     </ng-container>
 
