@@ -110,7 +110,7 @@ export class GameService {
     if (!trimmed) return false;
     const state = this.currentState;
     const exists = state.players.some(
-      (p) => !p.isEliminated && p.name.toLowerCase() === trimmed.toLowerCase()
+      (p) => !p.isEliminated && p.name.toLowerCase() === trimmed.toLowerCase(),
     );
     if (exists) return false;
     const newPlayer: Player = {
@@ -152,38 +152,50 @@ export class GameService {
     const state = this.currentState;
     const active = this.activePlayers;
     const minPlayers = state.config.impostorCount + 2;
+
     if (active.length < minPlayers) return false;
+
+    // Resetear estados de ronda anterior (pero mantener isEliminated)
     const updatedPlayers = state.players.map((p) => ({
       ...p,
       isImpostor: false,
       hasSeenRole: false,
       votes: [],
     }));
+
+    // Obtener índices de jugadores activos
     const activeIndices = updatedPlayers
       .map((p, i) => ({ active: !p.isEliminated, index: i }))
       .filter(({ active }) => active)
       .map(({ index }) => index);
+
+    // Asignar impostores aleatoriamente entre activos
     const impostorLocalIndices = this.pickRandomIndices(
       activeIndices.length,
-      state.config.impostorCount
+      state.config.impostorCount,
     );
     impostorLocalIndices.forEach((localIdx) => {
       const globalIdx = activeIndices[localIdx];
       updatedPlayers[globalIdx].isImpostor = true;
     });
+
+    // Obtener palabra según configuración
     const { word, category } = getRandomWord(
       state.config.selectedCategories.length > 0
         ? state.config.selectedCategories
         : undefined,
       state.config.selectedDifficulties.length > 0
         ? state.config.selectedDifficulties
-        : undefined
+        : undefined,
     );
-    let resolvedStartingPlayerId = state.config.startingPlayerId;
-    if (!resolvedStartingPlayerId && active.length > 0) {
-      resolvedStartingPlayerId =
-        active[Math.floor(Math.random() * active.length)].id;
-    }
+
+    // ✅ FIX: Resolver quién empieza, considerando eliminaciones previas
+    let resolvedStartingPlayerId = this.resolveStartingPlayer(
+      state.config.startingPlayerId,
+      state.players,
+      active,
+    );
+
     this.updateState({
       phase: "role-reveal",
       players: updatedPlayers,
@@ -194,6 +206,7 @@ export class GameService {
       inspireMessage: getRandomInspireMessage(),
       resolvedStartingPlayerId,
     });
+
     return true;
   }
 
@@ -203,7 +216,7 @@ export class GameService {
     if (state.currentRevealIndex >= active.length) return;
     const targetPlayer = active[state.currentRevealIndex];
     const players = state.players.map((p) =>
-      p.id === targetPlayer.id ? { ...p, hasSeenRole: true } : p
+      p.id === targetPlayer.id ? { ...p, hasSeenRole: true } : p,
     );
     const nextIndex = state.currentRevealIndex + 1;
     const shouldAdvance = nextIndex < active.length;
@@ -221,7 +234,7 @@ export class GameService {
   castVote(voterId: string, votedIds: string[]): void {
     const state = this.currentState;
     const players = state.players.map((p) =>
-      p.id === voterId ? { ...p, votes: votedIds } : p
+      p.id === voterId ? { ...p, votes: votedIds } : p,
     );
     this.updateState({ players });
   }
@@ -258,13 +271,19 @@ export class GameService {
     // Se basa en los impostores RESTANTES, no en la configuración inicial
     const currentImpostorCount = active.filter((p) => p.isImpostor).length;
     const votesPerPlayer =
-      state.config.voteMode === "one-per-player" ? 1 : Math.max(1, currentImpostorCount);
+      state.config.voteMode === "one-per-player"
+        ? 1
+        : Math.max(1, currentImpostorCount);
 
     // ✅ Calcular cuántos eliminar: debe coincidir con votos por jugador
     // pero nunca más que los impostores restantes
     const maxEliminable =
       state.config.eliminationMode === "match-votes"
-        ? Math.min(votesPerPlayer, Math.max(1, active.length - 1), currentImpostorCount)
+        ? Math.min(
+            votesPerPlayer,
+            Math.max(1, active.length - 1),
+            currentImpostorCount,
+          )
         : 1;
 
     // Obtener top N más votados
@@ -291,14 +310,16 @@ export class GameService {
 
     // ✅ Determinar victorias (lógica corregida)
     // Victoria civil: NO quedan impostores (todos fueron eliminados)
-    const isCivilVictory = remainingImpostors === 0 && active.some((p) => p.isImpostor);
-    
+    const isCivilVictory =
+      remainingImpostors === 0 && active.some((p) => p.isImpostor);
+
     // Victoria impostor: No hay civiles O los impostores son mayoría o empate
     const isImpostorVictory =
       remainingCivilians === 0 || remainingImpostors >= remainingCivilians;
 
     // ¿Se puede continuar? Solo si NO hay victoria y hubo eliminaciones
-    const canContinue = !isCivilVictory && !isImpostorVictory && eliminatedPlayers.length > 0;
+    const canContinue =
+      !isCivilVictory && !isImpostorVictory && eliminatedPlayers.length > 0;
 
     // ✅ Mensajes claros
     let summaryTitle = "";
@@ -356,6 +377,7 @@ export class GameService {
 
     if (!eliminatedPlayers || eliminatedPlayers.length === 0) return false;
 
+    // Marcar eliminados (mantener palabra actual)
     const players = state.players.map((p) => {
       if (eliminatedPlayers.some((ep) => ep.id === p.id)) {
         return { ...p, isEliminated: true, votes: [] };
@@ -369,22 +391,34 @@ export class GameService {
 
     if (civilians.length <= impostors.length) return false;
 
+    // ✅ FIX: Actualizar resolvedStartingPlayerId para consistencia
+    const resolvedStartingPlayerId = this.resolveStartingPlayer(
+      state.config.startingPlayerId,
+      state.players,
+      active,
+    );
+
     this.updateState({
       phase: "discussion",
       players,
       currentRevealIndex: 0,
+      resolvedStartingPlayerId, // ✅ Mantener consistencia
     });
+
     return true;
   }
-
   newRound(): void {
     const state = this.currentState;
+
+    // ✅ FIX: Resetear TODOS los estados de ronda anterior
     const players = state.players.map((p) => ({
       ...p,
-      isImpostor: false,
-      hasSeenRole: false,
-      votes: [],
+      isImpostor: false, // Resetear rol
+      hasSeenRole: false, // Resetear visto
+      votes: [], // Limpiar votos
+      isEliminated: false, // ✅ FIX CRÍTICO: Reactivar jugadores eliminados
     }));
+
     this.updateState({
       phase: "players",
       players,
@@ -392,6 +426,7 @@ export class GameService {
       currentCategory: null,
       currentRevealIndex: 0,
       roundNumber: 0,
+      inspireMessage: "",
       resolvedStartingPlayerId: null,
     });
   }
@@ -400,25 +435,40 @@ export class GameService {
     const state = this.currentState;
     const result = this.votingResult;
     const { eliminatedPlayers } = result;
+
     if (!eliminatedPlayers || eliminatedPlayers.length === 0) return false;
+
+    // Marcar eliminados y resetear estados
     const players = state.players.map((p) => {
       if (eliminatedPlayers.some((ep) => ep.id === p.id)) {
         return { ...p, isEliminated: true, hasSeenRole: false, votes: [] };
       }
       return { ...p, hasSeenRole: false, votes: [] };
     });
+
     const active = players.filter((p) => !p.isEliminated);
     const impostors = active.filter((p) => p.isImpostor);
     const civilians = active.filter((p) => !p.isImpostor);
+
     if (impostors.length >= civilians.length) return false;
+
+    // Obtener nueva palabra
     const { word, category } = getRandomWord(
       state.config.selectedCategories.length > 0
         ? state.config.selectedCategories
         : undefined,
       state.config.selectedDifficulties.length > 0
         ? state.config.selectedDifficulties
-        : undefined
+        : undefined,
     );
+
+    // ✅ FIX: Resolver starter para la nueva ronda (no hardcodear null)
+    const resolvedStartingPlayerId = this.resolveStartingPlayer(
+      state.config.startingPlayerId,
+      state.players,
+      active,
+    );
+
     this.updateState({
       phase: "role-reveal",
       players,
@@ -427,13 +477,54 @@ export class GameService {
       currentRevealIndex: 0,
       roundNumber: state.roundNumber + 1,
       inspireMessage: getRandomInspireMessage(),
-      resolvedStartingPlayerId: null,
+      resolvedStartingPlayerId, // ✅ Usar el calculado, no null
     });
+
     return true;
   }
 
   fullReset(): void {
     this.state.next({ ...INITIAL_STATE });
+  }
+
+  private resolveStartingPlayer(
+    configuredId: string | null,
+    allPlayers: Player[],
+    activePlayers: Player[],
+  ): string | null {
+    // Caso 1: No hay configuración → elegir aleatorio entre activos
+    if (!configuredId || activePlayers.length === 0) {
+      return (
+        activePlayers[Math.floor(Math.random() * activePlayers.length)]?.id ||
+        null
+      );
+    }
+
+    // Caso 2: El jugador configurado sigue activo → usarlo
+    if (activePlayers.some((p) => p.id === configuredId)) {
+      return configuredId;
+    }
+
+    // Caso 3: El jugador configurado fue eliminado → buscar siguiente en orden circular
+    const originalIndex = allPlayers.findIndex((p) => p.id === configuredId);
+
+    if (originalIndex >= 0) {
+      // Buscar en orden circular el siguiente jugador activo
+      for (let offset = 1; offset < allPlayers.length; offset++) {
+        const nextIndex = (originalIndex + offset) % allPlayers.length;
+        const nextPlayer = allPlayers[nextIndex];
+
+        if (activePlayers.some((p) => p.id === nextPlayer.id)) {
+          return nextPlayer.id; // ✅ Encontramos el siguiente activo
+        }
+      }
+    }
+
+    // Fallback: si no se encontró ninguno, elegir aleatorio
+    return (
+      activePlayers[Math.floor(Math.random() * activePlayers.length)]?.id ||
+      null
+    );
   }
 
   private updateState(partial: Partial<GameState>): void {
