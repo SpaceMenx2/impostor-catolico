@@ -189,12 +189,22 @@ export class GameService {
         : undefined,
     );
 
-    // ✅ FIX: Resolver quién empieza, considerando eliminaciones previas
-    let resolvedStartingPlayerId = this.resolveStartingPlayer(
-      state.config.startingPlayerId,
-      state.players,
-      active,
-    );
+    // ✅ FIX: Mantener resolvedStartingPlayerId si sigue activo, solo recalcular si es necesario
+    let resolvedStartingPlayerId = state.resolvedStartingPlayerId;
+
+    // Solo recalcular si:
+    // 1. No hay ninguno resuelto, O
+    // 2. El resuelto ya no está activo (fue eliminado)
+    if (
+      !resolvedStartingPlayerId ||
+      !active.some((p) => p.id === resolvedStartingPlayerId)
+    ) {
+      resolvedStartingPlayerId = this.resolveStartingPlayer(
+        state.config.startingPlayerId,
+        state.players,
+        active,
+      );
+    }
 
     this.updateState({
       phase: "role-reveal",
@@ -391,22 +401,30 @@ export class GameService {
 
     if (civilians.length <= impostors.length) return false;
 
-    // ✅ FIX: Actualizar resolvedStartingPlayerId para consistencia
-    const resolvedStartingPlayerId = this.resolveStartingPlayer(
-      state.config.startingPlayerId,
-      state.players,
-      active,
-    );
+    // ✅ FIX: Mantener resolvedStartingPlayerId si sigue activo
+    let resolvedStartingPlayerId = state.resolvedStartingPlayerId;
+
+    if (
+      !resolvedStartingPlayerId ||
+      !active.some((p) => p.id === resolvedStartingPlayerId)
+    ) {
+      resolvedStartingPlayerId = this.resolveStartingPlayer(
+        state.config.startingPlayerId,
+        state.players,
+        active,
+      );
+    }
 
     this.updateState({
       phase: "discussion",
       players,
       currentRevealIndex: 0,
-      resolvedStartingPlayerId, // ✅ Mantener consistencia
+      resolvedStartingPlayerId,
     });
 
     return true;
   }
+
   newRound(): void {
     const state = this.currentState;
 
@@ -462,12 +480,19 @@ export class GameService {
         : undefined,
     );
 
-    // ✅ FIX: Resolver starter para la nueva ronda (no hardcodear null)
-    const resolvedStartingPlayerId = this.resolveStartingPlayer(
-      state.config.startingPlayerId,
-      state.players,
-      active,
-    );
+    // ✅ FIX: Mantener resolvedStartingPlayerId si sigue activo
+    let resolvedStartingPlayerId = state.resolvedStartingPlayerId;
+
+    if (
+      !resolvedStartingPlayerId ||
+      !active.some((p) => p.id === resolvedStartingPlayerId)
+    ) {
+      resolvedStartingPlayerId = this.resolveStartingPlayer(
+        state.config.startingPlayerId,
+        state.players,
+        active,
+      );
+    }
 
     this.updateState({
       phase: "role-reveal",
@@ -477,7 +502,7 @@ export class GameService {
       currentRevealIndex: 0,
       roundNumber: state.roundNumber + 1,
       inspireMessage: getRandomInspireMessage(),
-      resolvedStartingPlayerId, // ✅ Usar el calculado, no null
+      resolvedStartingPlayerId,
     });
 
     return true;
