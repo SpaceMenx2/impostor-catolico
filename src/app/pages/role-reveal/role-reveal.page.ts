@@ -15,7 +15,8 @@ const SAINT_BACKGROUNDS = [
   BASE("saint-peter"),
   BASE("saint-paul"),
   BASE("saint-carlo-acutis"),
-  BASE("saint-pier-giorgio")
+  BASE("saint-pier-giorgio"),
+  BASE("saint-joseph"),
 ];
 const JUDAS_BACKGROUND =  BASE("judas");
 
