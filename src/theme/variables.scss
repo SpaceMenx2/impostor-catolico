@@ -3,6 +3,14 @@
    Paleta: Azul profundo + Dorado litúrgico + Blanco
    ============================================================ */
 
+// ---- Variables SCSS (disponibles via @import en componentes) ----
+$color-gold:    #d4a728;
+$color-success: #2ec478;
+$color-danger:  #dc5050;
+$color-blue:    #2a6bb5;
+$color-navy:    #0d2251;
+$gold-glow:     rgba(212, 167, 40, 0.35);
+
 :root {
   /* ---- Colores principales ---- */
   --color-navy:       #0d2251;
@@ -16,6 +24,9 @@
   --color-off-white:  #f0f4ff;
   --color-success:    #2ec478;
   --color-danger:     #dc5050;
+
+  /* ---- Fondo degradado común ---- */
+  --bg-gradient: linear-gradient(160deg, #071630 0%, #0d2251 40%, #1a3a6b 100%);
 
   /* ---- Tipografías ---- */
   --font-title: 'Cinzel', Georgia, serif;

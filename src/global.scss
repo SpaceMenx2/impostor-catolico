@@ -24,16 +24,12 @@ h1, h2, h3, .title-font {
   letter-spacing: 0.03em;
 }
 
-/* ---- Animaciones globales ---- */
+/* ============================================================
+   Animaciones globales
+   ============================================================ */
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeIn {
@@ -62,6 +58,31 @@ h1, h2, h3, .title-font {
   100% { transform: scale(1); }
 }
 
+/* Compartidos entre páginas de juego */
+@keyframes blinkAnim {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.2; }
+}
+
+@keyframes ringRotate {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes trophyPop {
+  0%   { transform: scale(0.4) rotate(-10deg); opacity: 0; }
+  60%  { transform: scale(1.15) rotate(4deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes spinSlow {
+  to { transform: rotate(360deg); }
+}
+
 /* ---- Utilidades de animación ---- */
 .animate-fadeInUp  { animation: fadeInUp 0.5s ease both; opacity: 1 !important; }
 .animate-fadeIn    { animation: fadeIn 0.4s ease both; }
@@ -74,6 +95,19 @@ h1, h2, h3, .title-font {
 .delay-4 { animation-delay: 0.4s; }
 .delay-5 { animation-delay: 0.5s; }
 
+/* ============================================================
+   Utilidades de layout
+   ============================================================ */
+
+/* Fondo fijo oscuro (compartido por varias páginas) */
+.page-bg {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-gradient);
+  z-index: 0;
+  pointer-events: none;
+}
+
 /* ---- Tarjeta base ---- */
 .card-base {
   background: rgba(255, 255, 255, 0.12);
@@ -81,6 +115,19 @@ h1, h2, h3, .title-font {
   border-radius: 16px;
   backdrop-filter: blur(10px);
   padding: 20px;
+}
+
+/* ---- Título de toolbar (base compartida, cada página sobreescribe lo necesario) ---- */
+.toolbar-title {
+  font-family: var(--font-title);
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .title-icon,
+  .title-cross { color: var(--color-gold); }
 }
 
 /* ---- Botón primario personalizado ---- */
@@ -103,7 +150,7 @@ h1, h2, h3, .title-font {
   min-height: 100%;
 }
 
-/* ---- Cruz decorativa (SVG inline via CSS) ---- */
+/* ---- Cruz decorativa ---- */
 .cross-icon {
   display: inline-block;
   width: 24px;

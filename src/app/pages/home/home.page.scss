@@ -20,7 +20,7 @@ ion-content.home-content {
   background: rgba(212, 167, 40, 0.6);
   animation: twinkle 3s ease-in-out infinite;
 }
-.s1 { width: 4px;  height: 4px;  top: 10%;  left: 15%; animation-delay: 0s; }
+.s1 { width: 4px;  height: 4px;  top: 10%;  left: 15%; }
 .s2 { width: 3px;  height: 3px;  top: 25%;  left: 80%; animation-delay: 0.8s; }
 .s3 { width: 5px;  height: 5px;  top: 55%;  left: 10%; animation-delay: 1.5s; }
 .s4 { width: 3px;  height: 3px;  top: 70%;  left: 90%; animation-delay: 0.4s; }
@@ -37,7 +37,7 @@ ion-content.home-content {
   background: linear-gradient(to bottom, transparent, rgba(212,167,40,0.15), transparent);
   animation: beamMove 8s ease-in-out infinite;
 }
-.lb1 { height: 40%; top: 20%; left: 30%; animation-delay: 0s; }
+.lb1 { height: 40%; top: 20%; left: 30%; }
 .lb2 { height: 50%; top: 10%; left: 70%; animation-delay: 3s; }
 
 @keyframes beamMove {
@@ -62,10 +62,8 @@ ion-content.home-content {
   padding: 40px 24px 32px;
 }
 
-// ---- Sección del logo / cruz ----
-.logo-section {
-  margin-bottom: 28px;
-}
+// ---- Logo / cruz ----
+.logo-section { margin-bottom: 28px; }
 
 .cross-container {
   position: relative;
@@ -110,7 +108,6 @@ ion-content.home-content {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    text-shadow: none;
   }
 
   .title-line2 {
@@ -182,7 +179,6 @@ ion-content.home-content {
   transition: transform 0.2s;
 
   &:hover { transform: translateY(-2px); }
-
   ion-icon { font-size: 1.3rem; }
 }
 
@@ -343,8 +339,7 @@ ion-content.home-content {
   display: flex;
   justify-content: center;
   gap: 12px;
-  margin-top: 20px;
-  margin-bottom: 20px;
+  margin: 20px 0;
 }
 
 .about-link {

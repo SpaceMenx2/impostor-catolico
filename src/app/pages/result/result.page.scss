@@ -1,13 +1,5 @@
 // src/app/pages/result/result.page.scss
-
-// ============================================================
-// VARIABLES LOCALES
-// ============================================================
-$gold:      #d4a728;
-$gold-glow: rgba(212, 167, 40, 0.35);
-$success:   #2ec478;
-$danger:    #dc5050;
-$blue:      #2a6bb5;
+@import '../../../theme/variables.scss';
 
 // ============================================================
 // LAYOUT RAÍZ
@@ -25,20 +17,12 @@ ion-toolbar {
   z-index: 10;
 }
 
+// .toolbar-title base en global.scss — overrides específicos aquí
 .toolbar-title {
-  font-family: var(--font-title);
   font-size: 1.05rem;
   letter-spacing: 0.08em;
-  display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 8px;
   text-transform: uppercase;
-
-  .title-cross {
-    color: $gold;
-    font-size: 0.9rem;
-  }
 }
 
 // ============================================================
@@ -60,19 +44,15 @@ ion-toolbar {
   }
 
   .bg-orb--1 {
-    width: 340px;
-    height: 340px;
-    background: radial-gradient(circle, #2a6bb5 0%, transparent 70%);
-    top: -100px;
-    right: -80px;
+    width: 340px; height: 340px;
+    background: radial-gradient(circle, $color-blue 0%, transparent 70%);
+    top: -100px; right: -80px;
   }
 
   .bg-orb--2 {
-    width: 280px;
-    height: 280px;
-    background: radial-gradient(circle, $gold 0%, transparent 70%);
-    bottom: 60px;
-    left: -60px;
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, $color-gold 0%, transparent 70%);
+    bottom: 60px; left: -60px;
     opacity: 0.1;
   }
 
@@ -83,9 +63,6 @@ ion-toolbar {
     opacity: 0.4;
   }
 }
-
-// El fondo siempre es el mismo azul oscuro.
-// La victoria/derrota se expresa solo en los elementos internos, no en el fondo.
 
 // ============================================================
 // PARTÍCULAS DE VICTORIA
@@ -99,16 +76,15 @@ ion-toolbar {
 
   .particle {
     position: absolute;
-    width: 6px;
-    height: 6px;
+    width: 6px; height: 6px;
     border-radius: 50%;
     animation: particleFall linear infinite;
 
     @for $i from 1 through 12 {
       &:nth-child(#{$i}) {
         left: (($i - 1) * 8.5%) + 2%;
-        background: if($i % 3 == 0, $gold, if($i % 3 == 1, $success, rgba(255,255,255,0.6)));
-        width: if($i % 2 == 0, 5px, 7px);
+        background: if($i % 3 == 0, $color-gold, if($i % 3 == 1, $color-success, rgba(255,255,255,0.6)));
+        width:  if($i % 2 == 0, 5px, 7px);
         height: if($i % 2 == 0, 5px, 7px);
         animation-duration: (1.8s + ($i * 0.3s));
         animation-delay: ($i * -0.4s);
@@ -120,7 +96,7 @@ ion-toolbar {
 
 @keyframes particleFall {
   0%   { top: -10px; transform: translateX(0) rotate(0deg); opacity: 0.8; }
-  100% { top: 110%; transform: translateX(40px) rotate(360deg); opacity: 0; }
+  100% { top: 110%;  transform: translateX(40px) rotate(360deg); opacity: 0; }
 }
 
 // ============================================================
@@ -150,7 +126,6 @@ ion-toolbar {
   overflow: hidden;
   transition: border-color 0.4s ease, background 0.4s ease;
 
-  // Borde superior iluminado
   &::before {
     content: '';
     position: absolute;
@@ -160,26 +135,30 @@ ion-toolbar {
   }
 
   &.victory {
-    border-color: rgba($success, 0.4);
-    background: rgba($success, 0.07);
-    box-shadow: 0 0 0 1px rgba($success, 0.1), inset 0 1px 0 rgba($success, 0.15);
+    border-color: rgba($color-success, 0.4);
+    background: rgba($color-success, 0.07);
+    box-shadow: 0 0 0 1px rgba($color-success, 0.1), inset 0 1px 0 rgba($color-success, 0.15);
     animation: victoryCardGlow 2.5s ease-in-out infinite;
-    &::before { background: linear-gradient(90deg, transparent, rgba($success, 0.55), transparent); }
+    &::before { background: linear-gradient(90deg, transparent, rgba($color-success, 0.55), transparent); }
   }
 
   &.defeat {
-    border-color: rgba($danger, 0.35);
-    background: rgba($danger, 0.07);
-    box-shadow: 0 0 0 1px rgba($danger, 0.08);
-    &::before { background: linear-gradient(90deg, transparent, rgba($danger, 0.5), transparent); }
+    border-color: rgba($color-danger, 0.35);
+    background: rgba($color-danger, 0.07);
+    box-shadow: 0 0 0 1px rgba($color-danger, 0.08);
+    &::before { background: linear-gradient(90deg, transparent, rgba($color-danger, 0.5), transparent); }
   }
 }
 
-// Anillos del ícono
+@keyframes victoryCardGlow {
+  0%, 100% { box-shadow: 0 0 0 1px rgba($color-success, 0.1), inset 0 1px 0 rgba($color-success, 0.15); }
+  50%       { box-shadow: 0 0 18px rgba($color-success, 0.18), 0 0 0 1px rgba($color-success, 0.22), inset 0 1px 0 rgba($color-success, 0.2); }
+}
+
+// ---- Anillos del ícono ----
 .verdict-icon-wrap {
   position: relative;
-  width: 84px;
-  height: 84px;
+  width: 84px; height: 84px;
   margin: 0 auto 20px;
 }
 
@@ -189,9 +168,10 @@ ion-toolbar {
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.12);
 
+  // Usa @keyframes ringRotate de global.scss
   &.outer {
     animation: ringRotate 8s linear infinite;
-    border-top-color: $gold;
+    border-top-color: $color-gold;
     border-right-color: transparent;
     border-bottom-color: transparent;
     border-left-color: transparent;
@@ -200,26 +180,21 @@ ion-toolbar {
   &.inner {
     inset: 8px;
     animation: ringRotate 5s linear infinite reverse;
-    border-top-color: rgba($gold, 0.4);
+    border-top-color: rgba($color-gold, 0.4);
     border-right-color: transparent;
     border-bottom-color: transparent;
     border-left-color: transparent;
   }
 
   .victory & {
-    &.outer { border-top-color: $success; }
-    &.inner { border-top-color: rgba($success, 0.4); }
+    &.outer { border-top-color: $color-success; }
+    &.inner { border-top-color: rgba($color-success, 0.4); }
   }
 
   .defeat & {
-    &.outer { border-top-color: $danger; }
-    &.inner { border-top-color: rgba($danger, 0.4); }
+    &.outer { border-top-color: $color-danger; }
+    &.inner { border-top-color: rgba($color-danger, 0.4); }
   }
-}
-
-@keyframes ringRotate {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
 }
 
 .verdict-icon {
@@ -230,38 +205,24 @@ ion-toolbar {
   align-items: center;
   justify-content: center;
   background: rgba(255, 255, 255, 0.08);
-  border: 1.5px solid rgba($gold, 0.5);
+  border: 1.5px solid rgba($color-gold, 0.5);
 
-  ion-icon {
-    font-size: 1.9rem;
-    color: $gold;
-  }
+  ion-icon { font-size: 1.9rem; color: $color-gold; }
 
   .victory & {
-    border-color: rgba($success, 0.6);
-    background: rgba($success, 0.1);
+    border-color: rgba($color-success, 0.6);
+    background: rgba($color-success, 0.1);
     ion-icon {
-      color: $success;
+      color: $color-success;
       animation: trophyPop 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
     }
   }
 
   .defeat & {
-    border-color: rgba($danger, 0.5);
-    background: rgba($danger, 0.1);
-    ion-icon { color: $danger; }
+    border-color: rgba($color-danger, 0.5);
+    background: rgba($color-danger, 0.1);
+    ion-icon { color: $color-danger; }
   }
-}
-
-@keyframes trophyPop {
-  0%   { transform: scale(0.4) rotate(-10deg); opacity: 0; }
-  60%  { transform: scale(1.15) rotate(4deg); }
-  100% { transform: scale(1) rotate(0deg); opacity: 1; }
-}
-
-@keyframes victoryCardGlow {
-  0%, 100% { box-shadow: 0 0 0 1px rgba($success, 0.1), inset 0 1px 0 rgba($success, 0.15); }
-  50%       { box-shadow: 0 0 18px rgba($success, 0.18), 0 0 0 1px rgba($success, 0.22), inset 0 1px 0 rgba($success, 0.2); }
 }
 
 .verdict-title {
@@ -273,14 +234,8 @@ ion-toolbar {
   letter-spacing: 0.03em;
   line-height: 1.2;
 
-  &.victory {
-    color: $success;
-    text-shadow: 0 0 24px rgba($success, 0.35);
-  }
-  &.defeat {
-    color: $danger;
-    text-shadow: 0 0 24px rgba($danger, 0.3);
-  }
+  &.victory { color: $color-success; text-shadow: 0 0 24px rgba($color-success, 0.35); }
+  &.defeat  { color: $color-danger;  text-shadow: 0 0 24px rgba($color-danger, 0.3); }
 }
 
 .verdict-message {
@@ -291,13 +246,12 @@ ion-toolbar {
 }
 
 .verdict-divider {
-  width: 48px;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba($gold, 0.5), transparent);
+  width: 48px; height: 2px;
+  background: linear-gradient(90deg, transparent, rgba($color-gold, 0.5), transparent);
   margin: 14px auto 12px;
 
-  .victory & { background: linear-gradient(90deg, transparent, rgba($success, 0.6), transparent); }
-  .defeat &  { background: linear-gradient(90deg, transparent, rgba($danger, 0.5), transparent); }
+  .victory & { background: linear-gradient(90deg, transparent, rgba($color-success, 0.6), transparent); }
+  .defeat  & { background: linear-gradient(90deg, transparent, rgba($color-danger, 0.5),  transparent); }
 }
 
 .verdict-stats {
@@ -323,9 +277,9 @@ ion-toolbar {
   ion-icon { font-size: 0.9rem; color: rgba(255,255,255,0.5); }
 
   &.danger {
-    background: rgba($danger, 0.1);
-    border-color: rgba($danger, 0.25);
-    ion-icon { color: $danger; }
+    background: rgba($color-danger, 0.1);
+    border-color: rgba($color-danger, 0.25);
+    ion-icon { color: $color-danger; }
   }
 }
 
@@ -360,7 +314,7 @@ ion-toolbar {
   text-transform: uppercase;
   letter-spacing: 0.08em;
 
-  ion-icon { font-size: 0.95rem; color: $gold; opacity: 0.7; }
+  ion-icon { font-size: 0.95rem; color: $color-gold; opacity: 0.7; }
 
   .count-chip {
     margin-left: auto;
@@ -387,28 +341,15 @@ ion-toolbar {
   padding: 11px 13px;
   border-radius: 14px;
   border-left: 3px solid transparent;
-  animation: slideInLeft 0.35s ease both;
+  animation: slideInLeft 0.35s ease both; // keyframe en global.scss
 
-  &.impostor {
-    background: rgba($danger, 0.07);
-    border-left-color: $danger;
-  }
-
-  &.civilian {
-    background: rgba($blue, 0.07);
-    border-left-color: $blue;
-  }
-}
-
-@keyframes slideInLeft {
-  from { opacity: 0; transform: translateX(-12px); }
-  to   { opacity: 1; transform: translateX(0); }
+  &.impostor { background: rgba($color-danger, 0.07); border-left-color: $color-danger; }
+  &.civilian { background: rgba($color-blue, 0.07);   border-left-color: $color-blue; }
 }
 
 .elim-avatar {
   position: relative;
-  width: 42px;
-  height: 42px;
+  width: 42px; height: 42px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -426,15 +367,11 @@ ion-toolbar {
     inset: -3px;
     border-radius: 50%;
     border: 2px dashed rgba(255,255,255,0.2);
-    animation: spinSlow 12s linear infinite;
+    animation: spinSlow 12s linear infinite; // keyframe en global.scss
   }
 
-  .impostor & .elim-avatar-ring { border-color: rgba($danger, 0.35); }
-  .civilian & .elim-avatar-ring { border-color: rgba($blue, 0.35); }
-}
-
-@keyframes spinSlow {
-  to { transform: rotate(360deg); }
+  .impostor & .elim-avatar-ring { border-color: rgba($color-danger, 0.35); }
+  .civilian & .elim-avatar-ring { border-color: rgba($color-blue, 0.35); }
 }
 
 .elim-info {
@@ -468,22 +405,15 @@ ion-toolbar {
 
   ion-icon { font-size: 0.75rem; }
 
-  &.impostor {
-    background: rgba($danger, 0.18);
-    color: mix(white, $danger, 20%);
-  }
-  &.civilian {
-    background: rgba($blue, 0.2);
-    color: mix(white, $blue, 30%);
-  }
+  &.impostor { background: rgba($color-danger, 0.18); color: mix(white, $color-danger, 20%); }
+  &.civilian { background: rgba($color-blue, 0.2);   color: mix(white, $color-blue, 30%); }
 }
 
 .elim-check {
   font-size: 1.3rem;
   flex-shrink: 0;
-
-  &.impostor { color: $danger; opacity: 0.8; }
-  &.civilian { color: $blue; opacity: 0.7; }
+  &.impostor { color: $color-danger; opacity: 0.8; }
+  &.civilian { color: $color-blue;   opacity: 0.7; }
 }
 
 // ============================================================
@@ -491,10 +421,9 @@ ion-toolbar {
 // ============================================================
 .inspire-card {
   position: relative;
-  margin: 0;
   padding: 16px 18px 16px 20px;
-  background: rgba($gold, 0.07);
-  border: 1px solid rgba($gold, 0.2);
+  background: rgba($color-gold, 0.07);
+  border: 1px solid rgba($color-gold, 0.2);
   border-radius: 16px;
   display: flex;
   flex-direction: column;
@@ -503,19 +432,14 @@ ion-toolbar {
 
   .quote-bar {
     position: absolute;
-    left: 0;
-    top: 12px;
-    bottom: 12px;
+    left: 0; top: 12px; bottom: 12px;
     width: 3px;
-    background: linear-gradient(180deg, $gold, rgba($gold, 0.2));
+    background: linear-gradient(180deg, $color-gold, rgba($color-gold, 0.2));
     border-radius: 0 2px 2px 0;
   }
 }
 
-.quote-icon {
-  font-size: 1.1rem;
-  color: rgba($gold, 0.6);
-}
+.quote-icon { font-size: 1.1rem; color: rgba($color-gold, 0.6); }
 
 .quote-text {
   margin: 0;
@@ -535,8 +459,8 @@ ion-toolbar {
 }
 
 .btn-primary {
-  --background: linear-gradient(135deg, #{$gold} 0%, #f0c940 100%);
-  --background-activated: linear-gradient(135deg, #c8960c 0%, #d4a728 100%);
+  --background: linear-gradient(135deg, #{$color-gold} 0%, #f0c940 100%);
+  --background-activated: linear-gradient(135deg, #c8960c 0%, #{$color-gold} 100%);
   --color: #0c1e45;
   --border-radius: 50px;
   --box-shadow: 0 6px 24px #{$gold-glow};
@@ -569,31 +493,16 @@ ion-toolbar {
 }
 
 // ============================================================
-// ANIMACIONES
-// ============================================================
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.animate-fadeInUp        { animation: fadeInUp 0.45s ease both; }
-.animate-fadeInUp.delay-1 { animation-delay: 0.1s; }
-.animate-fadeInUp.delay-2 { animation-delay: 0.2s; }
-.animate-fadeInUp.delay-3 { animation-delay: 0.3s; }
-
-// ============================================================
-// RESPONSIVE — MÓVIL 9:16 Y PANTALLAS BAJAS
+// RESPONSIVE — MÓVIL 9:16
 // ============================================================
 @media (max-aspect-ratio: 9/16), (max-height: 700px) {
   .result-container { padding: 16px 14px 96px; gap: 14px; }
 
-  .verdict-card { padding: 22px 16px 18px; }
-
+  .verdict-card      { padding: 22px 16px 18px; }
   .verdict-icon-wrap { width: 72px; height: 72px; margin-bottom: 16px; }
   .verdict-icon ion-icon { font-size: 1.65rem; }
-
-  .verdict-title { font-size: 1.35rem; }
-  .verdict-message { font-size: 0.85rem; }
+  .verdict-title     { font-size: 1.35rem; }
+  .verdict-message   { font-size: 0.85rem; }
 
   .elim-avatar { width: 38px; height: 38px; font-size: 0.9rem; }
   .elim-name   { font-size: 0.88rem; }
@@ -607,10 +516,8 @@ ion-toolbar {
 // DESKTOP
 // ============================================================
 @media (min-aspect-ratio: 4/3) and (min-height: 700px) {
-  .result-container { padding: 28px 24px 120px; max-width: 520px; }
-
+  .result-container  { padding: 28px 24px 120px; max-width: 520px; }
   .verdict-icon-wrap { width: 96px; height: 96px; }
   .verdict-icon ion-icon { font-size: 2.2rem; }
-
-  .verdict-title { font-size: 1.8rem; }
+  .verdict-title     { font-size: 1.8rem; }
 }

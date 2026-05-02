@@ -9,10 +9,11 @@ ion-content.reveal-content {
   flex-direction: column !important;
 }
 
+// .reveal-bg extiende .page-bg (position fixed, inset 0, var(--bg-gradient))
 .reveal-bg {
   position: fixed;
   inset: 0;
-  background: linear-gradient(160deg, #071630 0%, #0d2251 40%, #1a3a6b 100%);
+  background: var(--bg-gradient);
   z-index: 0;
 }
 
@@ -34,10 +35,7 @@ ion-content.reveal-content {
   }
 
   &.loaded { opacity: 1; }
-
-  &.impostor-bg::after {
-    background: rgba(60, 10, 10, 0.50);
-  }
+  &.impostor-bg::after { background: rgba(60, 10, 10, 0.50); }
 }
 
 ion-toolbar {
@@ -47,12 +45,8 @@ ion-toolbar {
   z-index: 10;
 }
 
-.toolbar-title {
-  font-family: var(--font-title);
-  font-size: 1rem;
-  letter-spacing: 0.05em;
-  color: rgba(255,255,255,0.8);
-}
+// .toolbar-title base en global.scss — override de color aquí
+.toolbar-title { color: rgba(255,255,255,0.8); }
 
 .btn-cancel-game {
   --color: rgba(255, 255, 255, 0.5);
@@ -129,7 +123,6 @@ ion-toolbar {
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     will-change: auto;
-    transform: none;
     isolation: isolate;
   }
 }
@@ -174,17 +167,9 @@ ion-toolbar {
   border: 1px solid;
   position: relative;
   z-index: 1;
-  backdrop-filter: none;
 
-  &.role-player {
-    background: rgba(20, 50, 110, 0.85);
-    border-color: rgba(42,107,181,0.5);
-  }
-
-  &.role-impostor {
-    background: rgba(80, 15, 15, 0.85);
-    border-color: rgba(220,80,80,0.5);
-  }
+  &.role-player   { background: rgba(20, 50, 110, 0.85);  border-color: rgba(42,107,181,0.5); }
+  &.role-impostor { background: rgba(80, 15, 15, 0.85);   border-color: rgba(220,80,80,0.5); }
 }
 
 .role-card-header {
@@ -195,8 +180,7 @@ ion-toolbar {
 }
 
 .role-icon-wrapper {
-  width: 52px;
-  height: 52px;
+  width: 52px; height: 52px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -205,15 +189,8 @@ ion-toolbar {
 
   ion-icon { font-size: 1.6rem; }
 
-  &.player-icon-bg {
-    background: rgba(42,107,181,0.3);
-    ion-icon { color: #6ab0f0; }
-  }
-
-  &.impostor-icon-bg {
-    background: rgba(220,80,80,0.3);
-    ion-icon { color: #f08080; }
-  }
+  &.player-icon-bg   { background: rgba(42,107,181,0.3); ion-icon { color: #6ab0f0; } }
+  &.impostor-icon-bg { background: rgba(220,80,80,0.3);  ion-icon { color: #f08080; } }
 }
 
 .role-badge-inline {
@@ -301,12 +278,7 @@ ion-toolbar {
   padding: 14px 16px;
   text-align: left;
 
-  ion-icon {
-    color: #f08080;
-    font-size: 1.2rem;
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
+  ion-icon { color: #f08080; font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
 
   span {
     font-size: 0.85rem;
@@ -343,10 +315,7 @@ ion-toolbar {
   align-items: center;
   gap: 16px;
 
-  .hidden-check {
-    font-size: 4rem;
-    color: var(--color-success);
-  }
+  .hidden-check { font-size: 4rem; color: var(--color-success); }
 
   p {
     color: rgba(255,255,255,0.6);
